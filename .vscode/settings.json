@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "rte_ethdev.h": "c",
+        "simple_fwd.h": "c",
+        "simple_fwd_port.h": "c",
+        "simple_fwd_vnf_core.h": "c",
+        "simple_fwd_pkt.h": "c",
+        "doca_argp.h": "c",
+        "offload_rules.h": "c",
+        "doca_log.h": "c",
+        "rte_malloc.h": "c"
+    }
+}
