@@ -8,6 +8,7 @@
         "doca_argp.h": "c",
         "offload_rules.h": "c",
         "doca_log.h": "c",
-        "rte_malloc.h": "c"
+        "rte_malloc.h": "c",
+        "utils.h": "c"
     }
 }

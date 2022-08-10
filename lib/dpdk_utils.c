@@ -1,5 +1,82 @@
 #include "dpdk_utils.h"
 #include <rte_ethdev.h>
+#include "utils.h"
+
+
+#define RSS_KEY_LEN 40
+
+
+static struct rte_mempool *
+allocate_mempool(const uint32_t total_nb_mbufs)
+{
+	struct rte_mempool *mbuf_pool;
+	/* Creates a new mempool in memory to hold the mbufs */
+	mbuf_pool = rte_pktmbuf_pool_create("MBUF_POOL", total_nb_mbufs, MBUF_CACHE_SIZE, 0,
+					    RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
+	if (mbuf_pool == NULL)
+		APP_EXIT("Cannot allocate mbuf pool");
+	return mbuf_pool;
+}
+
+static int
+setup_hairpin_queues(uint16_t port_id, uint16_t peer_port_id, uint16_t *reserved_hairpin_q_list, int hairpin_queue_len)
+{
+	/* Port:
+	 *	0. RX queue
+	 *	1. RX hairpin queue rte_eth_rx_hairpin_queue_setup
+	 *	2. TX hairpin queue rte_eth_tx_hairpin_queue_setup
+	 */
+
+	int ret = 0, hairpin_q;
+	uint16_t nb_tx_rx_desc = 2048;
+	uint32_t manual = 1;
+	uint32_t tx_exp = 1;
+	struct rte_eth_hairpin_conf hairpin_conf = {
+	    .peer_count = 1,
+	    .manual_bind = !!manual,
+	    .tx_explicit = !!tx_exp,
+	    .peers[0] = {peer_port_id},
+	};
+
+	for (hairpin_q = 0; hairpin_q < hairpin_queue_len; hairpin_q++) {
+		// TX
+		hairpin_conf.peers[0].queue = reserved_hairpin_q_list[hairpin_q];
+		ret = rte_eth_tx_hairpin_queue_setup(port_id, reserved_hairpin_q_list[hairpin_q], nb_tx_rx_desc,
+						     &hairpin_conf);
+		if (ret != 0)
+			return ret;
+		// RX
+		hairpin_conf.peers[0].queue = reserved_hairpin_q_list[hairpin_q];
+		ret = rte_eth_rx_hairpin_queue_setup(port_id, reserved_hairpin_q_list[hairpin_q], nb_tx_rx_desc,
+						     &hairpin_conf);
+		if (ret != 0)
+			return ret;
+	}
+	return ret;
+}
+#define CHECK_INTERVAL 1000  /* 100ms */
+#define MAX_REPEAT_TIMES 90  /* 9s (90 * 100ms) in total */
+static void
+assert_link_status(uint8_t port)
+{
+	struct rte_eth_link link;
+	uint8_t rep_cnt = MAX_REPEAT_TIMES;
+	int link_get_err = -EINVAL;
+
+	memset(&link, 0, sizeof(link));
+	do {
+		link_get_err = rte_eth_link_get(port, &link);
+		if (link_get_err == 0 && link.link_status == RTE_ETH_LINK_UP)
+			break;
+		rte_delay_ms(CHECK_INTERVAL);
+	} while (--rep_cnt);
+
+	if (link_get_err < 0)
+		rte_exit(EXIT_FAILURE, ":: error: link get is failing: %s\n",
+			 rte_strerror(-link_get_err));
+	if (link.link_status == RTE_ETH_LINK_DOWN)
+		rte_exit(EXIT_FAILURE, ":: error: link is still down\n");
+}
 
 static int
 port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_config *app_config)
