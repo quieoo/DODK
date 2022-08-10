@@ -170,6 +170,7 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 	assert_link_status(port);
 
 	printf(":: initializing port: %d done\n", port);
+    return 0;
 }
 
 static int
