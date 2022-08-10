@@ -22,6 +22,7 @@ machine_args = []
 cflags = machine_args
 deps=[]
 deps+=dependency('libdpdk')
+deps+=dependency('pthread')
 
 app_src += lib_src
 
