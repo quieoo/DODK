@@ -1,4 +1,4 @@
-### Prerequisite
+# Prerequisite
 ## Install DPDK
 For example: 
 
@@ -13,7 +13,7 @@ sudo ldconfig
 ```
 
 
-### Build Sample Applications
+# Build Sample Applications
 ```
 git clone https://github.com/quieoo/DODK.git
 cd DODK
