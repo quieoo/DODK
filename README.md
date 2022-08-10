@@ -26,3 +26,5 @@ Run application, for example:
 ```
 ./app/simple_fwd_vnf/simple_fwd_vnf -l 0-7 -n 8
 ```
+
+note: run dpdk application need some extra configrations, such as hugepage, root authority, and dpdk-supported nic
