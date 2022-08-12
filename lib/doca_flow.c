@@ -24,7 +24,7 @@ doca_flow_init(const struct doca_flow_cfg *cfg,
 void
 doca_flow_destroy(void){}
 
-typedef struct _doca_flow_port_   //推荐，只声明结构体，不分配内存空间,需要用时另行定义 
+typedef struct _doca_flow_port_ 
 {
   int port_id; 
 }doca_flow_port;
@@ -63,11 +63,22 @@ doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, uint32
 				uint32_t res_array_len, void *bindable_obj,
 				struct doca_flow_error *error){}
 
+
+typedef struct _doca_flow_pipe_ 
+{
+  int port_id; 
+}doca_flow_pipe;
+
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		const struct doca_flow_fwd *fwd,
 		const struct doca_flow_fwd *fwd_miss,
-		struct doca_flow_error *error){}
+		struct doca_flow_error *error)
+{
+	doca_flow_pipe *pipe=malloc(sizeof(doca_flow_pipe));
+	pipe->port_id=cfg->port;
+	return pipe;
+}
 
 struct doca_flow_pipe_entry*
 doca_flow_pipe_add_entry(uint16_t pipe_queue, 
@@ -104,7 +115,7 @@ struct doca_flow_error *error){
 	
 	//get port id
 	int port_id=0;
-/*
+
 	struct rte_flow_error rte_error;
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&rte_error);
 	if(!res){
@@ -120,7 +131,7 @@ struct doca_flow_error *error){
 		printf("ERROR while validate flow: %d\n",res);
 		printf("%s\n",rte_error.message);
 	}
-*/
+
 }
 
 struct doca_flow_pipe_entry*
