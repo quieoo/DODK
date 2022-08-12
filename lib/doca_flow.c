@@ -36,9 +36,10 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 		     struct doca_flow_error *error)
 {
 	int id=atoi(cfg->devargs);
-	doca_flow_port port={
-		.port_id=id
-	};
+
+	doca_flow_port *port=malloc(sizeof(doca_flow_port));
+	port->port_id=id;
+
 	return &port;
 }
 
