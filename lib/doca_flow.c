@@ -17,7 +17,7 @@ int
 doca_flow_init(const struct doca_flow_cfg *cfg,
 	       struct doca_flow_error *error)
 {
-	printf("doca_flow_init\n");
+	// printf("doca_flow_init\n"); // check
 }
 
 void

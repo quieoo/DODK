@@ -21,6 +21,9 @@ struct doca_logger_backend *doca_log_create_file_backend(FILE *fptr){}
 struct doca_logger_backend *doca_log_create_fd_backend(int fd){}
 struct doca_logger_backend *doca_log_create_buffer_backend(char *buffer, size_t capacity, log_flush_callback handler){}
 struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
-void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...){}
+void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
+{
+    printf(format);
+}
 void doca_log_developer(uint32_t level, uint32_t source, int line, const char *format, ...){}
 void doca_log_rate_limit(uint32_t level, uint32_t source, int line, uint32_t bucket_id, const char *format, ...){}
