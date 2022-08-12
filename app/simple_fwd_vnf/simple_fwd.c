@@ -777,7 +777,7 @@ simple_fwd_handle_aging(uint32_t port_id, uint16_t queue)
 	struct doca_flow_aged_query *entries;
 	struct simple_fwd_ft_entry *ft_entry;
 	int idex, ret;
-
+	printf("handle age\n");
 	if (queue > simple_fwd_ins->nb_queues)
 		return;
 	entries = simple_fwd_ins->query_array[queue];

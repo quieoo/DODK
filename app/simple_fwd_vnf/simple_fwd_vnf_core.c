@@ -122,23 +122,19 @@ simple_fwd_process_pkts(void *process_pkts_params)
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
 			printf("t:%d\n",nb_rx);
 			for (j = 0; j < nb_rx; j++) {
-				printf("7\n");
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
-				printf("8\n");
-
+			
 				if (app_config->rx_only)
 					rte_pktmbuf_free(mbufs[j]);
 				else
 					rte_eth_tx_burst(port_id ^ 1, queue_id, &mbufs[j], 1);
 			}
-			printf("t1\n");
 			if (!app_config->age_thread){
 				printf("t1.1\n");
 				vnf->vnf_flow_age(port_id, queue_id);
 			}
-				
-			printf("t2\n");
+			
 		}
 	}
 	return 0;
