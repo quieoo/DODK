@@ -108,7 +108,6 @@ simple_fwd_process_pkts(void *process_pkts_params)
 		DOCA_LOG_DBG("core %u nothing need to do", core_id);
 		return 0;
 	}
-	printf("core %u process queue %u start", core_id, params->queues[0]);
 	DOCA_LOG_INFO("core %u process queue %u start", core_id, params->queues[0]);
 	last_tsc = rte_rdtsc();
 	while (!force_quit) {
