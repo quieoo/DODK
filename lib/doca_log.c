@@ -30,6 +30,7 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
         break;
     case 1:
         printf("LOG_CRIT: ");
+        break;
     default:
         printf("LOG-%d: ",level);
         break;
