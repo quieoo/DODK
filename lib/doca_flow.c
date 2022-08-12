@@ -104,7 +104,7 @@ struct doca_flow_error *error){
 	
 	//get port id
 	int port_id=0;
-
+/*
 	struct rte_flow_error rte_error;
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&rte_error);
 	if(!res){
@@ -120,7 +120,7 @@ struct doca_flow_error *error){
 		printf("ERROR while validate flow: %d\n",res);
 		printf("%s\n",rte_error.message);
 	}
-
+*/
 }
 
 struct doca_flow_pipe_entry*
