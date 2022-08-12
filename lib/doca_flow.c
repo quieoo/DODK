@@ -147,7 +147,9 @@ doca_flow_port_pipes_flush(uint16_t port_id){}
 void
 doca_flow_destroy_port(uint16_t port_id)
 {
+	int ports_num=sizeof(ports)/sizeof(doca_flow_port*);
 	for(int i=0;i<len(ports);i++){
+		printf("%d\n",i);
 		printf("free %d\n",ports[i]->port_id);
 		free(ports[i]);
 	}
