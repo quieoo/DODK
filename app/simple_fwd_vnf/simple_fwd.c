@@ -781,10 +781,14 @@ simple_fwd_handle_aging(uint32_t port_id, uint16_t queue)
 	if (queue > simple_fwd_ins->nb_queues)
 		return;
 	entries = simple_fwd_ins->query_array[queue];
+	printf("handle age1\n");
+	
 	ret = doca_flow_handle_aging(simple_fwd_ins->port[port_id], queue, MAX_HANDLING_TIME_MS,
 		entries, AGE_QUERY_BURST);
+	printf("handle age2\n");
 	for (idex = 0; idex < ret; idex++) {
 		ft_entry = GET_FT_ENTRY((void *)entries[idex].user_data);
+	printf("handle age3\n");
 		simple_fwd_ft_destroy_entry(simple_fwd_ins->ft, ft_entry);
 	}
 }

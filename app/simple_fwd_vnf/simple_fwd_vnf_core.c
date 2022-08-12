@@ -120,7 +120,6 @@ simple_fwd_process_pkts(void *process_pkts_params)
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
-			printf("t:%d\n",nb_rx);
 			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
@@ -131,7 +130,6 @@ simple_fwd_process_pkts(void *process_pkts_params)
 					rte_eth_tx_burst(port_id ^ 1, queue_id, &mbufs[j], 1);
 			}
 			if (!app_config->age_thread){
-				printf("t1.1\n");
 				vnf->vnf_flow_age(port_id, queue_id);
 			}
 			
