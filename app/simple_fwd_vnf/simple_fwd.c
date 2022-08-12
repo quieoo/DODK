@@ -785,9 +785,7 @@ simple_fwd_handle_aging(uint32_t port_id, uint16_t queue)
 		entries, AGE_QUERY_BURST);
 	for (idex = 0; idex < ret; idex++) {
 		ft_entry = GET_FT_ENTRY((void *)entries[idex].user_data);
-		printf("t\n");
 		simple_fwd_ft_destroy_entry(simple_fwd_ins->ft, ft_entry);
-				printf("E\n");
 	}
 }
 

@@ -92,11 +92,16 @@ void
 simple_fwd_ft_destroy_entry(struct simple_fwd_ft *ft,
 			    struct simple_fwd_ft_entry *ft_entry)
 {
+	printf("t1\n");
 	int idx = ft_entry->buckets_index;
+	printf("t2\n");
 
 	rte_spinlock_lock(&ft->buckets[idx].lock);
+	printf("t3\n");
 	_ft_destroy_entry(ft, ft_entry);
+	printf("t4\n");
 	rte_spinlock_unlock(&ft->buckets[idx].lock);
+	printf("t5\n");
 }
 
 static bool
