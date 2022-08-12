@@ -132,8 +132,10 @@ simple_fwd_process_pkts(void *process_pkts_params)
 				else
 					rte_eth_tx_burst(port_id ^ 1, queue_id, &mbufs[j], 1);
 			}
+			printf("t1\n");
 			if (!app_config->age_thread)
 				vnf->vnf_flow_age(port_id, queue_id);
+			printf("t2\n");
 		}
 	}
 	return 0;
