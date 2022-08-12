@@ -274,7 +274,7 @@ simple_fwd_init_doca_port(struct simple_fwd_port_cfg *port_cfg)
 		DOCA_LOG_ERR("failed to start port %s", error.message);
 		return NULL;
 	}
-	
+	printf("finish start port\n");
 	*((struct simple_fwd_port_cfg *)doca_flow_port_priv_data(port)) =
 		*port_cfg;
 	sw_rss_fwd_tbl_port[port_cfg->port_id] =
@@ -777,19 +777,17 @@ simple_fwd_handle_aging(uint32_t port_id, uint16_t queue)
 	struct doca_flow_aged_query *entries;
 	struct simple_fwd_ft_entry *ft_entry;
 	int idex, ret;
-	printf("handle age\n");
+
 	if (queue > simple_fwd_ins->nb_queues)
 		return;
 	entries = simple_fwd_ins->query_array[queue];
-	printf("handle age1\n");
-	
 	ret = doca_flow_handle_aging(simple_fwd_ins->port[port_id], queue, MAX_HANDLING_TIME_MS,
 		entries, AGE_QUERY_BURST);
-	printf("handle age2\n");
 	for (idex = 0; idex < ret; idex++) {
 		ft_entry = GET_FT_ENTRY((void *)entries[idex].user_data);
-	printf("handle age3\n");
+		printf("t\n");
 		simple_fwd_ft_destroy_entry(simple_fwd_ins->ft, ft_entry);
+				printf("E\n");
 	}
 }
 
