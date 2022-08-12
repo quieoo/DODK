@@ -1,5 +1,6 @@
 #include "doca_log.h"
-
+#include <unistd.h>
+#include <inttypes.h>
 int doca_log_stream_redirect(FILE *stream){
 
 }
