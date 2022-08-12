@@ -274,7 +274,7 @@ simple_fwd_init_doca_port(struct simple_fwd_port_cfg *port_cfg)
 		DOCA_LOG_ERR("failed to start port %s", error.message);
 		return NULL;
 	}
-
+	printf("finish start port\n");
 	*((struct simple_fwd_port_cfg *)doca_flow_port_priv_data(port)) =
 		*port_cfg;
 	sw_rss_fwd_tbl_port[port_cfg->port_id] =

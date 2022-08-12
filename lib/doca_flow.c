@@ -24,17 +24,22 @@ doca_flow_init(const struct doca_flow_cfg *cfg,
 void
 doca_flow_destroy(void){}
 
-struct doca_flow_port{
-	int port_id;
-};
+
+typedef struct _doca_flow_port_   //推荐，只声明结构体，不分配内存空间,需要用时另行定义 
+{
+  int port_id; 
+}doca_flow_port;
 
 
 struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 		     struct doca_flow_error *error)
 {
-	
-	printf("doca_flow_port_start: %s\n",cfg->devargs);
+	int id=atoi(cfg->devargs);
+	doca_flow_port port={
+		.port_id=id
+	};
+	return &port;
 }
 
 int
