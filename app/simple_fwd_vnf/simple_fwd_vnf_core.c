@@ -126,6 +126,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 			queue_id = params->queues[port_id];
 	printf("6\n");
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
+			printf("t\n");
 			for (j = 0; j < nb_rx; j++) {
 					printf("7\n");
 
