@@ -99,7 +99,6 @@ simple_fwd_process_pkts(void *process_pkts_params)
 	struct rte_mbuf *mbufs[VNF_RX_BURST_SIZE];
 	uint16_t j, nb_rx, queue_id;
 	uint32_t port_id = 0, core_id = rte_lcore_id();
-	printf("core %u\n",core_id);
 	struct vnf_per_core_params *params = &core_params_arr[core_id];
 	struct simple_fwd_config *app_config = ((struct simple_fwd_process_pkts_params *) process_pkts_params)->cfg;
 	struct app_vnf *vnf = ((struct simple_fwd_process_pkts_params *) process_pkts_params)->vnf;

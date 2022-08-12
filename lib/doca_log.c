@@ -37,7 +37,8 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
     }
     va_list ap;
     va_start(ap, format);
-	vfprintf(stderr, format, ap);
+
+	vfprintf(stdout, format, ap);
 	va_end(ap);
 
     printf("\n");
