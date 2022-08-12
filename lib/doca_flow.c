@@ -40,7 +40,7 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 	doca_flow_port *port=malloc(sizeof(doca_flow_port));
 	port->port_id=id;
 
-	return &port;
+	return port;
 }
 
 int
