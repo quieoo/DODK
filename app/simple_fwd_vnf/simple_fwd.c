@@ -537,6 +537,7 @@ simple_fwd_init_ports_and_pipes(struct simple_fwd_port_cfg *port_cfg)
 static int
 simple_fwd_init(void *p)
 {
+	printf("simple_fwd_init\n");
 	struct simple_fwd_port_cfg *port_cfg;
 	int ret = 0;
 
