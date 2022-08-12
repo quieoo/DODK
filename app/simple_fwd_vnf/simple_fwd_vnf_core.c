@@ -109,31 +109,23 @@ simple_fwd_process_pkts(void *process_pkts_params)
 	}
 	DOCA_LOG_INFO("core %u process queue %u start", core_id, params->queues[0]);
 	last_tsc = rte_rdtsc();
-	printf("1\n");
 	while (!force_quit) {
-	printf("2\n");
 		if (core_id == rte_get_main_lcore()) {
-	printf("3\n");
 			cur_tsc = rte_rdtsc();
 			if (cur_tsc > last_tsc + app_config->stats_timer) {
-	printf("4\n");
 				simple_fwd_dump_port_stats(0);
 				last_tsc = cur_tsc;
 			}
 		}
-	printf("5\n");
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
-	printf("6\n");
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
-			printf("t\n");
+			printf("t:%d\n",nb_rx);
 			for (j = 0; j < nb_rx; j++) {
-					printf("7\n");
-
+				printf("7\n");
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
-
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
-	printf("8\n");
+				printf("8\n");
 
 				if (app_config->rx_only)
 					rte_pktmbuf_free(mbufs[j]);
