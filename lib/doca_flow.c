@@ -24,12 +24,12 @@ doca_flow_init(const struct doca_flow_cfg *cfg,
 void
 doca_flow_destroy(void){}
 
-
 typedef struct _doca_flow_port_   //推荐，只声明结构体，不分配内存空间,需要用时另行定义 
 {
   int port_id; 
 }doca_flow_port;
 
+doca_flow_port *ports[10];
 
 struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
@@ -39,6 +39,8 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 
 	doca_flow_port *port=malloc(sizeof(doca_flow_port));
 	port->port_id=id;
+
+	ports[id]=port;
 
 	return port;
 }
@@ -143,7 +145,13 @@ void
 doca_flow_port_pipes_flush(uint16_t port_id){}
 
 void
-doca_flow_destroy_port(uint16_t port_id){}
+doca_flow_destroy_port(uint16_t port_id)
+{
+	for(int i=0;i<len(ports);i++){
+		printf("free %d\n",ports[i]->port_id);
+		free(ports[i]);
+	}
+}
 
 void
 doca_flow_port_pipes_dump(uint16_t port_id, FILE *f){}
