@@ -127,8 +127,13 @@ simple_fwd_process_pkts(void *process_pkts_params)
 	printf("6\n");
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
 			for (j = 0; j < nb_rx; j++) {
+					printf("7\n");
+
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
+
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
+	printf("8\n");
+
 				if (app_config->rx_only)
 					rte_pktmbuf_free(mbufs[j]);
 				else
