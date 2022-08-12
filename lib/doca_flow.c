@@ -22,7 +22,10 @@ doca_flow_destroy(void){}
 
 struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
-		     struct doca_flow_error *error){}
+		     struct doca_flow_error *error)
+{
+	printf("doca_flow_port_start: %s\n",cfg->devargs);
+}
 
 int
 doca_flow_port_stop(struct doca_flow_port *port){}
