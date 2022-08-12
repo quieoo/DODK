@@ -78,7 +78,6 @@ static void
 simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_vnf *vnf)
 {
 	struct simple_fwd_pkt_info pinfo;
-
 	memset(&pinfo, 0, sizeof(struct simple_fwd_pkt_info));
 	if (simple_fwd_parse_packet(VNF_PKT_L2(mbuf),
 		VNF_PKT_LEN(mbuf), &pinfo))

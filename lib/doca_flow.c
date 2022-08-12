@@ -1,5 +1,18 @@
 #include "doca_flow.h"
 
+#include <rte_eal.h>
+#include <rte_common.h>
+#include <rte_malloc.h>
+#include <rte_ether.h>
+#include <rte_ethdev.h>
+#include <rte_mempool.h>
+#include <rte_mbuf.h>
+#include <rte_net.h>
+#include <rte_flow.h>
+
+#define MAX_PATTERN_NUM		10
+#define MAX_ACTION_NUM		10
+
 int
 doca_flow_init(const struct doca_flow_cfg *cfg,
 	       struct doca_flow_error *error){}
@@ -36,15 +49,58 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		struct doca_flow_error *error){}
 
 struct doca_flow_pipe_entry*
-doca_flow_pipe_add_entry(uint16_t pipe_queue,
-			struct doca_flow_pipe *pipe,
-			const struct doca_flow_match *match,
-			const struct doca_flow_actions *actions,
-			const struct doca_flow_monitor *monitor,
-			const struct doca_flow_fwd *fwd,
-			uint32_t flags,
-			void *usr_ctx,
-			struct doca_flow_error *error){}
+doca_flow_pipe_add_entry(uint16_t pipe_queue, 
+struct doca_flow_pipe *pipe, 
+const struct doca_flow_match *match, 
+const struct doca_flow_actions *actions, 
+const struct doca_flow_monitor *monitor, 
+const struct doca_flow_fwd *fwd, 
+uint32_t flags, 
+void *usr_ctx, 
+struct doca_flow_error *error){
+	//dpdk need structures
+	struct rte_flow_attr attr;
+	struct rte_flow_item pattern[MAX_PATTERN_NUM];
+	struct rte_flow_action action[MAX_ACTION_NUM];
+	struct rte_flow *flow = NULL;
+	memset(pattern, 0, sizeof(pattern));
+	memset(action, 0, sizeof(action));
+	memset(&attr, 0, sizeof(struct rte_flow_attr));
+
+	attr.ingress=1;
+
+	/*convert match->pattern*/
+	//mac
+	int p=0;
+	pattern[p].type=RTE_FLOW_ITEM_TYPE_ETH;
+	struct rte_flow_item_eth mac_spec;
+	memset(&mac_spec,0,sizeof(struct rte_flow_item_eth));
+	memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac,DOCA_ETHER_ADDR_LEN);
+	memcpy(mac_spec.hdr.src_addr.addr_bytes, match->out_src_mac,DOCA_ETHER_ADDR_LEN);
+	pattern[p++].spec=&mac_spec;
+	
+
+	
+	//get port id
+	int port_id=0;
+
+	struct rte_flow_error rte_error;
+	int res=rte_flow_validate(port_id, &attr,pattern,action,&rte_error);
+	if(!res){
+		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
+		if (!flow) {
+			printf("Flow can't be created %d message: %s\n",
+				rte_error.type,
+				rte_error.message ? rte_error.message : "(no stated reason)");
+			rte_exit(EXIT_FAILURE, "error in creating flow");
+		}
+		//output_flow(port_id, &attr, pattern, action, &error);
+	}else{
+		printf("ERROR while validate flow: %d\n",res);
+		printf("%s\n",rte_error.message);
+	}
+
+}
 
 struct doca_flow_pipe_entry*
 doca_flow_control_pipe_add_entry(uint16_t pipe_queue,

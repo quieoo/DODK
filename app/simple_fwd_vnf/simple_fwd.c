@@ -507,7 +507,7 @@ simple_fwd_init_ports_and_pipes(struct simple_fwd_port_cfg *port_cfg)
 	/* build pipe on each port */
 	for (index = 0; index < SIMPLE_FWD_PORTS; index++) {
 		port = simple_fwd_ins->port[index];
-
+		
 		/* build control pipe and entries*/
 		pipe = simple_fwd_build_control_pipe(port);
 		if (!pipe)
