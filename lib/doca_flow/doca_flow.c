@@ -111,11 +111,96 @@ struct doca_flow_error *error){
 	memcpy(mac_spec.hdr.src_addr.addr_bytes, match->out_src_mac,DOCA_ETHER_ADDR_LEN);
 	pattern[p++].spec=&mac_spec;
 	
+	//ip
+	pattern[p].type=RTE_FLOW_ITEM_TYPE_IPV4;
+	struct rte_flow_item_ipv4 ip_spec;
+	memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
+	ip_spec.hdr.src_addr=match->out_dst_ip.ipv4_addr;
+	ip_spec.hdr.dst_addr=match->out_src_ip.ipv4_addr;
+	pattern[p++].spec=&ip_spec;
+	
+	//TCP/UDP
+	switch (match->out_l4_type)
+	{
+	case IPPROTO_UDP:
+		pattern[p].type=RTE_FLOW_ITEM_TYPE_UDP;
+		struct rte_flow_item_udp udp_spec;
+		memset(&udp_spec,0,sizeof(struct rte_flow_item_udp));
+		udp_spec.hdr.src_port=match->out_src_port;
+		udp_spec.hdr.dst_port=match->out_dst_port;
+		pattern[p++].spec=&udp_spec;
+		break;
+	
+	default:
+		printf("FLOW with L4 type: %d\n",match->out_l4_type);
+		break;
+	}
+	pattern[p].type=RTE_FLOW_ITEM_TYPE_END;
+
+	/*convert actions -> action*/
+	// modify packets
+	p=0;
+	action[p].type=RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
+	struct rte_flow_action_set_mac dst_mac;
+	for(int i=0;i<6;i++){
+		dst_mac.mac_addr[i]=actions->mod_dst_mac[i];
+	}
+	action[p++].conf=&dst_mac;
+
+	action[p].type=RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
+	struct rte_flow_action_set_ipv4 set_ipv4;
+	set_ipv4.ipv4_addr=actions->mod_dst_ip.ipv4_addr;
+	action[p++].conf=&set_ipv4;
+
+	action[p].type=RTE_FLOW_ACTION_TYPE_SET_TP_DST;
+	struct rte_flow_action_set_tp set_tp;
+	set_tp.port=actions->mod_dst_port;
+	action[p++].conf=&set_tp;
+
+	// forward actions
+	switch (fwd->type)
+	{
+	case 1:
+		//DOCA_FLOW_FWD_RSS
+		action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
+		struct rte_flow_action_rss _rss;
+		_rss.queue_num=fwd->num_of_queues;
+		_rss.queue=fwd->rss_queues;
+		action[p++].conf=&_rss;
+		break;
+	case 2:
+		//DOCA_FLOW_FWD_PORT
+		action[p].type=RTE_FLOW_ACTION_TYPE_PORT_ID;
+		struct rte_flow_action_port_id _pid;
+		_pid.id=fwd->port_id;
+		action[p++].conf=&_pid;
+		break;
+	case 3:
+		//DOCA_FLOW_FWD_PIPE
+		printf("DOCA FWD PIPE\n");
+		break;
+	case 4:
+		//DOCA_FLOW_FWD_DROP
+		action[p++].type=RTE_FLOW_ACTION_TYPE_DROP;
+		break;
+	default:
+		printf("DOCA FWD OTHER TYPE: %d\n",fwd->type);
+		break;
+	}
+
+	struct rte_flow_action_queue queue = { .index = pipe_queue };
+	action[p].type = RTE_FLOW_ACTION_TYPE_QUEUE;
+	action[p++].conf = &queue;
+
+
+	action[p].type=RTE_FLOW_ACTION_TYPE_END;
 
 	
-	//get port id
-	int port_id=0;
 
+	//get port id
+	int port_id=pipe->port_id;
+	
+	//validate and create entry
 	struct rte_flow_error rte_error;
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&rte_error);
 	if(!res){
