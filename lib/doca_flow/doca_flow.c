@@ -80,6 +80,85 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	return pipe;
 }
 
+void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struct rte_flow_item *pattern, const struct rte_flow_action *actions, struct rte_flow_error *error){
+	printf("{\n");
+	
+	printf("	port_id: %d\n",port_id);
+	
+	printf("	attr: \n");
+	printf("		egress: %d\n",attr->egress);
+	printf("		group: %d\n",attr->group);
+	printf("		ingress: %d\n",attr->ingress);
+	printf("		priority: %d\n",attr->priority);
+	printf("		transfer: %d\n",attr->transfer);
+	int i=0;
+	
+	for (; pattern->type != RTE_FLOW_ITEM_TYPE_END; pattern++){
+		printf("	pattern-%d:\n",i++);
+		printf("		type: ");
+		switch (pattern->type)
+		{
+			case RTE_FLOW_ITEM_TYPE_VOID:
+				printf("RTE_FLOW_ITEM_TYPE_VOID\n");
+				break;
+			case RTE_FLOW_ITEM_TYPE_ETH:
+				printf("RTE_FLOW_ITEM_TYPE_ETH\n");
+				break;
+			case RTE_FLOW_ITEM_TYPE_IPV4:
+				printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
+				const struct rte_flow_item_ipv4 *mask = pattern->mask;
+				struct in_addr mask_dst,mask_src;
+				if(mask!=NULL){
+					mask_dst.s_addr=mask->hdr.dst_addr;
+					mask_src.s_addr=mask->hdr.src_addr;
+					printf("		mask.hdr:\n");
+					printf("			src_addr:%s\n",inet_ntoa(mask_src));
+					printf("			dst_addr: %s\n",inet_ntoa(mask_dst));
+				}
+				const struct rte_flow_item_ipv4 *spec = pattern->spec;
+				struct in_addr dst,src;
+				dst.s_addr=spec->hdr.dst_addr;
+				src.s_addr=spec->hdr.src_addr;
+
+				printf("		spec.hdr:\n");
+				printf("			src_addr:%s\n",inet_ntoa(src));
+				printf("			dst_addr:%s\n",inet_ntoa(dst));
+				
+				break;
+			default:
+				printf("other type: %d\n",pattern->type);
+		}
+
+	}
+	i=0;
+	for (; actions->type != RTE_FLOW_ACTION_TYPE_END; actions++) {
+		printf("	action-%d:\n",i++);
+		printf("		type: ");
+
+		switch (actions->type)
+		{
+			case RTE_FLOW_ACTION_TYPE_VOID:
+				printf("RTE_FLOW_ACTION_TYPE_VOID\n");
+				break;
+			case RTE_FLOW_ACTION_TYPE_DROP:
+				printf("RTE_FLOW_ACTION_TYPE_DROP\n");
+				break;
+			case RTE_FLOW_ACTION_TYPE_QUEUE:
+				printf("RTE_FLOW_ACTION_TYPE_QUEUE\n");
+				const struct rte_flow_action_queue *queue = actions->conf;
+				printf("		index:%d\n",queue->index);
+				break;
+			default:
+				printf("other type: %d\n",actions->type);
+		}
+
+	}
+	
+	printf("}\n");
+	
+}
+
+
 struct doca_flow_pipe_entry*
 doca_flow_pipe_add_entry(uint16_t pipe_queue, 
 struct doca_flow_pipe *pipe, 
@@ -211,11 +290,13 @@ struct doca_flow_error *error){
 				rte_error.message ? rte_error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		//output_flow(port_id, &attr, pattern, action, &error);
+		output_flow(port_id, &attr, pattern, action, &error);
 	}else{
 		printf("ERROR while validate flow: %d\n",res);
 		printf("%s\n",rte_error.message);
 	}
+
+
 
 }
 
