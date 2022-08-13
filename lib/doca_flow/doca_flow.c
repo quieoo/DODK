@@ -64,10 +64,9 @@ doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, uint32
 				struct doca_flow_error *error){}
 
 
-typedef struct _doca_flow_pipe_ 
-{
-  int port_id; 
-}doca_flow_pipe;
+typedef struct doca_flow_pipe{
+	int port_id;
+};
 
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
@@ -75,7 +74,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		const struct doca_flow_fwd *fwd_miss,
 		struct doca_flow_error *error)
 {
-	doca_flow_pipe *pipe=malloc(sizeof(doca_flow_pipe));
+	struct doca_flow_pipe *pipe=malloc(sizeof(struct doca_flow_pipe));
+
 	pipe->port_id=cfg->port;
 	return pipe;
 }

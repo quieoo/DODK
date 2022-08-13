@@ -181,13 +181,15 @@ simple_fwd_build_rss_fwd(int n_queues)
 	fwd->rss_mark = 5;
 	return fwd;
 }
+typedef struct doca_flow_pipe{
+	int port_id;
+};
 
 
 static struct doca_flow_fwd *
 simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	struct doca_flow_port *port)
 {
-	printf("simple_fwd_build_port_fwd_miss");
 	struct doca_flow_fwd *fwd = calloc(1, sizeof(struct doca_flow_fwd));
 	struct doca_flow_fwd *fwd_miss = calloc(1, sizeof(struct doca_flow_fwd));
 	struct doca_flow_pipe *next_pipe = NULL;
@@ -231,6 +233,8 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 		DOCA_DLOG_ERR("next pipe is null.");
 		goto build_fail;
 	}
+	next_pipe->port_id;
+	printf("create pipe %d\n",next_pipe->port_id);
 
 	/* build fwd_miss */
 	fwd_miss->type = DOCA_FLOW_FWD_PIPE;

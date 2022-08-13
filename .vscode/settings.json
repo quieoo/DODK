@@ -10,6 +10,8 @@
         "doca_log.h": "c",
         "rte_malloc.h": "c",
         "utils.h": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "doca_compat.h": "c",
+        "doca_flow.h": "c"
     }
 }

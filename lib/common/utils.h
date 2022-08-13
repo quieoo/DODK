@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <doca_log.h>
+// #include <doca_log.h>
 
 /*
 #define APP_EXIT(format, ...)					\

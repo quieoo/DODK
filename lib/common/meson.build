@@ -1,0 +1,10 @@
+sources=files(
+    'dpdk_utils.c',
+    'utils.c'
+)
+headers=files(
+    'doca_compat.h',
+    'dpdk_utils.h',
+    'offload_rules.h',
+    'utils.h'
+)
