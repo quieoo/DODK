@@ -111,7 +111,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 	last_tsc = rte_rdtsc();
 	while (!force_quit) {
 		if (core_id == rte_get_main_lcore()) {
-			cur_tsc = rte_rdtsc();
+			cur_tsc = rte_rdtsc();                  
 			if (cur_tsc > last_tsc + app_config->stats_timer) {
 				simple_fwd_dump_port_stats(0);
 				last_tsc = cur_tsc;
