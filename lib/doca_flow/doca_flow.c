@@ -103,22 +103,8 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ITEM_TYPE_ETH:
 			printf("RTE_FLOW_ITEM_TYPE_ETH\n");
 			const struct rte_flow_item_eth *spec = pattern->spec;
-			printf("			src_mac: %02X-%02X-%02X-%02X-%02X-%02X\n"
-			,spec->hdr.src_addr.addr_bytes[0]
-			,spec->hdr.src_addr.addr_bytes[1]
-			,spec->hdr.src_addr.addr_bytes[2]
-			,spec->hdr.src_addr.addr_bytes[3]
-			,spec->hdr.src_addr.addr_bytes[4]
-			,spec->hdr.src_addr.addr_bytes[5]
-			);
-			printf("			dst_mac: %02X-%02X-%02X-%02X-%02X-%02X\n"
-			,spec->hdr.dst_addr.addr_bytes[0]
-			,spec->hdr.dst_addr.addr_bytes[1]
-			,spec->hdr.dst_addr.addr_bytes[2]
-			,spec->hdr.dst_addr.addr_bytes[3]
-			,spec->hdr.dst_addr.addr_bytes[4]
-			,spec->hdr.dst_addr.addr_bytes[5]
-			);
+			print_ether_addr("			src_mac:", spec->hdr.src_addr.addr_bytes);
+			print_ether_addr("			dst_mac:", spec->hdr.dst_addr.addr_bytes);			
 			break;
 		case RTE_FLOW_ITEM_TYPE_IPV4:
 		{
