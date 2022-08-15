@@ -279,7 +279,7 @@ struct doca_flow_error *error){
 	int port_id=pipe->port_id;
 	
 	output_flow(port_id, &attr, pattern, action, &error);
-	
+	printf("validate ----------------------\n");
 	//validate and create entry
 	struct rte_flow_error rte_error;
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&rte_error);
