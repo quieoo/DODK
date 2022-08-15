@@ -21,42 +21,42 @@ struct doca_logger_backend *doca_log_create_file_backend(FILE *fptr){}
 struct doca_logger_backend *doca_log_create_fd_backend(int fd){}
 struct doca_logger_backend *doca_log_create_buffer_backend(char *buffer, size_t capacity, log_flush_callback handler){}
 struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
+
+int _level;
+
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
-    int output=0;
-    switch (level)
-    {
-    case 4:
-        //DEBUG
-        break;
-    case 3:
-        // printf("LOG_INFO: ");
-        break;
-    case 2:
-        // WARNING
-        break;
-    case 0:
-        printf("LOG_CRIT: ");
-        output=1;
-        break;
-    case 1:
-        printf("LOG_ERR: ");
-        output=1;
-        break;
-    default:
-        // printf("LOG-%d: ",level);
-        break;
-    }
-    if (output==0){
-        return;
-    }
-    va_list ap;
-    va_start(ap, format);
+    _level=2;
+    if(level<=_level){
+        switch (level)
+        {
+        case 4:
+            printf("LOG_DEBUG: ");
+            break;
+        case 3:
+            printf("LOG_INFO: ");
+            break;
+        case 2:
+            printf("LOG_WARNING: ");
+            break;
+        case 0:
+            printf("LOG_CRIT: ");
+            break;
+        case 1:
+            printf("LOG_ERR: ");
+            break;
+        default:
+            // printf("LOG-%d: ",level);
+            break;
+        }
+        va_list ap;
+        va_start(ap, format);
 
-	vfprintf(stdout, format, ap);
-	va_end(ap);
+        vfprintf(stdout, format, ap);
+        va_end(ap);
 
-    printf("\n");
+        printf("\n");
+    }
 }
 void doca_log_developer(uint32_t level, uint32_t source, int line, const char *format, ...){}
 void doca_log_rate_limit(uint32_t level, uint32_t source, int line, uint32_t bucket_id, const char *format, ...){}
