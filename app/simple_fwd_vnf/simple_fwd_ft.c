@@ -88,7 +88,9 @@ _ft_destroy_entry(struct simple_fwd_ft *ft,
 	printf("t3.0.0.1\n");
 	(ft_entry)->next.le_next->next.le_prev;
 	printf("t3.0.0.2\n");
-
+	(ft_entry)->next.le_prev;
+	printf("t3.0.0.3\n");
+	
 	do{
 		printf("t3.01\n");
 		if((ft_entry)->next.le_next != NULL)
