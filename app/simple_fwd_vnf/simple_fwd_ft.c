@@ -82,7 +82,17 @@ static void
 _ft_destroy_entry(struct simple_fwd_ft *ft,
 		  struct simple_fwd_ft_entry *ft_entry)
 {
-	LIST_REMOVE(ft_entry, next);
+	//LIST_REMOVE(ft_entry, next);
+	if (ft_entry==NULL){
+		printf("ft_entry==NULL\n");
+	}
+	
+	do{
+		if((ft_entry)->next.le_next != NULL)
+			(ft_entry)->next.le_next->next.le_prev = (ft_entry)->next.le_prev; 
+		*(ft_entry)->next.le_prev = (ft_entry)->next.le_next; 
+	}while (0);
+
 	printf("t3.1\n");
 	ft->simple_fwd_aging_cb(&ft_entry->user_ctx);
 	printf("t3.2\n");
