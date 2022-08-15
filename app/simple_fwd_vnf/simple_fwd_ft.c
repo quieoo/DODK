@@ -83,9 +83,13 @@ _ft_destroy_entry(struct simple_fwd_ft *ft,
 		  struct simple_fwd_ft_entry *ft_entry)
 {
 	LIST_REMOVE(ft_entry, next);
+	printf("t3.1\n");
 	ft->simple_fwd_aging_cb(&ft_entry->user_ctx);
+	printf("t3.2\n");
 	free(ft_entry);
+	printf("t3.3\n");
 	ft->stats.rm--;
+	printf("t3.4\n");
 }
 
 void
