@@ -77,6 +77,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	struct doca_flow_pipe *pipe=malloc(sizeof(struct doca_flow_pipe));
 
 	pipe->port_id=cfg->port;
+
+	printf("doca_flow_create_pipe port_id: %d\n",pipe->port_id);
 	return pipe;
 }
 
@@ -169,7 +171,6 @@ const struct doca_flow_fwd *fwd,
 uint32_t flags, 
 void *usr_ctx, 
 struct doca_flow_error *error){
-	printf("doca_flow_pipe_add_entry---------------------\n");
 	//dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -280,7 +281,6 @@ struct doca_flow_error *error){
 	int port_id=pipe->port_id;
 	
 	output_flow(port_id, &attr, pattern, action, &error);
-	printf("validate ----------------------\n");
 	//validate and create entry
 	struct rte_flow_error rte_error;
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&rte_error);
