@@ -73,7 +73,12 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	pipe->port_id = cfg->port->port_id;
 	return pipe;
 }
-
+print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
+{
+	char buf[RTE_ETHER_ADDR_FMT_SIZE];
+	rte_ether_format_addr(buf, RTE_ETHER_ADDR_FMT_SIZE, eth_addr);
+	printf("%s%s", what, buf);
+}
 void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struct rte_flow_item *pattern, const struct rte_flow_action *actions, struct rte_flow_error *error)
 {
 	printf("{\n");
@@ -99,6 +104,9 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			break;
 		case RTE_FLOW_ITEM_TYPE_ETH:
 			printf("RTE_FLOW_ITEM_TYPE_ETH\n");
+			const struct rte_flow_item_eth *spec = pattern->mask;
+			print_ether_addr("			src_mac: ",&(spec->hdr.src_addr));
+			print_ether_addr("			dst_mac: ",&(spec->hdr.src_addr));
 			break;
 		case RTE_FLOW_ITEM_TYPE_IPV4:
 		{
@@ -128,13 +136,9 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		{
 			printf("RTE_FLOW_ITEM_TYPE_UDP\n");
 			const struct rte_flow_item_udp *udpspec = pattern->spec;
-			struct in_addr dst, src;
-			dst.s_addr = udpspec->hdr.dst_port;
-			src.s_addr = udpspec->hdr.src_port;
-
 			printf("		spec.hdr:\n");
-			printf("			src_addr:%s\n", inet_ntoa(src));
-			printf("			dst_addr:%s\n", inet_ntoa(dst));
+			printf("			src_addr:%d\n", udpspec->hdr.src_port);
+			printf("			dst_addr:%d\n", udpspec->hdr.dst_port);
 
 			break;
 		}
@@ -167,12 +171,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_MAC_DST\n");
 			const struct rte_flow_action_set_mac *dst_mac = actions->conf;
-			printf("		mac_addr: ");
-			for (int i = 0; i < RTE_ETHER_ADDR_LEN; i++)
-			{
-				printf("%x", dst_mac[i]);
-			}
-			printf("\n");
+			print_ether_addr("		mac_addr: ",dst_mac->mac_addr);
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
@@ -186,12 +185,14 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
 		{
+			printf("RTE_FLOW_ACTION_TYPE_SET_TP_DST\n");
 			const struct rte_flow_action_set_tp *dst_tp = actions->conf;
 			printf("		port: %d\n", dst_tp);
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_PORT_ID:
 		{
+			printf("RTE_FLOW_ACTION_TYPE_PORT_ID\n");
 			const struct rte_flow_action_port_id *pid = actions->conf;
 			printf("		port_id: %d\n", pid->id);
 			break;
