@@ -128,8 +128,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			case RTE_FLOW_ITEM_TYPE_UDP:
 				printf("RTE_FLOW_ITEM_TYPE_UDP\n");
 				const struct rte_flow_item_udp *udpspec = pattern->spec;
-				struct in_addr dst,src;
-			
+				
 				dst.s_addr=udpspec->hdr.dst_port;
 				src.s_addr=udpspec->hdr.src_port;
 
@@ -182,7 +181,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("		port: %d\n",dst_tp);
 				break;
 			case RTE_FLOW_ACTION_TYPE_PORT_ID:
-				struct rte_flow_action_port_id *pid=actions->conf;
+				const struct rte_flow_action_port_id *pid=actions->conf;
 				printf("		port_id: %d\n",pid->id);
 				break;
 			
