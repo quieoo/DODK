@@ -275,7 +275,7 @@ struct doca_flow_error *error){
 	action[p].type=RTE_FLOW_ACTION_TYPE_END;
 
 	
-
+	output_flow(port_id, &attr, pattern, action, &error);
 	//get port id
 	int port_id=pipe->port_id;
 	
@@ -290,7 +290,7 @@ struct doca_flow_error *error){
 				rte_error.message ? rte_error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		output_flow(port_id, &attr, pattern, action, &error);
+		
 	}else{
 		printf("ERROR while validate flow: %d\n",res);
 		printf("%s\n",rte_error.message);
