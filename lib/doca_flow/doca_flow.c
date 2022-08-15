@@ -24,12 +24,12 @@ doca_flow_init(const struct doca_flow_cfg *cfg,
 void
 doca_flow_destroy(void){}
 
-typedef struct _doca_flow_port_ 
+typedef struct doca_flow_port 
 {
   int port_id; 
-}doca_flow_port;
+};
 
-doca_flow_port *ports[10];
+struct doca_flow_port ports[10];
 
 struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
@@ -37,10 +37,10 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 {
 	int id=atoi(cfg->devargs);
 
-	doca_flow_port *port=malloc(sizeof(doca_flow_port));
+	struct doca_flow_port *port=malloc(sizeof(struct doca_flow_port));
 	port->port_id=id;
 
-	ports[id]=port;
+	ports[id]=*port;
 
 	return port;
 }
@@ -76,9 +76,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 {
 	struct doca_flow_pipe *pipe=malloc(sizeof(struct doca_flow_pipe));
 
-	pipe->port_id=cfg->port;
-
-	printf("doca_flow_create_pipe port_id: %d\n",pipe->port_id);
+	pipe->port_id=cfg->port->port_id;
 	return pipe;
 }
 
@@ -327,12 +325,7 @@ void
 doca_flow_destroy_port(uint16_t port_id)
 {
 	printf("doca_flow_destroy_port\n");
-	int ports_num=sizeof(ports)/sizeof(doca_flow_port*);
-	for(int i=0;i<ports_num;i++){
-		printf("%d\n",i);
-		printf("free %d\n",ports[i]->port_id);
-		free(ports[i]);
-	}
+	free(ports);
 }
 
 void
