@@ -188,6 +188,7 @@ static struct doca_flow_fwd *
 simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	struct doca_flow_port *port)
 {
+	printf("simple_fwd_build_port_fwd_miss------------\n");
 	struct doca_flow_fwd *fwd = calloc(1, sizeof(struct doca_flow_fwd));
 	struct doca_flow_fwd *fwd_miss = calloc(1, sizeof(struct doca_flow_fwd));
 	struct doca_flow_pipe *next_pipe = NULL;
