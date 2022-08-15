@@ -338,8 +338,11 @@ doca_flow_query(struct doca_flow_pipe_entry *entry,
 
 int
 doca_flow_handle_aging(struct doca_flow_port *port, uint16_t queue,
-			uint64_t quota, struct doca_flow_aged_query *entries, int len){}
-
+			uint64_t quota, struct doca_flow_aged_query *entries, int len)
+{
+	// process no aging
+	return 0;
+}
 int
 doca_flow_entries_process(struct doca_flow_port *port,
 		uint16_t pipe_queue, uint64_t timeout,

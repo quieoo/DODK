@@ -774,7 +774,6 @@ simple_fwd_handle_packet(struct simple_fwd_pkt_info *pinfo)
 static void
 simple_fwd_handle_aging(uint32_t port_id, uint16_t queue)
 {
-	printf("simple_fwd_handle_aging %d %d\n",port_id,queue);
 #define MAX_HANDLING_TIME_MS 10	/*ms*/
 	struct doca_flow_aged_query *entries;
 	struct simple_fwd_ft_entry *ft_entry;
