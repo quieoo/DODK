@@ -73,10 +73,10 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	pipe->port_id = cfg->port->port_id;
 	return pipe;
 }
-print_ether_addr(const char *what, uint8_t eth_addr)
+print_ether_addr(const char *what, uint8_t eth_addr[])
 {
-	printf("%d\n",eth_addr);
-	printf("%d\n",eth_addr+1);
+	printf("%d\n",eth_addr[0]);
+	printf("%d\n",eth_addr[1]);
 	
 	//printf("%s %02x-%02x-%02x-%02x-%02x-%02x\n",what, eth_addr[0],eth_addr[1],eth_addr[2],eth_addr[3],eth_addr[4],eth_addr[5]);
 }
