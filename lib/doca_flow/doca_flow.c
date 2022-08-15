@@ -183,7 +183,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_MAC_DST\n");
 			const struct rte_flow_action_set_mac *dst_mac = actions->conf;
-			// print_ether_addr("		mac_addr: ",dst_mac->mac_addr);
+			print_ether_addr("		mac_addr: ",dst_mac->mac_addr);
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
