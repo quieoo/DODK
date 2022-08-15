@@ -125,6 +125,19 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("			dst_addr:%s\n",inet_ntoa(dst));
 				
 				break;
+			case RTE_FLOW_ITEM_TYPE_UDP:
+				printf("RTE_FLOW_ITEM_TYPE_UDP\n");
+				const struct rte_flow_item_udp *udpspec = pattern->spec;
+				struct in_addr dst,src;
+			
+				dst.s_addr=udpspec->hdr.dst_port;
+				src.s_addr=udpspec->hdr.src_port;
+
+				printf("		spec.hdr:\n");
+				printf("			src_addr:%s\n",inet_ntoa(src));
+				printf("			dst_addr:%s\n",inet_ntoa(dst));
+				
+				break;
 			default:
 				printf("other type: %d\n",pattern->type);
 		}
@@ -148,6 +161,31 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				const struct rte_flow_action_queue *queue = actions->conf;
 				printf("		index:%d\n",queue->index);
 				break;
+			case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:
+				printf("RTE_FLOW_ACTION_TYPE_SET_MAC_DST\n");
+				const struct rte_flow_action_set_mac *dst_mac=actions->conf;
+				printf("		mac_addr: ");
+				for(int i=0;i<RTE_ETHER_ADDR_LEN;i++){
+					printf("%x",dst_mac[i]);
+				}
+				printf("\n");
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
+				printf("RTE_FLOW_ACTION_TYPE_SET_IPV4_DST\n");
+				const struct rte_flow_action_set_ipv4 *dst_ip=actions->conf;
+				struct in_addr addr;
+				addr.s_addr=dst_ip->ipv4_addr;
+				printf("		dst_addr:%s\n",inet_ntoa(addr));
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
+				const struct rte_flow_action_set_tp *dst_tp=actions->conf;
+				printf("		port: %d\n",dst_tp);
+				break;
+			case RTE_FLOW_ACTION_TYPE_PORT_ID:
+				const struct rte_flow_action_port_id *pid=actions->conf;
+				printf("		port_id: %d\n",pid->id);
+				break;
+			
 			default:
 				printf("other type: %d\n",actions->type);
 		}
