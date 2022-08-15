@@ -241,11 +241,13 @@ struct doca_flow_error *error){
 	{
 	case 1:
 		//DOCA_FLOW_FWD_RSS
+		/*
 		action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
 		struct rte_flow_action_rss _rss;
 		_rss.queue_num=fwd->num_of_queues;
 		_rss.queue=fwd->rss_queues;
 		action[p++].conf=&_rss;
+		*/
 		break;
 	case 2:
 		//DOCA_FLOW_FWD_PORT
