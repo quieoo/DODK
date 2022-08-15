@@ -48,7 +48,7 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
         break;
     }
     if (output==0){
-        return
+        return;
     }
     va_list ap;
     va_start(ap, format);
