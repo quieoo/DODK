@@ -76,7 +76,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 print_ether_addr(const char *what, uint8_t eth_addr[])
 {
 	printf("%d\n",sizeof(eth_addr));
-	printf("%d\n",*eth_addr);
+	printf("%d\n",);
 	printf("%d\n",*(eth_addr+1));
 	
 	//printf("%s %02x-%02x-%02x-%02x-%02x-%02x\n",what, eth_addr[0],eth_addr[1],eth_addr[2],eth_addr[3],eth_addr[4],eth_addr[5]);
@@ -107,6 +107,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ITEM_TYPE_ETH:
 			printf("RTE_FLOW_ITEM_TYPE_ETH\n");
 			const struct rte_flow_item_eth *spec = pattern->mask;
+			printf("%d\n",sizeof(spec->hdr.src_addr.addr_bytes));
 			print_ether_addr("			src_mac: ",spec->hdr.src_addr.addr_bytes);
 			print_ether_addr("			dst_mac: ",spec->hdr.dst_addr.addr_bytes);
 			break;
