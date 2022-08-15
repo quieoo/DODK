@@ -23,6 +23,7 @@ struct doca_logger_backend *doca_log_create_buffer_backend(char *buffer, size_t 
 struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
+    int output=0;
     switch (level)
     {
     case 4:
@@ -36,13 +37,18 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
         break;
     case 0:
         printf("LOG_CRIT: ");
+        output=1;
         break;
     case 1:
         printf("LOG_ERR: ");
+        output=1;
         break;
     default:
         // printf("LOG-%d: ",level);
         break;
+    }
+    if (output==0){
+        return
     }
     va_list ap;
     va_start(ap, format);
