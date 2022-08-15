@@ -275,9 +275,10 @@ struct doca_flow_error *error){
 	action[p].type=RTE_FLOW_ACTION_TYPE_END;
 
 	
-	output_flow(port_id, &attr, pattern, action, &error);
 	//get port id
 	int port_id=pipe->port_id;
+	
+	output_flow(port_id, &attr, pattern, action, &error);
 	
 	//validate and create entry
 	struct rte_flow_error rte_error;
