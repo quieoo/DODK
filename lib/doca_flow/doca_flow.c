@@ -325,8 +325,7 @@ doca_flow_port_pipes_flush(uint16_t port_id){}
 void
 doca_flow_destroy_port(uint16_t port_id)
 {
-	printf("doca_flow_destroy_port\n");
-	free(ports);
+	
 }
 
 void
