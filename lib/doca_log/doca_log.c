@@ -26,13 +26,22 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
     switch (level)
     {
     case 4:
-        printf("LOG_INFO: ");
+        //DEBUG
         break;
-    case 1:
+    case 3:
+        // printf("LOG_INFO: ");
+        break;
+    case 2:
+        // WARNING
+        break;
+    case 0:
         printf("LOG_CRIT: ");
         break;
+    case 1:
+        printf("LOG_ERR: ");
+        break;
     default:
-        printf("LOG-%d: ",level);
+        // printf("LOG-%d: ",level);
         break;
     }
     va_list ap;
