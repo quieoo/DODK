@@ -645,6 +645,7 @@ simple_fwd_build_entry_monitor(struct simple_fwd_pkt_info *pinfo,
 static struct doca_flow_pipe*
 simple_fwd_select_pipe(struct simple_fwd_pkt_info *pinfo)
 {
+	printf("pinfo->tun_type: %d\n",pinfo->tun_type);
 	if (pinfo->tun_type == DOCA_FLOW_TUN_GRE)
 		return simple_fwd_ins->pipe_gre[pinfo->orig_port_id];
 	if (pinfo->tun_type == DOCA_FLOW_TUN_VXLAN)
