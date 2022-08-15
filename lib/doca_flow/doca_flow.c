@@ -182,7 +182,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("		port: %d\n",dst_tp);
 				break;
 			case RTE_FLOW_ACTION_TYPE_PORT_ID:
-				const struct rte_flow_action_port_id *pid=actions->conf;
+				struct rte_flow_action_port_id *pid=actions->conf;
 				printf("		port_id: %d\n",pid->id);
 				break;
 			
