@@ -652,7 +652,8 @@ simple_fwd_select_pipe(struct simple_fwd_pkt_info *pinfo)
 		return simple_fwd_ins->pipe_vxlan[pinfo->orig_port_id];
 	if (pinfo->tun_type == DOCA_FLOW_TUN_GTPU)
 		return simple_fwd_ins->pipe_gtp[pinfo->orig_port_id];
-	return NULL;
+	return simple_fwd_ins->pipe_control[pinfo->orig_port_id];
+	// return NULL;
 }
 
 static struct doca_flow_fwd*
