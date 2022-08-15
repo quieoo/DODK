@@ -75,6 +75,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 }
 print_ether_addr(const char *what, uint8_t *eth_addr)
 {
+	printf("%d\n",sizeof(eth_addr));
 	printf("%d\n",*eth_addr);
 	printf("%d\n",*(eth_addr+1));
 	
