@@ -99,7 +99,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			break;
 		case RTE_FLOW_ITEM_TYPE_ETH:
 			printf("RTE_FLOW_ITEM_TYPE_ETH\n");
-			const struct rte_flow_item_eth *spec = pattern->mask;
+			const struct rte_flow_item_eth *spec = pattern->spec;
 			printf("			src_mac: %02X-%02X-%02X-%02X-%02X-%02X\n"
 			,spec->hdr.src_addr.addr_bytes[0]
 			,spec->hdr.src_addr.addr_bytes[1]
