@@ -169,6 +169,7 @@ const struct doca_flow_fwd *fwd,
 uint32_t flags, 
 void *usr_ctx, 
 struct doca_flow_error *error){
+	printf("doca_flow_pipe_add_entry---------------------\n");
 	//dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
