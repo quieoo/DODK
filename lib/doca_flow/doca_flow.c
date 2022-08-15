@@ -116,7 +116,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				mask_dst.s_addr = mask->hdr.dst_addr;
 				mask_src.s_addr = mask->hdr.src_addr;
 				printf("		mask.hdr:\n");
-				printf("			src_addr:%s\n", inet_ntoa(mask_src));
+				printf("			src_addr: %s\n", inet_ntoa(mask_src));
 				printf("			dst_addr: %s\n", inet_ntoa(mask_dst));
 			}
 			const struct rte_flow_item_ipv4 *spec = pattern->spec;
@@ -125,8 +125,8 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			src.s_addr = spec->hdr.src_addr;
 
 			printf("		spec.hdr:\n");
-			printf("			src_addr:%s\n", inet_ntoa(src));
-			printf("			dst_addr:%s\n", inet_ntoa(dst));
+			printf("			src_addr: %s\n", inet_ntoa(src));
+			printf("			dst_addr: %s\n", inet_ntoa(dst));
 
 			break;
 		}
@@ -135,8 +135,8 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			printf("RTE_FLOW_ITEM_TYPE_UDP\n");
 			const struct rte_flow_item_udp *udpspec = pattern->spec;
 			printf("		spec.hdr:\n");
-			printf("			src_addr:%d\n", udpspec->hdr.src_port);
-			printf("			dst_addr:%d\n", udpspec->hdr.dst_port);
+			printf("			src_addr: %d\n", udpspec->hdr.src_port);
+			printf("			dst_addr: %d\n", udpspec->hdr.dst_port);
 
 			break;
 		}
@@ -162,7 +162,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		{
 			printf("RTE_FLOW_ACTION_TYPE_QUEUE\n");
 			const struct rte_flow_action_queue *queue = actions->conf;
-			printf("		index:%d\n", queue->index);
+			printf("		index: %d\n", queue->index);
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:
@@ -178,7 +178,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			const struct rte_flow_action_set_ipv4 *dst_ip = actions->conf;
 			struct in_addr addr;
 			addr.s_addr = dst_ip->ipv4_addr;
-			printf("		dst_addr:%s\n", inet_ntoa(addr));
+			printf("		dst_addr: %s\n", inet_ntoa(addr));
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
