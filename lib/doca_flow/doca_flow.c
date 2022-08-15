@@ -42,7 +42,10 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 
 	return port;
 }
-
+print_ether_addr(const char *what, uint8_t eth_addr[])
+{
+	printf("%s %02x-%02x-%02x-%02x-%02x-%02x\n",what, eth_addr[0],eth_addr[1],eth_addr[2],eth_addr[3],eth_addr[4],eth_addr[5]);
+}
 int doca_flow_port_stop(struct doca_flow_port *port) {}
 
 int doca_flow_port_pair(struct doca_flow_port *port, struct doca_flow_port *pair_port) {}
