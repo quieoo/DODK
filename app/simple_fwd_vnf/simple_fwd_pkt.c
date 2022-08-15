@@ -141,7 +141,7 @@ simple_fwd_parse_pkt_format(uint8_t *data, int len, bool l2,
 		case RTE_ETHER_TYPE_ARP:
 			return -1;
 		default:
-			DOCA_LOG_WARN("unsupported l2 type %x",
+			DOCA_LOG_WARN("unsupported l2 type %d",
 				eth->ether_type);
 			return -1;
 		}
