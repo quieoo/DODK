@@ -83,13 +83,14 @@ _ft_destroy_entry(struct simple_fwd_ft *ft,
 		  struct simple_fwd_ft_entry *ft_entry)
 {
 	//LIST_REMOVE(ft_entry, next);
-	if (ft_entry==NULL){
-		printf("ft_entry==NULL\n");
-	}
 	
 	do{
 		if((ft_entry)->next.le_next != NULL)
-			(ft_entry)->next.le_next->next.le_prev = (ft_entry)->next.le_prev; 
+		{
+			(ft_entry)->next.le_next->next.le_prev = (ft_entry)->next.le_prev;
+			printf("(ft_entry)->next.le_next != NULL\n");
+		}
+		printf("(ft_entry)->next.le_next == NULL\n");
 		*(ft_entry)->next.le_prev = (ft_entry)->next.le_next; 
 	}while (0);
 
