@@ -75,6 +75,9 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 }
 print_ether_addr(const char *what, uint8_t eth_addr[])
 {
+	printf("%d",eth_addr);
+	printf("%d",*eth_addr);
+	
 	printf("%s %02x-%02x-%02x-%02x-%02x-%02x\n",what, eth_addr[0],eth_addr[1],eth_addr[2],eth_addr[3],eth_addr[4],eth_addr[5]);
 }
 void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struct rte_flow_item *pattern, const struct rte_flow_action *actions, struct rte_flow_error *error)
