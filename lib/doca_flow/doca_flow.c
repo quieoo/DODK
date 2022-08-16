@@ -385,7 +385,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		output_flow(port_id, &attr, pattern, action, &error);
+		printf("$$$$$$$$$$$$$$$\n");
+		//output_flow(port_id, &attr, pattern, action, &error);
 	}
 	else
 	{
