@@ -236,6 +236,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
+	struct in_addr addr;
+	addr.s_addr=actions->mod_dst_ip.ipv4_addr;
+	printf("mod_dst_ip: %s\n",inet_ntoa(addr));
+
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
