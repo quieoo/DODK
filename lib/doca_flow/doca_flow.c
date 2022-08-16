@@ -228,6 +228,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	/*convert match->pattern*/
 	int p = 0;
+	printf("%d\n",p);
 	// out_dst_mac
 	uint8_t mac0[6]={0};
 	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0)))!=0)
@@ -238,6 +239,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 		pattern[p++].spec = &mac_spec;
 	}
+	printf("%d\n",p);
 	// out_src_mac
 	if ((memcmp(match->out_src_mac, mac0, sizeof(mac0)))!=0)
 	{
@@ -248,6 +250,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		pattern[p++].spec = &mac_spec;
 	}
 	uint32_t ip0=0;
+	printf("%d\n",p);
 	// match->out_dst_ip
 	if ((memcmp(match->out_dst_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
 	{
@@ -257,6 +260,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		ip_spec.hdr.dst_addr = match->out_dst_ip.ipv4_addr;
 		pattern[p++].spec = &ip_spec;
 	}
+	printf("%d\n",p);
 	// match->out_src_ip
 	if ((memcmp(match->out_src_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
 	{
@@ -266,6 +270,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		ip_spec.hdr.src_addr = match->out_src_ip.ipv4_addr;
 		pattern[p++].spec = &ip_spec;
 	}
+	printf("%d\n",p);
 
 	uint16_t port0=0;
 	// match->out_dst_port
@@ -284,6 +289,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			pattern[p++].spec = &tcp_spec;
 		}
 	}
+	printf("%d\n",p);
 	// match->out_src_port
 	if((memcmp(match->out_src_port, port0, sizeof(port0)))!=0){
 		if(match->out_l4_type == IPPROTO_UDP){
@@ -300,7 +306,9 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			pattern[p++].spec = &tcp_spec;
 		}
 	}
+	printf("%d\n",p);
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
+	printf("%d\n",p);
 
 	/*convert actions -> action*/
 	// modify packets
