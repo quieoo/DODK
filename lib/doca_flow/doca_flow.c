@@ -338,32 +338,32 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	if (actions->mod_dst_ip.ipv4_addr != ip0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
-		struct rte_flow_action_set_ipv4 set_ipv4;
-		set_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
-		action[p++].conf = &set_ipv4;
-		printf("create flow ip: %d\n", set_ipv4.ipv4_addr);
+		struct rte_flow_action_set_ipv4 dst_ipv4;
+		dst_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
+		action[p++].conf = &dst_ipv4;
+		printf("create flow ip: %d\n", dst_ipv4.ipv4_addr);
 	}
 	if (actions->mod_src_ip.ipv4_addr != ip0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_SRC;
-		struct rte_flow_action_set_ipv4 set_ipv4;
-		set_ipv4.ipv4_addr = actions->mod_src_ip.ipv4_addr;
-		action[p++].conf = &set_ipv4;
+		struct rte_flow_action_set_ipv4 src_ipv4;
+		src_ipv4.ipv4_addr = actions->mod_src_ip.ipv4_addr;
+		action[p++].conf = &src_ipv4;
 	}
 	if (actions->mod_dst_port != port0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_DST;
-		struct rte_flow_action_set_tp set_tp;
-		set_tp.port = actions->mod_dst_port;
-		action[p++].conf = &set_tp;
-		printf("create flow port: %d\n", set_tp.port);
+		struct rte_flow_action_set_tp dst_tp;
+		dst_tp.port = actions->mod_dst_port;
+		action[p++].conf = &dst_tp;
+		printf("create flow port: %d\n", dst_tp.port);
 	}
 	if (actions->mod_src_port != port0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_SRC;
-		struct rte_flow_action_set_tp set_tp;
-		set_tp.port = actions->mod_src_port;
-		action[p++].conf = &set_tp;
+		struct rte_flow_action_set_tp src_tp;
+		src_tp.port = actions->mod_src_port;
+		action[p++].conf = &src_tp;
 	}
 
 	// forward actions
