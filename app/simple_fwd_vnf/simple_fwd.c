@@ -203,6 +203,7 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	if(memcmp(match.out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0))){
 		printf("initialized\n");
 	}
+	printf("check");
 
 	if (fwd == NULL || fwd_miss == NULL)
 		goto build_fail;
