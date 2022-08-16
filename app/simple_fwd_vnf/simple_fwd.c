@@ -686,8 +686,8 @@ simple_fwd_pipe_add_entry(struct simple_fwd_pkt_info *pinfo,
 	struct doca_flow_pipe_entry *entry;
 
 	printf("Initialize: \n");
-	printf("match.out_dst_mac: %d\n",match.out_dst_mac[0]);
-
+	printf("	match.out_dst_mac: %d-%d\n",match.out_dst_mac[0],match.out_dst_mac[1]);
+	printf("	match.out_dst_ip: %d\n",match.out_dst_ip.ipv4_addr);
 	pipe = simple_fwd_select_pipe(pinfo);
 	if (pipe == NULL) {
 		DOCA_LOG_WARN("failed to select pipe on this packet");
