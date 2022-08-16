@@ -341,7 +341,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_action_set_ipv4 dst_ipv4;
 		dst_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
 		action[p++].conf = &dst_ipv4;
-		printf("create flow ip: %d\n", dst_ipv4.ipv4_addr);
+		printf("create flow ip: %d (with p:%d)\n", dst_ipv4.ipv4_addr,p-1);
 	}
 	if (actions->mod_src_ip.ipv4_addr != ip0)
 	{
