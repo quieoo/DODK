@@ -235,9 +235,13 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	{
 		printf("check\n");
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
+		printf("check\n");
 		struct rte_flow_item_eth mac_spec;
+		printf("check\n");
 		memset(&mac_spec, 0, sizeof(struct rte_flow_item_eth));
+		printf("check\n");
 		memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
+		printf("check\n");
 		pattern[p++].spec = &mac_spec;
 	}
 	printf("check\n");
