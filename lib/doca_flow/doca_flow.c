@@ -251,6 +251,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	uint32_t ip0=0;
 	printf("%d\n",p);
+	printf("%d %d\n",match->out_dst_ip.ipv4_addr, ip0);
 	// match->out_dst_ip
 	if ((memcmp(match->out_dst_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
 	{
