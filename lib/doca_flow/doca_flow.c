@@ -227,8 +227,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	attr.ingress = 1;
 
 	/*convert match->pattern*/
-	// mac
 	int p = 0;
+	// mac
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
 	struct rte_flow_item_eth mac_spec;
 	memset(&mac_spec, 0, sizeof(struct rte_flow_item_eth));
