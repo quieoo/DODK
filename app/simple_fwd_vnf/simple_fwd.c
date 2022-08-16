@@ -576,10 +576,6 @@ simple_fwd_build_entry_match(struct simple_fwd_pkt_info *pinfo,
 			     struct doca_flow_match *match)
 {
 	memset(match, 0x0, sizeof(*match));
-	uint8_t out_dst_mac0[DOCA_ETHER_ADDR_LEN];
-	if(memcmp(match->out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0))){
-		printf("initialized\n");
-	}
 	/* set match all fields, pipe will select which field to match */
 	memcpy(match->out_dst_mac, simple_fwd_pinfo_outer_mac_dst(pinfo),
 		DOCA_ETHER_ADDR_LEN);
