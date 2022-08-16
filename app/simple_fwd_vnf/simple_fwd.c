@@ -604,7 +604,7 @@ simple_fwd_build_entry_action(struct simple_fwd_pkt_info *pinfo,
 	SET_MAC_ADDR(action->mod_dst_mac, 0x0c, 0x42, 0xa1, 0x4b, 0xc5, 0x8c);
 	action->mod_dst_ip.ipv4_addr = BE_IPV4_ADDR(18, 18, 18, 18);
 	action->mod_dst_port = RTE_BE16(55555);
-
+	printf("init: %d %d\n",action->mod_dst_ip.ipv4_addr, action->mod_dst_port);
 	/* set vxlan encap data, pipe will decide if do encap */
 	action->has_encap = true;
 	/*

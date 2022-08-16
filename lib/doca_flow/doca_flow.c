@@ -193,6 +193,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				struct in_addr addr;
 				addr.s_addr = dst_ip->ipv4_addr;
 				printf("		dst_addr: %s\n", inet_ntoa(addr));
+				printf("output ip: %d\n",dst_ip->ipv4_addr);
 			}
 			break;
 		}
@@ -203,6 +204,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			{
 				const struct rte_flow_action_set_tp *dst_tp = actions->conf;
 				printf("		port: %d\n", dst_tp->port);
+				printf("output port: %d\n", dst_tp->port);
 			}
 			break;
 		}
@@ -339,10 +341,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_action_set_ipv4 set_ipv4;
 		set_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
 		action[p++].conf = &set_ipv4;
-
-		struct in_addr addr;
-		addr.s_addr = set_ipv4.ipv4_addr;
-		printf("mod_dst_ip: %s\n", inet_ntoa(addr));
+		printf("create flow ip: %d\n", set_ipv4.ipv4_addr);
 	}
 	if (actions->mod_src_ip.ipv4_addr != ip0)
 	{
@@ -357,6 +356,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_action_set_tp set_tp;
 		set_tp.port = actions->mod_dst_port;
 		action[p++].conf = &set_tp;
+		printf("create flow port: %d\n", set_tp.port);
 	}
 	if (actions->mod_src_port != port0)
 	{
