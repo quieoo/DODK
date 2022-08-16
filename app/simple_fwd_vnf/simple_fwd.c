@@ -198,6 +198,10 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	struct doca_flow_monitor mon = {0};
 	uint16_t *queues = NULL;
 	int n_queues;
+	uint8_t out_dst_mac0[DOCA_ETHER_ADDR_LEN];
+	if(memcmp(match.out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0))){
+		printf("initialized\n");
+	}
 
 	if (fwd == NULL || fwd_miss == NULL)
 		goto build_fail;
