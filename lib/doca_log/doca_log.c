@@ -26,7 +26,7 @@ int _level;
 
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
-    _level=1;
+    _level=2;
     if(level<=_level){
         switch (level)
         {
