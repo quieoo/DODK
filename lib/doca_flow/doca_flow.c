@@ -229,18 +229,18 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	/*convert match->pattern*/
 	int p = 0;
 	// out_dst_mac
-	uint8_t mac0[6];
-	printf("check");
-	if (!(memcmp(match->out_dst_mac, mac0, sizeof(mac0))))
+	uint8_t mac0[6]={0};
+	printf("check\n");
+	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0)))!=0)
 	{
-		printf("check");
+		printf("check\n");
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
 		struct rte_flow_item_eth mac_spec;
 		memset(&mac_spec, 0, sizeof(struct rte_flow_item_eth));
 		memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 		pattern[p++].spec = &mac_spec;
 	}
-	printf("check");
+	printf("check\n");
 	// out_src_mac
 	if (!(memcmp(match->out_src_mac, mac0, sizeof(mac0))))
 	{

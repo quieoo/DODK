@@ -201,11 +201,8 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 
 	uint8_t out_dst_mac0[DOCA_ETHER_ADDR_LEN]={0};
 	if((memcmp(match.out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0)))==0){
-		printf("check\n");
 		printf("initializeddddd\n");
-		printf("chec\n");
 	}
-	printf("check\n");
 
 	if (fwd == NULL || fwd_miss == NULL)
 		goto build_fail;
@@ -232,7 +229,6 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	fwd->rss_flags = DOCA_FLOW_RSS_IP | DOCA_FLOW_RSS_UDP;
 	fwd->num_of_queues = n_queues;
 	fwd->rss_mark = 6;
-	printf("check\n");
 
 	/* build next_pipe */
 	next_pipe = doca_flow_create_pipe(&pipe_cfg, fwd, NULL, &error);
@@ -240,7 +236,6 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 		DOCA_DLOG_ERR("next pipe is null.");
 		goto build_fail;
 	}
-		printf("check\n");
 
 
 	/* build fwd_miss */
@@ -250,7 +245,6 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	/* add fwd_miss entry if type is DOCA_FLOW_FWD_PIPE */
 	if (!doca_flow_pipe_add_entry(0, next_pipe, &match, &actions, &mon, fwd, 0, NULL, &error))
 		goto build_fail;
-	printf("check\n");
 
 	return fwd_miss;
 build_fail:
