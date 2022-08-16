@@ -276,7 +276,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			memset(&udp_spec, 0, sizeof(struct rte_flow_item_udp));
 			udp_spec.hdr.dst_port = match->out_dst_port;
 			pattern[p++].spec = &udp_spec;
-		}else if(match->out_l4_type= IPPROTO_TCP){
+		}else if(match->out_l4_type == IPPROTO_TCP){
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
 			struct rte_flow_item_tcp tcp_spec;
 			memset(&tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
@@ -292,7 +292,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			memset(&udp_spec, 0, sizeof(struct rte_flow_item_udp));
 			udp_spec.hdr.src_port = match->out_src_port;
 			pattern[p++].spec = &udp_spec;
-		}else if(match->out_l4_type= IPPROTO_TCP){
+		}else if(match->out_l4_type == IPPROTO_TCP){
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
 			struct rte_flow_item_tcp tcp_spec;
 			memset(&tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
