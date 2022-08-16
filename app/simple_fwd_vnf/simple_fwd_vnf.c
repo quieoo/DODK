@@ -35,7 +35,6 @@ DOCA_LOG_REGISTER(SIMPLE_FWD_VNF);
 static void
 signal_handler(int signum)
 {
-	printf("---------------------terminate\n");
 	if (signum == SIGINT || signum == SIGTERM) {
 		DOCA_LOG_INFO("Signal %d received, preparing to exit...", signum);
 		simple_fwd_process_pkts_stop();
