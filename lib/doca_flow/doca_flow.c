@@ -312,23 +312,54 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	/*convert actions -> action*/
 	// modify packets
 	p = 0;
-	action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
-	struct rte_flow_action_set_mac dst_mac;
-	for (int i = 0; i < 6; i++)
+	if (memcmp(actions->mod_dst_mac, mac0, sizeof(mac0)) != 0)
 	{
-		dst_mac.mac_addr[i] = actions->mod_dst_mac[i];
+		action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
+		struct rte_flow_action_set_mac dst_mac;
+		for (int i = 0; i < 6; i++)
+		{
+			dst_mac.mac_addr[i] = actions->mod_dst_mac[i];
+		}
+		action[p++].conf = &dst_mac;
 	}
-	action[p++].conf = &dst_mac;
-
-	action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
-	struct rte_flow_action_set_ipv4 set_ipv4;
-	set_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
-	action[p++].conf = &set_ipv4;
-
-	action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_DST;
-	struct rte_flow_action_set_tp set_tp;
-	set_tp.port = actions->mod_dst_port;
-	action[p++].conf = &set_tp;
+	if (memcmp(actions->mod_src_mac, mac0, sizeof(mac0)) != 0)
+	{
+		action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_SRC;
+		struct rte_flow_action_set_mac src_mac;
+		for (int i = 0; i < 6; i++)
+		{
+			src_mac.mac_addr[i] = actions->mod_src_mac[i];
+		}
+		action[p++].conf = &src_mac;
+	}
+	if (actions->mod_dst_ip.ipv4_addr != ip0)
+	{
+		action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
+		struct rte_flow_action_set_ipv4 set_ipv4;
+		set_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
+		action[p++].conf = &set_ipv4;
+	}
+	if (actions->mod_src_ip.ipv4_addr != ip0)
+	{
+		action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_SRC;
+		struct rte_flow_action_set_ipv4 set_ipv4;
+		set_ipv4.ipv4_addr = actions->mod_src_ip.ipv4_addr;
+		action[p++].conf = &set_ipv4;
+	}
+	if (actions->mod_dst_port != port0)
+	{
+		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_DST;
+		struct rte_flow_action_set_tp set_tp;
+		set_tp.port = actions->mod_dst_port;
+		action[p++].conf = &set_tp;
+	}
+	if (actions->mod_src_port != port0)
+	{
+		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_SRC;
+		struct rte_flow_action_set_tp set_tp;
+		set_tp.port = actions->mod_src_port;
+		action[p++].conf = &set_tp;
+	}
 
 	// forward actions
 	switch (fwd->type)
