@@ -413,6 +413,7 @@ void doca_flow_port_pipes_flush(uint16_t port_id) {}
 
 void doca_flow_destroy_port(uint16_t port_id)
 {
+	rte_eal_cleanup();
 }
 
 void doca_flow_port_pipes_dump(uint16_t port_id, FILE *f) {}

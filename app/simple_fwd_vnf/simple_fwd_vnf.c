@@ -100,7 +100,6 @@ main(int argc, char **argv)
 	process_pkts_params.vnf = vnf;
 	rte_eal_mp_remote_launch(simple_fwd_process_pkts, &process_pkts_params, CALL_MAIN);
 	rte_eal_mp_wait_lcore();
-	DOCA_LOG_INFO("finish cores workers\n");
 	RTE_ETH_FOREACH_DEV(port_id)
 		doca_flow_destroy_port(port_id);
 
