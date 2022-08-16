@@ -255,6 +255,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// match->out_dst_ip
 	if ((memcmp(match->out_dst_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
 	{
+		printf("no legal\n");
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		struct rte_flow_item_ipv4 ip_spec;
 		memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
