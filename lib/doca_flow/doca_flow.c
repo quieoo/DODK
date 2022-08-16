@@ -257,7 +257,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	int p = 0;
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
 
-	uint8_t mac0[6] = {0};
+	const uint8_t mac0[6] = {0};
 	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->out_src_mac, mac0, sizeof(mac0))) != 0)
 	{
 		struct rte_flow_item_eth mac_spec;
@@ -269,7 +269,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	p++;
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
-	uint32_t ip0 = 0;
+	const uint32_t ip0 = 0;
 	if (match->out_dst_ip.ipv4_addr != ip0 || match->out_src_ip.ipv4_addr != ip0)
 	{
 		struct rte_flow_item_ipv4 ip_spec;
@@ -280,7 +280,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	p++;
 
-	uint16_t port0 = 0;
+	const uint16_t port0 = 0;
 	if (match->out_l4_type == IPPROTO_UDP)
 	{
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
