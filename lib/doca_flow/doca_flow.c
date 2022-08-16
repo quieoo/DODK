@@ -102,41 +102,47 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			break;
 		case RTE_FLOW_ITEM_TYPE_ETH:
 			printf("RTE_FLOW_ITEM_TYPE_ETH\n");
-			const struct rte_flow_item_eth *spec = pattern->spec;
-			print_ether_addr("			src_mac:", spec->hdr.src_addr.addr_bytes);
-			print_ether_addr("			dst_mac:", spec->hdr.dst_addr.addr_bytes);
+			if (pattern->spec != NULL)
+			{
+				const struct rte_flow_item_eth *spec = pattern->spec;
+				print_ether_addr("			src_mac:", spec->hdr.src_addr.addr_bytes);
+				print_ether_addr("			dst_mac:", spec->hdr.dst_addr.addr_bytes);
+			}
 			break;
 		case RTE_FLOW_ITEM_TYPE_IPV4:
 		{
 			printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
-			const struct rte_flow_item_ipv4 *mask = pattern->mask;
-			struct in_addr mask_dst, mask_src;
-			if (mask != NULL)
+			if (pattern->mask != NULL)
 			{
+				const struct rte_flow_item_ipv4 *mask = pattern->mask;
+				6 struct in_addr mask_dst, mask_src;
 				mask_dst.s_addr = mask->hdr.dst_addr;
 				mask_src.s_addr = mask->hdr.src_addr;
 				printf("		mask.hdr:\n");
-				printf("			src_addr: %s\n", inet_ntoa(mask_src));
 				printf("			dst_addr: %s\n", inet_ntoa(mask_dst));
 			}
-			const struct rte_flow_item_ipv4 *spec = pattern->spec;
-			struct in_addr dst, src;
-			dst.s_addr = spec->hdr.dst_addr;
-			src.s_addr = spec->hdr.src_addr;
-
-			printf("		spec.hdr:\n");
-			printf("			src_addr: %s\n", inet_ntoa(src));
-			printf("			dst_addr: %s\n", inet_ntoa(dst));
-
+			if (pattern->spec != NULL)
+			{
+				const struct rte_flow_item_ipv4 *spec = pattern->spec;
+				struct in_addr dst, src;
+				dst.s_addr = spec->hdr.dst_addr;
+				src.s_addr = spec->hdr.src_addr;
+				printf("		spec.hdr:\n");
+				printf("			src_addr: %s\n", inet_ntoa(src));
+				printf("			dst_addr: %s\n", inet_ntoa(dst));
+			}
 			break;
 		}
 		case RTE_FLOW_ITEM_TYPE_UDP:
 		{
 			printf("RTE_FLOW_ITEM_TYPE_UDP\n");
-			const struct rte_flow_item_udp *udpspec = pattern->spec;
-			printf("		spec.hdr:\n");
-			printf("			src_addr: %d\n", udpspec->hdr.src_port);
-			printf("			dst_addr: %d\n", udpspec->hdr.dst_port);
+			if (pattern->spec != NULL)
+			{
+				const struct rte_flow_item_udp *udpspec = pattern->spec;
+				printf("		spec.hdr:\n");
+				printf("			src_addr: %d\n", udpspec->hdr.src_port);
+				printf("			dst_addr: %d\n", udpspec->hdr.dst_port);
+			}
 
 			break;
 		}
@@ -161,38 +167,53 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ACTION_TYPE_QUEUE:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_QUEUE\n");
-			const struct rte_flow_action_queue *queue = actions->conf;
-			printf("		index: %d\n", queue->index);
+			if (actions->conf != NULL)
+			{
+				const struct rte_flow_action_queue *queue = actions->conf;
+				printf("		index: %d\n", queue->index);
+			}
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_MAC_DST\n");
-			const struct rte_flow_action_set_mac *dst_mac = actions->conf;
-			print_ether_addr("		mac_addr: ", dst_mac->mac_addr);
+			if (actions->conf != NULL)
+			{
+				const struct rte_flow_action_set_mac *dst_mac = actions->conf;
+				print_ether_addr("		mac_addr: ", dst_mac->mac_addr);
+			}
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_IPV4_DST\n");
-			const struct rte_flow_action_set_ipv4 *dst_ip = actions->conf;
-			struct in_addr addr;
-			addr.s_addr = dst_ip->ipv4_addr;
-			printf("		dst_addr: %s\n", inet_ntoa(addr));
+			if (actions->conf != NULL)
+			{
+				const struct rte_flow_action_set_ipv4 *dst_ip = actions->conf;
+				struct in_addr addr;
+				addr.s_addr = dst_ip->ipv4_addr;
+				printf("		dst_addr: %s\n", inet_ntoa(addr));
+			}
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_TP_DST\n");
-			const struct rte_flow_action_set_tp *dst_tp = actions->conf;
-			printf("		port: %d\n", dst_tp->port);
+			if (actions->conf != NULL)
+			{
+				const struct rte_flow_action_set_tp *dst_tp = actions->conf;
+				printf("		port: %d\n", dst_tp->port);
+			}
 			break;
 		}
 		case RTE_FLOW_ACTION_TYPE_PORT_ID:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_PORT_ID\n");
-			const struct rte_flow_action_port_id *pid = actions->conf;
-			printf("		port_id: %d\n", pid->id);
+			if (actions->conf != NULL)
+			{
+				const struct rte_flow_action_port_id *pid = actions->conf;
+				printf("		port_id: %d\n", pid->id);
+			}
 			break;
 		}
 
@@ -228,14 +249,14 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	/*
 		convert match->pattern
-		doca match items are initialized with 0. A 0-item means match all values in this field, 
+		doca match items are initialized with 0. A 0-item means match all values in this field,
 		which represents with a empry type(no spec) in dpdk.
 		doca assumes a packet will contain a vxlan-tp-ip-mac tunple, so we add all of those dpdk pattern type
 		and the spec is set according to match values
 	*/
 	int p = 0;
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
-	
+
 	uint8_t mac0[6] = {0};
 	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->out_src_mac, mac0, sizeof(mac0))) != 0)
 	{
@@ -244,8 +265,12 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		memset(&mac_spec, 0, sizeof(struct rte_flow_item_eth));
 		memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 		memcpy(mac_spec.hdr.src_addr.addr_bytes, match->out_src_mac, DOCA_ETHER_ADDR_LEN);
-		pattern[p].spec=&mac_spec;
-	}else{printf("skip pattern\n");}
+		pattern[p].spec = &mac_spec;
+	}
+	else
+	{
+		printf("skip pattern\n");
+	}
 	p++;
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
@@ -261,24 +286,29 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	p++;
 
 	uint16_t port0 = 0;
-	if(match->out_l4_type==IPPROTO_UDP){
+	if (match->out_l4_type == IPPROTO_UDP)
+	{
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
-		if(match->out_dst_port != port0 || match->out_src_port != port0){
+		if (match->out_dst_port != port0 || match->out_src_port != port0)
+		{
 			struct rte_flow_item_udp udp_spec;
 			memset(&udp_spec, 0, sizeof(struct rte_flow_item_udp));
 			udp_spec.hdr.dst_port = match->out_dst_port;
 			udp_spec.hdr.src_port = match->out_src_port;
-			pattern[p].spec=&udp_spec;
+			pattern[p].spec = &udp_spec;
 		}
 		p++;
-	}else if(match->out_l4_type==IPPROTO_TCP){
+	}
+	else if (match->out_l4_type == IPPROTO_TCP)
+	{
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
-		if(match->out_dst_port != port0 || match->out_src_port != port0){
+		if (match->out_dst_port != port0 || match->out_src_port != port0)
+		{
 			struct rte_flow_item_tcp tcp_spec;
 			memset(&tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
 			tcp_spec.hdr.dst_port = match->out_dst_port;
 			tcp_spec.hdr.src_port = match->out_src_port;
-			pattern[p].spec=&tcp_spec;
+			pattern[p].spec = &tcp_spec;
 		}
 		p++;
 	}
