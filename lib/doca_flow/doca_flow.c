@@ -250,15 +250,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		pattern[p++].spec = &mac_spec;
 	}
 	uint32_t ip0=0;
-	printf("%d\n",p);
-	printf("%d %d %d\n",match->out_dst_ip.ipv4_addr, ip0, sizeof(match->out_dst_ip.ipv4_addr));
-	// match->out_dst_ip
-	if(match->out_dst_ip.ipv4_addr != ip0){
-		printf("!=\n");
-	}else{
-		printf("==\n");
-	}
-	if ((memcmp(match->out_dst_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
+	if (match->out_dst_ip.ipv4_addr != ip0)
 	{
 		printf("no legal\n");
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
@@ -269,7 +261,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	printf("%d\n",p);
 	// match->out_src_ip
-	if ((memcmp(match->out_src_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
+	if (match->out_src_ip.ipv4_addr != ip0)
 	{
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		struct rte_flow_item_ipv4 ip_spec;
