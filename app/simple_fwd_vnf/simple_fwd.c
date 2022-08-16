@@ -576,6 +576,11 @@ simple_fwd_build_entry_match(struct simple_fwd_pkt_info *pinfo,
 			     struct doca_flow_match *match)
 {
 	memset(match, 0x0, sizeof(*match));
+
+	printf("Initialize: \n");
+	printf("	match.out_dst_mac: %d-%d\n",match.out_dst_mac[0],match.out_dst_mac[1]);
+	printf("	match.out_dst_ip: %d\n",match.out_dst_ip.ipv4_addr);
+
 	/* set match all fields, pipe will select which field to match */
 	memcpy(match->out_dst_mac, simple_fwd_pinfo_outer_mac_dst(pinfo),
 		DOCA_ETHER_ADDR_LEN);
@@ -685,9 +690,7 @@ simple_fwd_pipe_add_entry(struct simple_fwd_pkt_info *pinfo,
 	struct doca_flow_fwd *fwd = NULL;
 	struct doca_flow_pipe_entry *entry;
 
-	printf("Initialize: \n");
-	printf("	match.out_dst_mac: %d-%d\n",match.out_dst_mac[0],match.out_dst_mac[1]);
-	printf("	match.out_dst_ip: %d\n",match.out_dst_ip.ipv4_addr);
+
 	pipe = simple_fwd_select_pipe(pinfo);
 	if (pipe == NULL) {
 		DOCA_LOG_WARN("failed to select pipe on this packet");
