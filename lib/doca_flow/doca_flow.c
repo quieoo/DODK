@@ -247,7 +247,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	p++;
 
-	pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4
+	pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 	uint32_t ip0 = 0;
 	if (match->out_dst_ip.ipv4_addr != ip0 || match->out_src_ip.ipv4_addr != ip0)
 	{
