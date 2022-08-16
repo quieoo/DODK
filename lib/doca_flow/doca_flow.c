@@ -238,6 +238,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 		pattern[p++].spec = &mac_spec;
 	}
+	printf("check");
 	// out_src_mac
 	if (!(memcmp(match->out_src_mac, mac0, sizeof(mac0))))
 	{
