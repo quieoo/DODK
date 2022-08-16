@@ -115,7 +115,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			if (pattern->mask != NULL)
 			{
 				const struct rte_flow_item_ipv4 *mask = pattern->mask;
-				6 struct in_addr mask_dst, mask_src;
+				struct in_addr mask_dst, mask_src;
 				mask_dst.s_addr = mask->hdr.dst_addr;
 				mask_src.s_addr = mask->hdr.src_addr;
 				printf("		mask.hdr:\n");
