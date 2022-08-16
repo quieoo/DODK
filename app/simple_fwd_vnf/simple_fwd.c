@@ -585,6 +585,7 @@ simple_fwd_build_entry_match(struct simple_fwd_pkt_info *pinfo,
 	match->out_src_port = simple_fwd_pinfo_outer_src_port(pinfo);
 	match->out_dst_port = simple_fwd_pinfo_outer_dst_port(pinfo);
 	match->out_l4_type = pinfo->outer.l4_type;
+	printf("packet tun type: %d\n",pinfo->tun_type);
 	if (!pinfo->tun_type)
 		return;
 	simple_fwd_match_set_tun(pinfo, match);
@@ -599,12 +600,10 @@ void
 simple_fwd_build_entry_action(struct simple_fwd_pkt_info *pinfo,
 			      struct doca_flow_actions *action)
 {
-
 	/* include all modify action cases*/
 	SET_MAC_ADDR(action->mod_dst_mac, 0x0c, 0x42, 0xa1, 0x4b, 0xc5, 0x8c);
 	action->mod_dst_ip.ipv4_addr = BE_IPV4_ADDR(18, 18, 18, 18);
 	action->mod_dst_port = RTE_BE16(55555);
-	printf("init: %d %d\n",action->mod_dst_ip.ipv4_addr, action->mod_dst_port);
 	/* set vxlan encap data, pipe will decide if do encap */
 	action->has_encap = true;
 	/*
