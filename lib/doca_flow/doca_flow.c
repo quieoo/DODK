@@ -230,6 +230,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	int p = 0;
 	// out_dst_mac
 	uint8_t mac0[6];
+	printf("check");
 	if (!(memcmp(match->out_dst_mac, mac0, sizeof(mac0))))
 	{
 		printf("check");
