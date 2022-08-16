@@ -252,7 +252,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	uint32_t ip0=0;
 	if (match->out_dst_ip.ipv4_addr != ip0)
 	{
-		printf("no legal\n");
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		struct rte_flow_item_ipv4 ip_spec;
 		memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
@@ -273,7 +272,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	uint16_t port0=0;
 	// match->out_dst_port
-	if((memcmp(match->out_dst_port, port0, sizeof(port0)))!=0){
+	if(match->out_dst_port!=port0){
 		if(match->out_l4_type == IPPROTO_UDP){
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
 			struct rte_flow_item_udp udp_spec;
@@ -290,7 +289,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	printf("%d\n",p);
 	// match->out_src_port
-	if((memcmp(match->out_src_port, port0, sizeof(port0)))!=0){
+	if(match->out_src_port != port0){
 		if(match->out_l4_type == IPPROTO_UDP){
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
 			struct rte_flow_item_udp udp_spec;
