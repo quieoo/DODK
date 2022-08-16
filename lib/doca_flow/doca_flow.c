@@ -226,87 +226,62 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	attr.ingress = 1;
 
-	/*convert match->pattern*/
+	/*
+		convert match->pattern
+		doca match items are initialized with 0. A 0-item means match all values in this field, 
+		which represents with a empry type(no spec) in dpdk.
+		doca assumes a packet will contain a vxlan-tp-ip-mac tunple, so we add all of those dpdk pattern type
+		and the spec is set according to match values
+	*/
 	int p = 0;
-	printf("%d\n",p);
-	// out_dst_mac
-	uint8_t mac0[6]={0};
-	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0)))!=0)
+	pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
+	
+	uint8_t mac0[6] = {0};
+	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->out_src_mac, mac0, sizeof(mac0))) != 0)
 	{
-		pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
 		struct rte_flow_item_eth mac_spec;
 		memset(&mac_spec, 0, sizeof(struct rte_flow_item_eth));
 		memcpy(mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
-		pattern[p++].spec = &mac_spec;
-	}
-	printf("%d\n",p);
-	// out_src_mac
-	if ((memcmp(match->out_src_mac, mac0, sizeof(mac0)))!=0)
-	{
-		pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
-		struct rte_flow_item_eth mac_spec;
-		memset(&mac_spec, 0, sizeof(struct rte_flow_item_eth));
 		memcpy(mac_spec.hdr.src_addr.addr_bytes, match->out_src_mac, DOCA_ETHER_ADDR_LEN);
-		pattern[p++].spec = &mac_spec;
+		pattern[p].spec=&mac_spec;
 	}
-	uint32_t ip0=0;
-	if (match->out_dst_ip.ipv4_addr != ip0)
+	p++;
+
+	pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4
+	uint32_t ip0 = 0;
+	if (match->out_dst_ip.ipv4_addr != ip0 || match->out_src_ip.ipv4_addr != ip0)
 	{
-		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		struct rte_flow_item_ipv4 ip_spec;
 		memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
 		ip_spec.hdr.dst_addr = match->out_dst_ip.ipv4_addr;
-		pattern[p++].spec = &ip_spec;
-	}
-	printf("%d\n",p);
-	// match->out_src_ip
-	if (match->out_src_ip.ipv4_addr != ip0)
-	{
-		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
-		struct rte_flow_item_ipv4 ip_spec;
-		memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
 		ip_spec.hdr.src_addr = match->out_src_ip.ipv4_addr;
-		pattern[p++].spec = &ip_spec;
+		pattern[p].spec = &ip_spec;
 	}
-	printf("%d\n",p);
+	p++;
 
-	uint16_t port0=0;
-	// match->out_dst_port
-	if(match->out_dst_port!=port0){
-		if(match->out_l4_type == IPPROTO_UDP){
-			pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
+	uint16_t port0 = 0;
+	if(match->out_l4_type==IPPROTO_UDP){
+		pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
+		if(match->out_dst_port != port0 || match->out_src_port != port0){
 			struct rte_flow_item_udp udp_spec;
 			memset(&udp_spec, 0, sizeof(struct rte_flow_item_udp));
 			udp_spec.hdr.dst_port = match->out_dst_port;
-			pattern[p++].spec = &udp_spec;
-		}else if(match->out_l4_type == IPPROTO_TCP){
-			pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
+			udp_spec.hdr.src_port = match->out_src_port;
+			pattern[p].spec=&udp_spec;
+		}
+		p++;
+	}else if(match->out_l4_type==IPPROTO_TCP){
+		pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
+		if(match->out_dst_port != port0 || match->out_src_port != port0){
 			struct rte_flow_item_tcp tcp_spec;
 			memset(&tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
 			tcp_spec.hdr.dst_port = match->out_dst_port;
-			pattern[p++].spec = &tcp_spec;
-		}
-	}
-	printf("%d\n",p);
-	// match->out_src_port
-	if(match->out_src_port != port0){
-		if(match->out_l4_type == IPPROTO_UDP){
-			pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
-			struct rte_flow_item_udp udp_spec;
-			memset(&udp_spec, 0, sizeof(struct rte_flow_item_udp));
-			udp_spec.hdr.src_port = match->out_src_port;
-			pattern[p++].spec = &udp_spec;
-		}else if(match->out_l4_type == IPPROTO_TCP){
-			pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
-			struct rte_flow_item_tcp tcp_spec;
-			memset(&tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
 			tcp_spec.hdr.src_port = match->out_src_port;
-			pattern[p++].spec = &tcp_spec;
+			pattern[p].spec=&tcp_spec;
 		}
+		p++;
 	}
-	printf("%d\n",p);
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
-	printf("%d\n",p);
 
 	/*convert actions -> action*/
 	// modify packets
