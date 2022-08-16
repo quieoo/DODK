@@ -201,7 +201,7 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 
 	uint8_t out_dst_mac0[DOCA_ETHER_ADDR_LEN]={1};
 	printf("%d\n",sizeof(out_dst_mac0));
-	if(memcmp(match.out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0))){
+	if((memcmp(match.out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0)))==0){
 		printf("initializeddddd\n");
 		printf("check");
 	}
