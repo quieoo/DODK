@@ -253,6 +253,11 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	printf("%d\n",p);
 	printf("%d %d %d\n",match->out_dst_ip.ipv4_addr, ip0, sizeof(match->out_dst_ip.ipv4_addr));
 	// match->out_dst_ip
+	if(match->out_dst_ip.ipv4_addr != ip0){
+		printf("!=\n");
+	}else{
+		printf("==\n");
+	}
 	if ((memcmp(match->out_dst_ip.ipv4_addr, ip0, sizeof(ip0)))!=0)
 	{
 		printf("no legal\n");
@@ -261,8 +266,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
 		ip_spec.hdr.dst_addr = match->out_dst_ip.ipv4_addr;
 		pattern[p++].spec = &ip_spec;
-	}else{
-		printf("test\n");
 	}
 	printf("%d\n",p);
 	// match->out_src_ip
