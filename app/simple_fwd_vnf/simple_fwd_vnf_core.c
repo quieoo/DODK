@@ -110,6 +110,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 	DOCA_LOG_INFO("core %u process queue %u start", core_id, params->queues[0]);
 	last_tsc = rte_rdtsc();
 	while (!force_quit) {
+		printf("--\n");
 		if (core_id == rte_get_main_lcore()) {
 			cur_tsc = rte_rdtsc();                  
 			if (cur_tsc > last_tsc + app_config->stats_timer) {

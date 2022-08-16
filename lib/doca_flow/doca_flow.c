@@ -236,7 +236,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
-	printf("((((((((((((((((((\n");
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -386,8 +385,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		printf("$$$$$$$$$$$$$$$\n");
-		//output_flow(port_id, &attr, pattern, action, &error);
+		output_flow(port_id, &attr, pattern, action, &error);
 	}
 	else
 	{
