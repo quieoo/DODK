@@ -199,10 +199,9 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	uint16_t *queues = NULL;
 	int n_queues;
 
-	printf("t %d %d %d %d %d %d\n",match.out_dst_mac[0],match.out_dst_mac[1],match.out_dst_mac[2],match.out_dst_mac[3],match.out_dst_mac[4],match.out_dst_mac[5]);
 	uint8_t out_dst_mac0[DOCA_ETHER_ADDR_LEN]={0};
-	printf("t %d %d %d %d %d %d\n", out_dst_mac0[0], out_dst_mac0[1], out_dst_mac0[2], out_dst_mac0[3], out_dst_mac0[4], out_dst_mac0[5]);
 	if((memcmp(match.out_dst_mac,out_dst_mac0,sizeof(out_dst_mac0)))==0){
+		printf("check");
 		printf("initializeddddd\n");
 		printf("check");
 	}
