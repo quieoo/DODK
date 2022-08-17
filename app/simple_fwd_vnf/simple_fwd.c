@@ -585,7 +585,6 @@ simple_fwd_build_entry_match(struct simple_fwd_pkt_info *pinfo,
 	match->out_src_port = simple_fwd_pinfo_outer_src_port(pinfo);
 	match->out_dst_port = simple_fwd_pinfo_outer_dst_port(pinfo);
 	match->out_l4_type = pinfo->outer.l4_type;
-	printf("packet tun type: %d\n",pinfo->tun_type);
 	if (!pinfo->tun_type)
 		return;
 	simple_fwd_match_set_tun(pinfo, match);
