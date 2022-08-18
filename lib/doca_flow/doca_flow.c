@@ -594,14 +594,14 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
 		struct rte_flow_action_set_mac dst_mac;
-		memcpy(dst_mac, mactions->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(dst_mac.mac_addr, mactions->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
 		action[p++].conf = &dst_mac;
 	}
 	if (memcmp(mactions->mod_src_mac, mac0, sizeof(mac0)) != 0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_SRC;
 		struct rte_flow_action_set_mac src_mac;
-		memcpy(src_mac, mactions->mod_src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(src_mac.mac_addr, mactions->mod_src_mac, DOCA_ETHER_ADDR_LEN);
 		action[p++].conf = &src_mac;
 	}
 	if (mactions->mod_dst_ip.ipv4_addr != ip0)
