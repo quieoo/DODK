@@ -727,7 +727,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// validate and create entry
 	struct rte_flow_error rte_error;
 
-
+	output_flow(port_id, &attr, pattern, action, &error);
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
@@ -739,7 +739,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		output_flow(port_id, &attr, pattern, action, &error);
+		
 	}
 	else
 	{
