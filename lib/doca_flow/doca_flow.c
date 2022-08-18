@@ -315,7 +315,10 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
 	printf("c\n");
-	if (first->flags == 0) result->flags = second->flags; else result->flags = first->flags;
+	if (first->flags == 0)
+		result->flags = second->flags;
+	else
+		result->flags = first->flags;
 	printf("c\n");
 	CHOOSE21(flags, 0);
 	printf("c\n");
@@ -618,8 +621,9 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
 	printf("patern:");
-	for(int i=0;i<p;i++){
-		printf(" %d",pattern[i].type);
+	for (int i = 0; i < p; i++)
+	{
+		printf(" %d", pattern[i].type);
 	}
 	printf("\n");
 	/*convert actions -> action*/
@@ -733,11 +737,11 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		break;
 	case 3:
 		// DOCA_FLOW_FWD_PIPE
-		//printf("DOCA FWD PIPE\n");
-		action[p].type=RTE_FLOW_ACTION_TYPE_JUMP;
+		// printf("DOCA FWD PIPE\n");
+		action[p].type = RTE_FLOW_ACTION_TYPE_JUMP;
 		struct rte_flow_action_jump _jump;
-		_jump.group=fwd->next_pipe->group_id;
-		action[p++].conf=&_jump;
+		_jump.group = fwd->next_pipe->group_id;
+		action[p++].conf = &_jump;
 		break;
 	case 4:
 		// DOCA_FLOW_FWD_DROP
@@ -755,11 +759,12 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
 	printf("action:");
-	for(int i=0;i<p;i++){
-		printf(" %d",action[i].type);
+	for (int i = 0; i < p; i++)
+	{
+		printf(" %d", action[i].type);
 	}
 	printf("\n");
-	
+
 	// get port id
 	int port_id = pipe->cfg->port->port_id;
 
