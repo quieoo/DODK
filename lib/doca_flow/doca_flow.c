@@ -34,10 +34,6 @@ int doca_flow_init(const struct doca_flow_cfg *cfg,
 }
 
 void doca_flow_destroy(void) {}
-create pipe: CONTROL_PIPE
-create pipe: GTP_FWD
-create pipe: GRE_FWD
-create pipe: VXLAN_FWD
 typedef struct doca_flow_port
 {
 	int port_id;
