@@ -117,7 +117,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		attr.group = pipe->group_id;
 		attr.ingress = 1;
 
-		pattern[0].type = RTE_FLOW_ITEM_TYPE_ANY;
+		pattern[0].type = RTE_FLOW_ITEM_TYPE_ETH;
 		pattern[1].type = RTE_FLOW_ITEM_TYPE_END;
 
 		if (fwd_miss->type == DOCA_FLOW_FWD_DROP)
@@ -134,6 +134,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		action[1].type = RTE_FLOW_ACTION_TYPE_END;
 
 		struct rte_flow_error rte_error;
+		
 		int res = rte_flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
 		if (!res)
 		{
@@ -726,11 +727,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// validate and create entry
 	struct rte_flow_error rte_error;
 
-	int pl=sizeof(pattern)/sizeof(struct rte_flow_item);
-	printf("P: %d\n",pl);
-	for(int i=0;i<pl;i++){
-		printf("pattern: %d\n",pattern[i].type);
-	}
+
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
