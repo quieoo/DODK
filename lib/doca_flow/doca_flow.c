@@ -589,7 +589,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
 	// get port id
-	int port_id = pipe->port_id;
+	int port_id = pipe->cfg->port->port_id;
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
