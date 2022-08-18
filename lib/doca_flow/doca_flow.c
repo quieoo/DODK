@@ -315,6 +315,8 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
 	printf("c\n");
+	if (first->flags == 0) result->flags = second->flags; else result->flags = first->flags;
+	printf("c\n");
 	CHOOSE21(flags, 0);
 	printf("c\n");
 	CHOOSE21(meta.pkt_meta, 0);
