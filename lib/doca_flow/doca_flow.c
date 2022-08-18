@@ -12,7 +12,6 @@
 
 #define MAX_PATTERN_NUM 10
 #define MAX_ACTION_NUM 10
-#define RTE_LOGTYPE_DMA RTE_LOGTYPE_USER1
 
 const uint8_t mac0[6] = {0};
 const uint32_t ip0 = 0;
@@ -441,11 +440,12 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(action, 0, sizeof(action));
 
 	attr.ingress = 1;
-	rte_log(1,DMA,"hellp");
+	printf("before merge\n");
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
 	struct doca_flow_fwd *mfwd = merge_fwd(fwd, pipe->fwd);
+	printf("after merge\n");
 
 	/*
 		match -> pattern
