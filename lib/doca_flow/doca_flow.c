@@ -500,7 +500,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// tunnel
 	if (mmatch->tun.type)
 	{
-		/*
+		
 		switch (mmatch->tun.type)
 		{
 		case DOCA_FLOW_TUN_VXLAN:
@@ -539,7 +539,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			printf("TUNNEL OTHER TYPE: %d\n", mmatch->tun.type);
 			break;
 		}
-*/
+
 		// inner mmatch
 		if ((memcmp(mmatch->in_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(mmatch->in_src_mac, mac0, sizeof(mac0))) != 0)
 		{
@@ -725,6 +725,9 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
+	for(int i=0;i<p;i++){
+		printf("pattern: %d\n",pattern[i].type);
+	}
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
