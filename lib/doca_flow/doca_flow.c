@@ -313,7 +313,7 @@ struct doca_flow_match *
 merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
-	if(second==0){
+	if(second==NULL){
 		printf("zero\n");
 		return;
 	}
