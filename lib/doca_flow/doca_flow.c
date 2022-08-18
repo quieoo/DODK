@@ -34,7 +34,10 @@ int doca_flow_init(const struct doca_flow_cfg *cfg,
 }
 
 void doca_flow_destroy(void) {}
-
+create pipe: CONTROL_PIPE
+create pipe: GTP_FWD
+create pipe: GRE_FWD
+create pipe: VXLAN_FWD
 typedef struct doca_flow_port
 {
 	int port_id;
@@ -94,7 +97,6 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	pipe->cfg = cfg;
 	pipe->fwd = fwd;
 	pipe->fwd_miss = fwd_miss;
-	printf("create pipe: %s\n",pipe->cfg->name);
 	if (!cfg->is_root)
 	{
 		pipe->group_id = ++GROUP;
@@ -315,6 +317,10 @@ struct doca_flow_match *
 merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
+	if(second==0){
+		printf("zero\n");
+		return;
+	}
 	printf("c\n");
 	if (first->flags == 0)
 		result->flags = second->flags;
@@ -470,7 +476,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(action, 0, sizeof(action));
 
 	attr.ingress = 1;
-	printf("before merge, pipe: %s\n",pipe->cfg->name);
+	printf("before merge, pipe: \n");
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 	printf("after merge match\n");
