@@ -111,7 +111,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		struct rte_flow *flow = NULL;
 
 		memset(&attr, 0, sizeof(struct rte_flow_attr));
-		attr.priority = 1;
+		// attr.priority = 1;
 		attr.group = pipe->group_id;
 		attr.ingress=1;
 
