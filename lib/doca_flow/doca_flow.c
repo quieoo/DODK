@@ -586,7 +586,11 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
-
+	printf("patern:");
+	for(int i=0;i<p;i++){
+		printf(" %d",pattern[i].type);
+	}
+	printf("\n");
 	/*convert actions -> action*/
 	// modify packets
 	p = 0;
@@ -719,6 +723,12 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
+	printf("action:");
+	for(int i=0;i<p;i++){
+		printf(" %d",action[i].type);
+	}
+	printf("\n");
+	
 	// get port id
 	int port_id = pipe->cfg->port->port_id;
 
