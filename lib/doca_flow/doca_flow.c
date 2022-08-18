@@ -62,8 +62,13 @@ int doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, ui
 
 typedef struct doca_flow_pipe
 {
-	int port_id;
+	// int port_id;
+	struct doca_flow_pipe_cfg *cfg;
+	uint32_t group_id;
+	struct doca_flow_fwd *fwd;
+	struct doca_flow_fwd *fwd_miss;
 };
+static int GROUP = 0;
 
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
@@ -72,8 +77,64 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  struct doca_flow_error *error)
 {
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
+	pipe->cfg = cfg;
+	pipe->fwd = fwd;
+	pipe->fwd_miss = fwd_miss;
 
-	pipe->port_id = cfg->port->port_id;
+	if (!cfg->is_root)
+	{
+		pipe->group_id = ++GROUP;
+	}
+	else
+	{
+		pipe->group_id = 0;
+	}
+
+	if (fwd_miss != NULL)
+	{
+		struct rte_flow_attr attr;
+		struct rte_flow_item pattern[MAX_PATTERN_NUM];
+		struct rte_flow_action action[MAX_ACTION_NUM];
+		struct rte_flow *flow = NULL;
+
+		attr.priority = 1;
+		attr.group = pipe->group_id;
+		pattern[0].type = RTE_FLOW_ITEM_TYPE_ANY;
+		pattern[1].type = RTE_FLOW_ITEM_TYPE_END;
+
+		if (fwd_miss->type == DOCA_FLOW_FWD_DROP)
+		{
+			action[0].type = RTE_FLOW_ACTION_TYPE_DROP;
+		}
+		else if (fwd_miss->type == DOCA_FLOW_FWD_PIPE)
+		{
+			action[0].type = RTE_FLOW_ACTION_TYPE_JUMP;
+			struct rte_flow_action_jump _jump;
+			_jump.group = fwd_miss->next_pipe->group_id;
+			action[0].conf = &_jump;
+		}
+		action[1].type = RTE_FLOW_ACTION_TYPE_END;
+
+		struct rte_flow_error rte_error;
+		int res = rte_flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
+		if (!res)
+		{
+			flow = rte_flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
+			if (!flow)
+			{
+				printf("Flow can't be created %d message: %s\n",
+					   rte_error.type,
+					   rte_error.message ? rte_error.message : "(no stated reason)");
+				rte_exit(EXIT_FAILURE, "error in creating flow");
+			}
+			output_flow(port_id, &attr, pattern, action, &error);
+		}
+		else
+		{
+			printf("ERROR while validate flow: %d\n", res);
+			printf("%s\n", rte_error.message);
+		}
+	}
 	return pipe;
 }
 
@@ -323,7 +384,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			uint8_t *pt = (uint8_t *)&(match->tun.vxlan_tun_id);
 			for (int i = 0; i < 3; i++)
 			{
-				vxlan_item.vni[i] = pt[3-i];
+				vxlan_item.vni[i] = pt[3 - i];
 			}
 			pattern[p++].spec = &vxlan_item;
 			break;
@@ -445,7 +506,11 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p++].conf = &src_tp;
 	}
 
-	//do vxlan encap
+	// do vxlan encap/decap
+	if (actions->decap)
+	{
+		action[p++].type = RTE_FLOW_ACTION_TYPE_VXLAN_DECAP;
+	}
 	if (actions->has_encap)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
@@ -466,21 +531,22 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 		items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
 		struct rte_flow_item_udp encap_udp_item;
-		encap_item_udp.hdr.dst_port=RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
-		items[2].spec=&encap_udp_item;
+		encap_item_udp.hdr.dst_port = RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
+		items[2].spec = &encap_udp_item;
 
-		items[3].type=RTE_FLOW_ITEM_TYPE_VXLAN;
+		items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
 		struct rte_flow_item_vxlan encap_vxlan_item;
 		uint8_t *pt = (uint8_t *)&(actions->encap.tun.vxlan_tun_id);
-		for(int i=0;i<3;i++){
-			encap_vxlan_item.vni[i]=pt[3-i];
+		for (int i = 0; i < 3; i++)
+		{
+			encap_vxlan_item.vni[i] = pt[3 - i];
 		}
-		items[3].spec=&encap_vxlan_item;
+		items[3].spec = &encap_vxlan_item;
 
 		items[4].type = RTE_FLOW_ITEM_TYPE_END;
 
-		_vlencp.definition=items;
-		action[p++].conf=&_vlencp;
+		_vlencp.definition = items;
+		action[p++].conf = &_vlencp;
 	}
 
 	// forward actions
