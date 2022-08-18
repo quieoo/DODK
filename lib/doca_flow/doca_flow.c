@@ -90,10 +90,11 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  struct doca_flow_error *error)
 {
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
+
 	pipe->cfg = cfg;
 	pipe->fwd = fwd;
 	pipe->fwd_miss = fwd_miss;
-
+	printf("create pipe: %s\n",pipe->cfg->name);
 	if (!cfg->is_root)
 	{
 		pipe->group_id = ++GROUP;
