@@ -134,7 +134,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		action[1].type = RTE_FLOW_ACTION_TYPE_END;
 
 		struct rte_flow_error rte_error;
-		
+
 		int res = rte_flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
 		if (!res)
 		{
@@ -439,7 +439,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(pattern, 0, sizeof(pattern));
 	memset(action, 0, sizeof(action));
 
-	attr.ingress=1;
+	attr.ingress = 1;
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
@@ -501,7 +501,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// tunnel
 	if (mmatch->tun.type)
 	{
-		
+
 		switch (mmatch->tun.type)
 		{
 		case DOCA_FLOW_TUN_VXLAN:
@@ -590,61 +590,55 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	/*convert actions -> action*/
 	// modify packets
 	p = 0;
-	if (memcmp(actions->mod_dst_mac, mac0, sizeof(mac0)) != 0)
+	if (memcmp(mactions->mod_dst_mac, mac0, sizeof(mac0)) != 0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
 		struct rte_flow_action_set_mac dst_mac;
-		for (int i = 0; i < 6; i++)
-		{
-			dst_mac.mac_addr[i] = actions->mod_dst_mac[i];
-		}
+		memcpy(dst_mac, mactions->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
 		action[p++].conf = &dst_mac;
 	}
-	if (memcmp(actions->mod_src_mac, mac0, sizeof(mac0)) != 0)
+	if (memcmp(mactions->mod_src_mac, mac0, sizeof(mac0)) != 0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_MAC_SRC;
 		struct rte_flow_action_set_mac src_mac;
-		for (int i = 0; i < 6; i++)
-		{
-			src_mac.mac_addr[i] = actions->mod_src_mac[i];
-		}
+		memcpy(src_mac, mactions->mod_src_mac, DOCA_ETHER_ADDR_LEN);
 		action[p++].conf = &src_mac;
 	}
-	if (actions->mod_dst_ip.ipv4_addr != ip0)
+	if (mactions->mod_dst_ip.ipv4_addr != ip0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
 		struct rte_flow_action_set_ipv4 dst_ipv4;
-		dst_ipv4.ipv4_addr = actions->mod_dst_ip.ipv4_addr;
+		dst_ipv4.ipv4_addr = mactions->mod_dst_ip.ipv4_addr;
 		action[p++].conf = &dst_ipv4;
 	}
-	if (actions->mod_src_ip.ipv4_addr != ip0)
+	if (mactions->mod_src_ip.ipv4_addr != ip0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_IPV4_SRC;
 		struct rte_flow_action_set_ipv4 src_ipv4;
-		src_ipv4.ipv4_addr = actions->mod_src_ip.ipv4_addr;
+		src_ipv4.ipv4_addr = mactions->mod_src_ip.ipv4_addr;
 		action[p++].conf = &src_ipv4;
 	}
-	if (actions->mod_dst_port != port0)
+	if (mactions->mod_dst_port != port0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_DST;
 		struct rte_flow_action_set_tp dst_tp;
-		dst_tp.port = actions->mod_dst_port;
+		dst_tp.port = mactions->mod_dst_port;
 		action[p++].conf = &dst_tp;
 	}
-	if (actions->mod_src_port != port0)
+	if (mactions->mod_src_port != port0)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_SRC;
 		struct rte_flow_action_set_tp src_tp;
-		src_tp.port = actions->mod_src_port;
+		src_tp.port = mactions->mod_src_port;
 		action[p++].conf = &src_tp;
 	}
 
 	// do vxlan encap/decap
-	if (actions->decap)
+	if (mactions->decap)
 	{
 		action[p++].type = RTE_FLOW_ACTION_TYPE_VXLAN_DECAP;
 	}
-	if (actions->has_encap)
+	if (mactions->has_encap)
 	{
 		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
 		struct rte_flow_action_vxlan_encap _vlencp;
@@ -652,14 +646,14 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 		items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
 		struct rte_flow_item_eth encap_eth_item;
-		memcpy(encap_eth_item.hdr.dst_addr.addr_bytes, actions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
-		memcpy(encap_eth_item.hdr.src_addr.addr_bytes, actions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(encap_eth_item.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(encap_eth_item.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
 		items[0].spec = &encap_eth_item;
 
 		items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		struct rte_flow_item_ipv4 encap_ip_item;
-		encap_ip_item.hdr.dst_addr = actions->encap.dst_ip.ipv4_addr;
-		encap_ip_item.hdr.src_addr = actions->encap.src_ip.ipv4_addr;
+		encap_ip_item.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
+		encap_ip_item.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
 		items[1].spec = &encap_ip_item;
 
 		items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
@@ -669,7 +663,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 		items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
 		struct rte_flow_item_vxlan encap_vxlan_item;
-		uint8_t *pt = (uint8_t *)&(actions->encap.tun.vxlan_tun_id);
+		uint8_t *pt = (uint8_t *)&(mactions->encap.tun.vxlan_tun_id);
 		for (int i = 0; i < 3; i++)
 		{
 			encap_vxlan_item.vni[i] = pt[3 - i];
@@ -704,7 +698,11 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		break;
 	case 3:
 		// DOCA_FLOW_FWD_PIPE
-		printf("DOCA FWD PIPE\n");
+		//printf("DOCA FWD PIPE\n");
+		action[p].type=RTE_FLOW_ACTION_TYPE_JUMP;
+		struct rte_flow_action_jump _jump;
+		_jump.group=fwd->next_pipe->group_id;
+		action[p++].conf=&_jump;
 		break;
 	case 4:
 		// DOCA_FLOW_FWD_DROP
@@ -727,7 +725,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// validate and create entry
 	struct rte_flow_error rte_error;
 
-	output_flow(port_id, &attr, pattern, action, &error);
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
@@ -739,7 +736,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		
+		output_flow(port_id, &attr, pattern, action, &error);
 	}
 	else
 	{
