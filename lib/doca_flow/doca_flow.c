@@ -12,6 +12,7 @@
 
 #define MAX_PATTERN_NUM 10
 #define MAX_ACTION_NUM 10
+#define RTE_LOGTYPE_DMA RTE_LOGTYPE_USER1
 
 const uint8_t mac0[6] = {0};
 const uint32_t ip0 = 0;
