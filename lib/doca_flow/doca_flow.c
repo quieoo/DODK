@@ -440,7 +440,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(action, 0, sizeof(action));
 
 	attr.ingress = 1;
-	DOCA_LOG_DBG("hello");
+	rte_log(1,DMA,"hellp");
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);

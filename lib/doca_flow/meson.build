@@ -5,8 +5,4 @@ headers=files(
     'doca_flow.h',
     'doca_flow_net.h'
 )
-deps+=[
-    'doca_log'
-]
 includes+=include_directories('../common')
-includes+=include_directories('../doca_log')
