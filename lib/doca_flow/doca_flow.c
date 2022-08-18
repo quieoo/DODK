@@ -473,6 +473,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	attr.ingress = 1;
 	printf("before\n");
+	printf("%s\n",pipe->cfg);
 	printf("before merge, pipe: %s\n",pipe->cfg->name);
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
