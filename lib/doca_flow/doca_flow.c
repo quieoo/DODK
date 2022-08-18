@@ -314,8 +314,11 @@ struct doca_flow_match *
 merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
+	printf("c\n");
 	CHOOSE21(flags, 0);
+	printf("c\n");
 	CHOOSE21(meta.pkt_meta, 0);
+	printf("c\n");
 	if (memcmp(first->out_src_mac, mac0, sizeof(mac0)) == 0)
 	{
 		memcpy(result->out_src_mac, second->out_src_mac, DOCA_ETHER_ADDR_LEN);
@@ -324,6 +327,7 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 	{
 		memcpy(result->out_src_mac, first->out_src_mac, DOCA_ETHER_ADDR_LEN);
 	}
+	printf("c\n");
 	if (memcmp(first->out_dst_mac, mac0, sizeof(mac0)) == 0)
 	{
 		memcpy(result->out_dst_mac, second->out_dst_mac, DOCA_ETHER_ADDR_LEN);
@@ -332,17 +336,27 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 	{
 		memcpy(result->out_src_mac, first->out_src_mac, DOCA_ETHER_ADDR_LEN);
 	}
+	printf("c\n");
 	//	doca_be16_t out_eth_type;
 	// 	doca_be16_t out_vlan_id;
 	CHOOSE21(out_eth_type, 0);
+	printf("c\n");
 	CHOOSE21(out_vlan_id, 0);
+	printf("c\n");
 	CHOOSE21(out_src_ip.ipv4_addr, ip0);
+	printf("c\n");
 	CHOOSE21(out_dst_ip.ipv4_addr, ip0);
+	printf("c\n");
 	CHOOSE21(out_l4_type, 0)
+	printf("c\n");
 	CHOOSE21(out_tcp_flags, 0);
+	printf("c\n");
 	CHOOSE21(out_src_port, 0);
+	printf("c\n");
 	CHOOSE21(out_dst_port, 0);
+	printf("c\n");
 	CHOOSE21(tun.type, 0);
+	printf("c\n");
 	if (memcmp(first->in_src_mac, mac0, sizeof(mac0)) == 0)
 	{
 		memcpy(result->in_src_mac, second->in_src_mac, DOCA_ETHER_ADDR_LEN);
@@ -351,6 +365,7 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 	{
 		memcpy(result->in_src_mac, first->in_src_mac, DOCA_ETHER_ADDR_LEN);
 	}
+	printf("c\n");
 	if (memcmp(first->in_dst_mac, mac0, sizeof(mac0)) == 0)
 	{
 		memcpy(result->in_dst_mac, second->in_dst_mac, DOCA_ETHER_ADDR_LEN);
@@ -359,14 +374,23 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 	{
 		memcpy(result->in_src_mac, first->in_src_mac, DOCA_ETHER_ADDR_LEN);
 	}
+	printf("c\n");
 	CHOOSE21(in_eth_type, 0);
+	printf("c\n");
 	CHOOSE21(in_vlan_id, 0);
+	printf("c\n");
 	CHOOSE21(in_src_ip.ipv4_addr, 0);
+	printf("c\n");
 	CHOOSE21(in_dst_ip.ipv4_addr, 0);
+	printf("c\n");
 	CHOOSE21(in_l4_type, 0);
+	printf("c\n");
 	CHOOSE21(in_tcp_flags, 0);
+	printf("c\n");
 	CHOOSE21(in_src_port, 0);
+	printf("c\n");
 	CHOOSE21(in_dst_port, 0);
+	printf("c\n");
 	return result;
 }
 
