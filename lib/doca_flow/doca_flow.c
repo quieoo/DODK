@@ -443,7 +443,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	printf("before merge\n");
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
+	printf("after merge match\n");
+
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
+	printf("after merge action\n");
 	struct doca_flow_fwd *mfwd = merge_fwd(fwd, pipe->fwd);
 	printf("after merge\n");
 
