@@ -432,6 +432,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	struct rte_flow_action action[MAX_ACTION_NUM];
 	struct rte_flow *flow = NULL;
 
+	memset(attr,0,sizeof(struct rte_flow_attr));
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
