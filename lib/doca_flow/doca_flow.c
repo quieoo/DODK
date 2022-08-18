@@ -111,9 +111,11 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		struct rte_flow *flow = NULL;
 
 		memset(&attr, 0, sizeof(struct rte_flow_attr));
+		memset(pattern, 0, sizeof(pattern));
+		memset(action, 0, sizeof(action));
 		// attr.priority = 1;
 		attr.group = pipe->group_id;
-		attr.ingress=1;
+		attr.ingress = 1;
 
 		pattern[0].type = RTE_FLOW_ITEM_TYPE_ANY;
 		pattern[1].type = RTE_FLOW_ITEM_TYPE_END;
@@ -432,7 +434,9 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	struct rte_flow_action action[MAX_ACTION_NUM];
 	struct rte_flow *flow = NULL;
 
-	memset(attr,0,sizeof(struct rte_flow_attr));
+	memset(attr, 0, sizeof(struct rte_flow_attr));
+	memset(pattern, 0, sizeof(pattern));
+	memset(action, 0, sizeof(action));
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
@@ -644,8 +648,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 		items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
 		struct rte_flow_item_eth encap_eth_item;
-		memcpy(encap_eth_item.hdr.dst_addr.addr_bytes,actions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
-		memcpy(encap_eth_item.hdr.src_addr.addr_bytes,actions->encap.src_mac, DOCA_ETHER_ADDR_LEN);		
+		memcpy(encap_eth_item.hdr.dst_addr.addr_bytes, actions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(encap_eth_item.hdr.src_addr.addr_bytes, actions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
 		items[0].spec = &encap_eth_item;
 
 		items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
