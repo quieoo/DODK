@@ -500,6 +500,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// tunnel
 	if (mmatch->tun.type)
 	{
+		/*
 		switch (mmatch->tun.type)
 		{
 		case DOCA_FLOW_TUN_VXLAN:
@@ -538,7 +539,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			printf("TUNNEL OTHER TYPE: %d\n", mmatch->tun.type);
 			break;
 		}
-
+*/
 		// inner mmatch
 		if ((memcmp(mmatch->in_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(mmatch->in_src_mac, mac0, sizeof(mac0))) != 0)
 		{
