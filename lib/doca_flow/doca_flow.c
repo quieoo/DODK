@@ -725,8 +725,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
-	printf("P: %d\n",p);
-	for(int i=0;i<p;i++){
+
+	int pl=sizeof(pattern)/sizeof(struct rte_flow_item);
+	printf("P: %d\n",pl);
+	for(int i=0;i<pl;i++){
 		printf("pattern: %d\n",pattern[i].type);
 	}
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
