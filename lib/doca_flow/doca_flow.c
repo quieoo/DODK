@@ -47,7 +47,7 @@ typedef struct doca_flow_pipe
 	struct doca_flow_fwd *fwd_miss;
 };
 struct doca_flow_pipe *pipes[MAX_PIPE_NUM];
-static int p_pipe=0;
+static int p_pipe = 0;
 static int GROUP = 0;
 struct doca_flow_port ports[10];
 
@@ -63,11 +63,13 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 	ports[id] = *port;
 	return port;
 }
-void doca_flow_destroy(void) {
+void doca_flow_destroy(void)
+{
 	printf("DESTROY PIPES: \n");
-	for(int i=0;i<p_pipe;i++){
-		struct doca_flow_pipe *p=pipes[i];
-		printf("	%s\n",p->cfg->name);
+	for (int i = 0; i < p_pipe; i++)
+	{
+		struct doca_flow_pipe *p = pipes[i];
+		printf("	%s\n", p->cfg->name);
 		free(p->cfg->port);
 		free(p->cfg->match);
 		free(p->cfg->actions);
@@ -96,8 +98,6 @@ int doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, ui
 									uint32_t res_array_len, void *bindable_obj,
 									struct doca_flow_error *error) {}
 
-
-
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd,
@@ -105,26 +105,26 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  struct doca_flow_error *error)
 {
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
-	pipe->cfg=malloc(sizeof(struct doca_flow_pipe_cfg));
-	pipe->cfg->port=malloc(sizeof(struct doca_flow_port));
-	pipe->cfg->match=malloc(sizeof(struct doca_flow_match));
-	pipe->cfg->actions=malloc(sizeof(struct doca_flow_actions));
-	pipe->fwd=malloc(sizeof(struct doca_flow_fwd));
-	pipe->fwd_miss=malloc(sizeof(struct doca_flow_fwd));
+	pipe->cfg = malloc(sizeof(struct doca_flow_pipe_cfg));
+	pipe->cfg->port = malloc(sizeof(struct doca_flow_port));
+	pipe->cfg->match = malloc(sizeof(struct doca_flow_match));
+	pipe->cfg->actions = malloc(sizeof(struct doca_flow_actions));
+	pipe->fwd = malloc(sizeof(struct doca_flow_fwd));
+	pipe->fwd_miss = malloc(sizeof(struct doca_flow_fwd));
 
 	pipe->cfg->name = cfg->name;
-	pipe->cfg->type=cfg->type;
-	if(cfg->port!=NULL)
+	pipe->cfg->type = cfg->type;
+	if (cfg->port != NULL)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
-	pipe->cfg->is_root=cfg->is_root;
-	if(cfg->match !=NULL)
-		memcpy(pipe->cfg->match, cfg->match,sizeof(struct doca_flow_match));
-	if(cfg->actions!=NULL)
+	pipe->cfg->is_root = cfg->is_root;
+	if (cfg->match != NULL)
+		memcpy(pipe->cfg->match, cfg->match, sizeof(struct doca_flow_match));
+	if (cfg->actions != NULL)
 		memcpy(pipe->cfg->actions, cfg->actions, sizeof(struct doca_flow_actions));
-	pipe->cfg->nb_flows=cfg->nb_flows;
-	if(fwd!=NULL)
+	pipe->cfg->nb_flows = cfg->nb_flows;
+	if (fwd != NULL)
 		memcpy(pipe->fwd, fwd, sizeof(struct doca_flow_fwd));
-	if(fwd_miss!=NULL)
+	if (fwd_miss != NULL)
 		memcpy(pipe->fwd_miss, fwd_miss, sizeof(struct doca_flow_fwd));
 	if (!cfg->is_root)
 		pipe->group_id = ++GROUP;
@@ -182,7 +182,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 			printf("%s\n", rte_error.message);
 		}
 	}
-	pipes[p_pipe++]=pipe;
+	pipes[p_pipe++] = pipe;
 	return pipe;
 }
 
@@ -343,7 +343,8 @@ struct doca_flow_match *
 merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
-	if(second==NULL){
+	if (second == NULL)
+	{
 		return;
 	}
 	if (first->flags == 0)
@@ -452,13 +453,13 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(action, 0, sizeof(action));
 
 	attr.ingress = 1;
-	printf("doca_flow_pipe_add_entry, pipe: %s\n",pipe->cfg->name);
+	printf("doca_flow_pipe_add_entry, pipe: %s\n", pipe->cfg->name);
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
-	
+
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
 	struct doca_flow_fwd *mfwd = merge_fwd(fwd, pipe->fwd);
-	
+
 	/*
 		match -> pattern
 	*/
@@ -660,9 +661,9 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	if (mactions->has_encap)
 	{
 
-		attr.egress=1;
-		attr.ingress=0;
-		
+		attr.egress = 1;
+		attr.ingress = 0;
+
 		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
 		struct rte_flow_action_vxlan_encap _vlencp;
 		struct rte_flow_item items[5];
@@ -711,21 +712,30 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		_rss.queue=fwd->rss_queues;
 		action[p++].conf=&_rss;
 		*/
+		{
+			struct rte_flow_action_queue queue = {.index = pipe_queue};
+			action[p].type = RTE_FLOW_ACTION_TYPE_QUEUE;
+			action[p++].conf = &queue;
+		}
 		break;
 	case 2:
 		// DOCA_FLOW_FWD_PORT
-		action[p].type = RTE_FLOW_ACTION_TYPE_PORT_ID;
-		struct rte_flow_action_port_id _pid;
-		_pid.id = fwd->port_id;
-		action[p++].conf = &_pid;
+		{
+			action[p].type = RTE_FLOW_ACTION_TYPE_PORT_ID;
+			struct rte_flow_action_port_id _pid;
+			_pid.id = fwd->port_id;
+			action[p++].conf = &_pid;
+		}
 		break;
 	case 3:
 		// DOCA_FLOW_FWD_PIPE
 		// printf("DOCA FWD PIPE\n");
-		action[p].type = RTE_FLOW_ACTION_TYPE_JUMP;
-		struct rte_flow_action_jump _jump;
-		_jump.group = fwd->next_pipe->group_id;
-		action[p++].conf = &_jump;
+		{
+			action[p].type = RTE_FLOW_ACTION_TYPE_JUMP;
+			struct rte_flow_action_jump _jump;
+			_jump.group = fwd->next_pipe->group_id;
+			action[p++].conf = &_jump;
+		}
 		break;
 	case 4:
 		// DOCA_FLOW_FWD_DROP
@@ -735,10 +745,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		printf("DOCA FWD OTHER TYPE: %d\n", fwd->type);
 		break;
 	}
-
-	struct rte_flow_action_queue queue = {.index = pipe_queue};
-	action[p].type = RTE_FLOW_ACTION_TYPE_QUEUE;
-	action[p++].conf = &queue;
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
@@ -794,7 +800,7 @@ void doca_flow_port_pipes_flush(uint16_t port_id) {}
 
 void doca_flow_destroy_port(uint16_t port_id)
 {
-	printf("DESTROY PORT: %d\n",port_id);
+	printf("DESTROY PORT: %d\n", port_id);
 }
 
 void doca_flow_port_pipes_dump(uint16_t port_id, FILE *f) {}
