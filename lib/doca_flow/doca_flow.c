@@ -655,7 +655,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// do vxlan encap/decap
 	if (mactions->decap)
 	{
-		action[p++].type = RTE_FLOW_ACTION_TYPE_VXLAN_DECAP;
+		// action[p++].type = RTE_FLOW_ACTION_TYPE_VXLAN_DECAP;
 	}
 	if (mactions->has_encap)
 	{
