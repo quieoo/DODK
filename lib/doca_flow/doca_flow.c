@@ -659,6 +659,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	if (mactions->has_encap)
 	{
+
+		attr.egress=1;
+		attr.ingress=0;
+		
 		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
 		struct rte_flow_action_vxlan_encap _vlencp;
 		struct rte_flow_item items[5];
