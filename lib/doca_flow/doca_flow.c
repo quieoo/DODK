@@ -92,7 +92,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	pipe->cfg=malloc(sizeof(struct doca_flow_pipe_cfg));
 	pipe->cfg->port=malloc(sizeof(struct doca_flow_port));
 	pipe->cfg->match=malloc(sizeof(struct doca_flow_match));
-	
+	pipe->cfg->actions=malloc(sizeof(struct doca_flow_actions));
+
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type=cfg->type;
 	printf("start %d %d\n",sizeof(struct doca_flow_port), cfg->port->port_id);
