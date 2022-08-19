@@ -104,7 +104,6 @@ main(int argc, char **argv)
 		doca_flow_destroy_port(port_id);
 
 exit_app:
-	printf("EXIT_APP\n");
 	/* cleanup app resources */
 	simple_fwd_destroy(vnf);
 

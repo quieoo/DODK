@@ -344,91 +344,49 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
 	if(second==NULL){
-		printf("zero\n");
 		return;
 	}
-	printf("c\n");
 	if (first->flags == 0)
 		result->flags = second->flags;
 	else
 		result->flags = first->flags;
-	printf("c\n");
 	CHOOSE21(flags, 0);
-	printf("c\n");
 	CHOOSE21(meta.pkt_meta, 0);
-	printf("c\n");
 	if (memcmp(first->out_src_mac, mac0, sizeof(mac0)) == 0)
-	{
 		memcpy(result->out_src_mac, second->out_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	else
-	{
 		memcpy(result->out_src_mac, first->out_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
-	printf("c\n");
 	if (memcmp(first->out_dst_mac, mac0, sizeof(mac0)) == 0)
-	{
 		memcpy(result->out_dst_mac, second->out_dst_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	else
-	{
 		memcpy(result->out_src_mac, first->out_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
-	printf("c\n");
 	//	doca_be16_t out_eth_type;
 	// 	doca_be16_t out_vlan_id;
 	CHOOSE21(out_eth_type, 0);
-	printf("c\n");
 	CHOOSE21(out_vlan_id, 0);
-	printf("c\n");
 	CHOOSE21(out_src_ip.ipv4_addr, ip0);
-	printf("c\n");
 	CHOOSE21(out_dst_ip.ipv4_addr, ip0);
-	printf("c\n");
 	CHOOSE21(out_l4_type, 0)
-	printf("c\n");
 	CHOOSE21(out_tcp_flags, 0);
-	printf("c\n");
 	CHOOSE21(out_src_port, 0);
-	printf("c\n");
 	CHOOSE21(out_dst_port, 0);
-	printf("c\n");
 	CHOOSE21(tun.type, 0);
-	printf("c\n");
 	if (memcmp(first->in_src_mac, mac0, sizeof(mac0)) == 0)
-	{
 		memcpy(result->in_src_mac, second->in_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	else
-	{
 		memcpy(result->in_src_mac, first->in_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
-	printf("c\n");
 	if (memcmp(first->in_dst_mac, mac0, sizeof(mac0)) == 0)
-	{
 		memcpy(result->in_dst_mac, second->in_dst_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	else
-	{
 		memcpy(result->in_src_mac, first->in_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
-	printf("c\n");
 	CHOOSE21(in_eth_type, 0);
-	printf("c\n");
 	CHOOSE21(in_vlan_id, 0);
-	printf("c\n");
 	CHOOSE21(in_src_ip.ipv4_addr, 0);
-	printf("c\n");
 	CHOOSE21(in_dst_ip.ipv4_addr, 0);
-	printf("c\n");
 	CHOOSE21(in_l4_type, 0);
-	printf("c\n");
 	CHOOSE21(in_tcp_flags, 0);
-	printf("c\n");
 	CHOOSE21(in_src_port, 0);
-	printf("c\n");
 	CHOOSE21(in_dst_port, 0);
-	printf("c\n");
 	return result;
 }
 
@@ -439,21 +397,13 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 	CHOOSE21(flags, 0);
 	CHOOSE21(decap, false);
 	if (memcmp(first->mod_src_mac, mac0, sizeof(mac0)) == 0)
-	{
 		memcpy(result->mod_src_mac, second->mod_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	else
-	{
 		memcpy(result->mod_src_mac, first->mod_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	if (memcmp(first->mod_dst_mac, mac0, sizeof(mac0)) == 0)
-	{
 		memcpy(result->mod_dst_mac, second->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	else
-	{
 		memcpy(result->mod_src_mac, first->mod_src_mac, DOCA_ETHER_ADDR_LEN);
-	}
 	CHOOSE21(mod_src_ip.ipv4_addr, 0);
 	CHOOSE21(mod_dst_ip.ipv4_addr, 0);
 	CHOOSE21(mod_src_port, 0);
@@ -502,18 +452,13 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(action, 0, sizeof(action));
 
 	attr.ingress = 1;
-	printf("before\n");
-	printf("%s\n",pipe->cfg);
-	printf("before merge, pipe: %s\n",pipe->cfg->name);
+	printf("doca_flow_pipe_add_entry, pipe: %s\n",pipe->cfg->name);
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
-	printf("after merge match\n");
-
+	
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
-	printf("after merge action\n");
 	struct doca_flow_fwd *mfwd = merge_fwd(fwd, pipe->fwd);
-	printf("after merge\n");
-
+	
 	/*
 		match -> pattern
 	*/

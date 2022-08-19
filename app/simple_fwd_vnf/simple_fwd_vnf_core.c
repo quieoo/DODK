@@ -299,6 +299,5 @@ simple_fwd_map_queue(uint16_t nb_queues)
 void
 simple_fwd_destroy(struct app_vnf *vnf)
 {
-	printf("SIMPLE_FWD_DESTROY\n");
 	vnf->vnf_destroy();
 }
