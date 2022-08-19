@@ -33,12 +33,22 @@ int doca_flow_init(const struct doca_flow_cfg *cfg,
 	return 0;
 }
 
-void doca_flow_destroy(void) {}
+#define MAX_PIPE_NUM 1000
 typedef struct doca_flow_port
 {
 	uint16_t port_id;
 };
-
+typedef struct doca_flow_pipe
+{
+	// int port_id;
+	struct doca_flow_pipe_cfg *cfg;
+	uint32_t group_id;
+	struct doca_flow_fwd *fwd;
+	struct doca_flow_fwd *fwd_miss;
+};
+struct doca_flow_pipe *pipes[MAX_PIPE_NUM];
+static int p_pipe=0;
+static int GROUP = 0;
 struct doca_flow_port ports[10];
 
 struct doca_flow_port *
@@ -53,6 +63,19 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 	ports[id] = *port;
 	return port;
 }
+void doca_flow_destroy(void) {
+	for(int i=0;i<p_pipe;i++){
+		struct doca_flow_pipe *p=pipes[i];
+		free(p->cfg->port);
+		free(p->cfg->match);
+		free(p->cfg->actions);
+		free(p->fwd);
+		free(p->fwd_miss);
+		free(p->cfg);
+		free(p);
+	}
+}
+
 print_ether_addr(const char *what, uint8_t eth_addr[])
 {
 	printf("%s %02x-%02x-%02x-%02x-%02x-%02x\n", what, eth_addr[0], eth_addr[1], eth_addr[2], eth_addr[3], eth_addr[4], eth_addr[5]);
@@ -71,15 +94,7 @@ int doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, ui
 									uint32_t res_array_len, void *bindable_obj,
 									struct doca_flow_error *error) {}
 
-typedef struct doca_flow_pipe
-{
-	// int port_id;
-	struct doca_flow_pipe_cfg *cfg;
-	uint32_t group_id;
-	struct doca_flow_fwd *fwd;
-	struct doca_flow_fwd *fwd_miss;
-};
-static int GROUP = 0;
+
 
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
@@ -172,6 +187,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 			printf("%s\n", rte_error.message);
 		}
 	}
+	pipes[p_pipe++]=pipe;
 	return pipe;
 }
 
