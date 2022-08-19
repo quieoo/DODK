@@ -95,24 +95,25 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	pipe->cfg->type=cfg->type;
 	if(cfg->port!=NULL)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
+	printf("port\n");
 	pipe->cfg->is_root=cfg->is_root;
 	if(cfg->match !=NULL)
 		memcpy(pipe->cfg->match, cfg->match,sizeof(struct doca_flow_match));
+	printf("match\n");
 	if(cfg->actions!=NULL)
 		memcpy(pipe->cfg->actions, cfg->actions, sizeof(struct doca_flow_actions));
+	printf("actions\n");
 	pipe->cfg->nb_flows=cfg->nb_flows;
 	if(fwd!=NULL)
 		memcpy(pipe->fwd, fwd, sizeof(struct doca_flow_fwd));
+	printf("fwd\n");
 	if(fwd_miss!=NULL)
 		memcpy(pipe->fwd_miss, fwd_miss, sizeof(struct doca_flow_fwd));
+	printf("fwd_miss\n");
 	if (!cfg->is_root)
-	{
 		pipe->group_id = ++GROUP;
-	}
 	else
-	{
 		pipe->group_id = 0;
-	}
 
 	if (fwd_miss != NULL)
 	{
