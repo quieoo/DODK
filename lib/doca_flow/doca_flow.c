@@ -748,12 +748,17 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
+
+
 	printf("action:");
 	for (int i = 0; i < p; i++)
 	{
 		printf(" %d", action[i].type);
 	}
 	printf("\n");
+	// action: 44 35 39 28 6
+	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
+
 
 	// get port id
 	int port_id = pipe->cfg->port->port_id;
