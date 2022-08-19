@@ -36,7 +36,7 @@ int doca_flow_init(const struct doca_flow_cfg *cfg,
 void doca_flow_destroy(void) {}
 typedef struct doca_flow_port
 {
-	int port_id;
+	uint16_t port_id;
 };
 
 struct doca_flow_port ports[10];
