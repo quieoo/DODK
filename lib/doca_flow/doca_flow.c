@@ -845,6 +845,7 @@ void doca_flow_port_pipes_flush(uint16_t port_id) {}
 
 void doca_flow_destroy_port(uint16_t port_id)
 {
+	printf("DESTROY PORT\n");
 	rte_eal_cleanup();
 }
 

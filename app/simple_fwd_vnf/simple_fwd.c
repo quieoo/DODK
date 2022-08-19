@@ -792,6 +792,7 @@ simple_fwd_handle_aging(uint32_t port_id, uint16_t queue)
 static int
 simple_fwd_destroy(void)
 {
+	printf("VNF_DESTROY\n");
 	doca_flow_destroy();
 	simple_fwd_destroy_ins();
 	return 0;
