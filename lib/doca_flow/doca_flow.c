@@ -64,8 +64,10 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 	return port;
 }
 void doca_flow_destroy(void) {
+	printf("DESTROY PIPES: \n");
 	for(int i=0;i<p_pipe;i++){
 		struct doca_flow_pipe *p=pipes[i];
+		printf("	%s\n",p->cfg->name);
 		free(p->cfg->port);
 		free(p->cfg->match);
 		free(p->cfg->actions);
@@ -102,7 +104,6 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd_miss,
 					  struct doca_flow_error *error)
 {
-	printf("create pipe: %s\n",cfg->name);
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
 	pipe->cfg=malloc(sizeof(struct doca_flow_pipe_cfg));
 	pipe->cfg->port=malloc(sizeof(struct doca_flow_port));
@@ -113,24 +114,18 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type=cfg->type;
-	printf("start %d %d\n",sizeof(struct doca_flow_port), cfg->port->port_id);
 	if(cfg->port!=NULL)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
-	printf("port\n");
 	pipe->cfg->is_root=cfg->is_root;
 	if(cfg->match !=NULL)
 		memcpy(pipe->cfg->match, cfg->match,sizeof(struct doca_flow_match));
-	printf("match\n");
 	if(cfg->actions!=NULL)
 		memcpy(pipe->cfg->actions, cfg->actions, sizeof(struct doca_flow_actions));
-	printf("actions\n");
 	pipe->cfg->nb_flows=cfg->nb_flows;
 	if(fwd!=NULL)
 		memcpy(pipe->fwd, fwd, sizeof(struct doca_flow_fwd));
-	printf("fwd\n");
 	if(fwd_miss!=NULL)
 		memcpy(pipe->fwd_miss, fwd_miss, sizeof(struct doca_flow_fwd));
-	printf("fwd_miss\n");
 	if (!cfg->is_root)
 		pipe->group_id = ++GROUP;
 	else
