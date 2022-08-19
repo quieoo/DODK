@@ -51,7 +51,6 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 	port->port_id = id;
 
 	ports[id] = *port;
-	printf("create port: %x %d\n",port, port->port_id);
 	return port;
 }
 print_ether_addr(const char *what, uint8_t eth_addr[])
@@ -93,10 +92,9 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type=cfg->type;
-	printf("use port %x\n",cfg->port);
 	printf("start %d %d\n",sizeof(struct doca_flow_port), cfg->port->port_id);
 	if(cfg->port!=NULL)
-		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
+		pipe->cfg->port->port_id=cfg->port->port_id;
 	printf("port\n");
 	pipe->cfg->is_root=cfg->is_root;
 	if(cfg->match !=NULL)

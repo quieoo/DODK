@@ -206,7 +206,6 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	match.out_l4_type = IPPROTO_UDP;
 
 	/* build pipe cfg */
-	printf("pass port: %x\n",port);
 	pipe_cfg.port = port;
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
