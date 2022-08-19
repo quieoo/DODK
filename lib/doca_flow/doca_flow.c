@@ -88,6 +88,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd_miss,
 					  struct doca_flow_error *error)
 {
+	printf("create pipe: %s\n",cfg->name);
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
 
 	pipe->cfg->name = cfg->name;
