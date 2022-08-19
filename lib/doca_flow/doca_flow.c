@@ -91,6 +91,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
 	pipe->cfg=malloc(sizeof(struct doca_flow_pipe_cfg));
 	pipe->cfg->port=malloc(sizeof(struct doca_flow_port));
+	pipe->cfg->match=malloc(sizeof(struct doca_flow_match));
 	
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type=cfg->type;
