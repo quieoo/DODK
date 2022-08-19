@@ -93,6 +93,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type=cfg->type;
+	printf("start\n");
 	if(cfg->port!=NULL)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
 	printf("port\n");
