@@ -726,7 +726,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		{
 			action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
 			struct rte_flow_action_rss _rss;
-			memset(_rss, 0, sizeof(struct rte_flow_action_rss));
+			memset(&(_rss), 0, sizeof(struct rte_flow_action_rss));
 			_rss.func=RTE_ETH_HASH_FUNCTION_DEFAULT;
 			_rss.level=0;
 			uint32_t _type =fwd->rss_flags;
