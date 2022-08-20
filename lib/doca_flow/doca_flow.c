@@ -746,7 +746,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			}
 			_rss.queue_num=fwd->num_of_queues;
 			_rss.queue=fwd->rss_queues;
-			action[p++]=&_rss;
+			action[p++].conf=&(_rss);
 		}
 		break;
 	case DOCA_FLOW_FWD_PORT:
