@@ -378,7 +378,7 @@ simple_fwd_build_vxlan_pipe(struct doca_flow_port *port)
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
 	pipe_cfg.monitor = &monitor;
-	printf("pipe %d, fwd type %d\n",pipe_cfg.name, fwd->type);
+	printf("pipe %s, fwd type %d\n",pipe_cfg.name, fwd->type);
 
 	return doca_flow_create_pipe(&pipe_cfg, fwd, fwd_miss, &error);
 }
