@@ -410,7 +410,7 @@ simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
 	pipe_cfg.actions=&actions;
 	pipe_cfg.monitor=&monitor;
 
-	fwd = simple_fwd_get_fwd(port_cfg);
+	// fwd = simple_fwd_get_fwd(port_cfg);
 	fwd_miss = simple_fwd_get_fwd_miss(port_cfg);
 
 	return doca_flow_create_pipe(&pipe_cfg, fwd, fwd_miss, &error);

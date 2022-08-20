@@ -452,7 +452,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
-
+	printf("doca_flow_pipe_add_entry, pipe: %s\n", pipe->cfg->name);
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -462,9 +462,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(&attr, 0, sizeof(struct rte_flow_attr));
 	memset(pattern, 0, sizeof(pattern));
 	memset(action, 0, sizeof(action));
-
+	
 	attr.ingress = 1;
-	printf("doca_flow_pipe_add_entry, pipe: %s\n", pipe->cfg->name);
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 
@@ -716,13 +715,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	{
 	case DOCA_FLOW_FWD_RSS:
 		// DOCA_FLOW_FWD_RSS
-		/*
-		action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
-		struct rte_flow_action_rss _rss;
-		_rss.queue_num=fwd->num_of_queues;
-		_rss.queue=fwd->rss_queues;
-		action[p++].conf=&_rss;
-		*/
 		{
 			action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
 			struct rte_flow_action_rss _rss;
