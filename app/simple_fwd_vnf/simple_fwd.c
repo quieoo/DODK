@@ -741,9 +741,11 @@ simple_fwd_pipe_add_entry(struct simple_fwd_pkt_info *pinfo,
 		DOCA_LOG_WARN("failed to select pipe on this packet");
 		return NULL;
 	}
-	fwd = simple_fwd_select_fwd(pinfo);
+	// fwd = simple_fwd_select_fwd(pinfo);
+	fwd=malloc(sizeof(struct doca_flow_fwd));
+	fwd->type=DOCA_FLOW_FWD_DROP;
 	simple_fwd_build_entry_match(pinfo, &match);
-	simple_fwd_build_entry_action_no_tunnel(pinfo, &action);
+	simple_fwd_build_entry_action(pinfo, &action);
 	simple_fwd_build_entry_monitor(pinfo, &monitor, user_ctx);
 	entry = doca_flow_pipe_add_entry(pinfo->pipe_queue,
 		pipe, &match, &action, &monitor, fwd, 0, NULL, &error);
