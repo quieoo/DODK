@@ -86,7 +86,10 @@ print_ether_addr(const char *what, uint8_t eth_addr[])
 }
 int doca_flow_port_stop(struct doca_flow_port *port) {}
 
-int doca_flow_port_pair(struct doca_flow_port *port, struct doca_flow_port *pair_port) {}
+int doca_flow_port_pair(struct doca_flow_port *port, struct doca_flow_port *pair_port) {
+	printf("Pair-Port: %d-%d\n",port->port_id, pair_port->port_id);
+	return 0;
+}  
 
 uint8_t *
 doca_flow_port_priv_data(struct doca_flow_port *port) {}
