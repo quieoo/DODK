@@ -569,7 +569,7 @@ simple_fwd_init_ports_and_pipes(struct simple_fwd_port_cfg *port_cfg)
 		pipe= simple_fwd_build_no_tunnel_pipe(port);
 		if(pipe==NULL)
 			return -1;
-		simple_fwd_ins->pipe_notun[inedx]=pipe;
+		simple_fwd_ins->pipe_notun[index]=pipe;
 	}
 
 	
