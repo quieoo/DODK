@@ -410,7 +410,10 @@ simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
 	pipe_cfg.actions=&actions;
 	pipe_cfg.monitor=&monitor;
 
-	fwd = simple_fwd_get_fwd(port_cfg);
+	//fwd = simple_fwd_get_fwd(port_cfg);
+	fwd=malloc(sizeof(struct doca_flow_fwd));
+	fwd->type=DOCA_FLOW_FWD_NONE;
+
 	fwd_miss = simple_fwd_get_fwd_miss(port_cfg);
 
 	return doca_flow_create_pipe(&pipe_cfg, fwd, fwd_miss, &error);
@@ -743,7 +746,7 @@ simple_fwd_pipe_add_entry(struct simple_fwd_pkt_info *pinfo,
 	}
 	// fwd = simple_fwd_select_fwd(pinfo);
 	fwd=malloc(sizeof(struct doca_flow_fwd));
-	fwd->type=DOCA_FLOW_FWD_DROP;
+	fwd->type=DOCA_FLOW_FWD_NONE;
 	simple_fwd_build_entry_match(pinfo, &match);
 	simple_fwd_build_entry_action(pinfo, &action);
 	simple_fwd_build_entry_monitor(pinfo, &monitor, user_ctx);
