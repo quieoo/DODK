@@ -384,6 +384,40 @@ simple_fwd_build_vxlan_pipe(struct doca_flow_port *port)
 }
 
 static struct doca_flow_pipe*
+simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
+	struct doca_flow_pipe_cfg pipe_cfg = {0};
+	struct simple_fwd_port_cfg *port_cfg;
+	struct doca_flow_monitor monitor = {0};
+	struct doca_flow_actions actions = {0};
+	struct doca_flow_match match = {0};
+	struct doca_flow_error error = {0};
+	struct doca_flow_fwd *fwd;
+	struct doca_flow_fwd *fwd_miss;
+
+	port_cfg = simple_fwd_get_port_cfg(port);
+
+	/* build match part */
+	match.out_dst_ip.ipv4_addr = UINT32_MAX;
+	match.out_dst_ip.type = DOCA_FLOW_IP4_ADDR;
+	match.out_l4_type = DOCA_PROTO_UDP;
+	match.out_dst_port = RTE_BE16(DOCA_VXLAN_DEFAULT_PORT);
+	match.tun.type = DOCA_FLOW_TUN_NONE;
+
+	pipe_cfg.name="NONE-TUNNEL";
+	pipe_cfg.type=DOCA_FLOW_PIPE_BASIC;
+	pipe_cfg.port=port;
+	pipe_cfg.is_root=true;
+	pipe_cfg.match=&match;
+	pipe_cfg.actions=&actions;
+	pipe_cfg.monitor=&monitor;
+
+	fwd = simple_fwd_get_fwd(port_cfg);
+	fwd_miss = simple_fwd_get_fwd_miss(port_cfg);
+
+	return doca_flow_create_pipe(&pipe_cfg, fwd, fwd_miss, &error);
+}
+
+static struct doca_flow_pipe*
 simple_fwd_build_gre_pipe(struct doca_flow_port *port)
 {
 	struct doca_flow_pipe_cfg pipe_cfg = {0};
@@ -530,7 +564,15 @@ simple_fwd_init_ports_and_pipes(struct simple_fwd_port_cfg *port_cfg)
 		if (pipe == NULL)
 			return -1;
 		simple_fwd_ins->pipe_vxlan[index] = pipe;
+
+		//build a pipe for no tunnel packet
+		pipe= simple_fwd_build_no_tunnel_pipe(port);
+		if(pipe==NULL)
+			return -1;
+		simple_fwd_ins->pipe_notun[inedx]=pipe;
 	}
+
+	
 	return 0;
 }
 
@@ -648,7 +690,9 @@ simple_fwd_select_pipe(struct simple_fwd_pkt_info *pinfo)
 		return simple_fwd_ins->pipe_vxlan[pinfo->orig_port_id];
 	if (pinfo->tun_type == DOCA_FLOW_TUN_GTPU)
 		return simple_fwd_ins->pipe_gtp[pinfo->orig_port_id];
-	return simple_fwd_ins->pipe_control[pinfo->orig_port_id];
+	if(pinfo->tun_type == DOCA_FLOW_TUN_NONE)
+		return simple_fwd_ins->pipe_notun[pinfo->orig_port_id];
+	return NULL;
 	// return NULL;
 }
 

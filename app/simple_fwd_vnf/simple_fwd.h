@@ -33,6 +33,7 @@ struct simple_fwd_app {
 	struct doca_flow_pipe *pipe_gre[SIMPLE_FWD_PORTS];
 	struct doca_flow_pipe *pipe_gtp[SIMPLE_FWD_PORTS];
 	struct doca_flow_pipe *pipe_control[SIMPLE_FWD_PORTS];
+	struct doca_flow_pipe *pipe_notun[SIMPLE_FWD_PORTS];
 	/* flow age query item buffer */
 	uint16_t nb_queues;
 	struct doca_flow_aged_query *query_array[0];
