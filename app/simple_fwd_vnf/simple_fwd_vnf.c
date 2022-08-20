@@ -49,7 +49,7 @@ main(int argc, char **argv)
 	struct application_dpdk_config dpdk_config = {
 		.port_config.nb_ports = 2,
 		.port_config.nb_queues = 4,
-		.port_config.nb_hairpin_q = 0,
+		.port_config.nb_hairpin_q = 1,
 		.sft_config = {0},
 		.reserve_main_thread = true,
 	};
