@@ -661,6 +661,16 @@ simple_fwd_build_entry_action(struct simple_fwd_pkt_info *pinfo,
 	action->encap.tun.vxlan_tun_id = BUILD_VNI(0xadadad);
 }
 
+void
+simple_fwd_build_entry_action_no_tunnel(struct simple_fwd_pkt_info *pinfo,
+			      struct doca_flow_actions *action)
+{
+	/* include all modify action cases*/
+	SET_MAC_ADDR(action->mod_dst_mac, 0x0c, 0x42, 0xa1, 0x4b, 0xc5, 0x8c);
+	action->mod_dst_ip.ipv4_addr = BE_IPV4_ADDR(18, 18, 18, 18);
+	action->mod_dst_port = RTE_BE16(55555);
+}
+
 /* build monitor on each entry*/
 void
 simple_fwd_build_entry_monitor(struct simple_fwd_pkt_info *pinfo,
@@ -733,7 +743,7 @@ simple_fwd_pipe_add_entry(struct simple_fwd_pkt_info *pinfo,
 	}
 	fwd = simple_fwd_select_fwd(pinfo);
 	simple_fwd_build_entry_match(pinfo, &match);
-	simple_fwd_build_entry_action(pinfo, &action);
+	simple_fwd_build_entry_action_no_tunnel(pinfo, &action);
 	simple_fwd_build_entry_monitor(pinfo, &monitor, user_ctx);
 	entry = doca_flow_pipe_add_entry(pinfo->pipe_queue,
 		pipe, &match, &action, &monitor, fwd, 0, NULL, &error);
