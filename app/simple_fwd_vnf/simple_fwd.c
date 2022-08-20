@@ -60,6 +60,7 @@ simple_fwd_get_pair_id(uint16_t port_id)
 static int
 simple_fwd_build_port_pair(uint16_t port_id)
 {
+	printf("simple_fwd_build_port_pair: %d\n",port_id);
 	int ret = 0;
 
 	if (port_id == 0 || (port_id % 2) == 0)
