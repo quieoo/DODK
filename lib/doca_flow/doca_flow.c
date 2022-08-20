@@ -714,7 +714,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// forward actions
 	switch (fwd->type)
 	{
-	case 1:
+	case DOCA_FLOW_FWD_RSS:
 		// DOCA_FLOW_FWD_RSS
 		/*
 		action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
@@ -724,12 +724,32 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p++].conf=&_rss;
 		*/
 		{
-			struct rte_flow_action_queue queue = {.index = pipe_queue};
-			action[p].type = RTE_FLOW_ACTION_TYPE_QUEUE;
-			action[p++].conf = &queue;
+			action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
+			struct rte_flow_action_rss _rss;
+			memset(_rss, 0, sizeof(struct rte_flow_action_rss));
+			_rss.func=RTE_ETH_HASH_FUNCTION_DEFAULT;
+			_rss.level=0;
+			uint32_t _type =fwd->rss_flags;
+			if(_type%2==1){
+				//DOCA_FLOW_RSS_IP
+				_rss.types |= RTE_ETH_RSS_IP;
+			}
+			_type=_type>>1;
+			if(_type%2==1){
+				//DOCA_FLOW_RSS_UDP
+				_rss.types |= RTE_ETH_RSS_UDP;
+			}
+			_type=_type>>1;
+			if(_type%2==1){
+				//DOCA_FLOW_RSS_TCP
+				_rss.types |= RTE_ETH_RSS_TCP;
+			}
+			_rss.queue_num=fwd->num_of_queues;
+			_rss.queue=fwd->rss_queues;
+			action[p++]=&_rss;
 		}
 		break;
-	case 2:
+	case DOCA_FLOW_FWD_PORT:
 		// DOCA_FLOW_FWD_PORT
 		{
 			action[p].type = RTE_FLOW_ACTION_TYPE_PORT_ID;
@@ -738,7 +758,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			action[p++].conf = &_pid;
 		}
 		break;
-	case 3:
+	case DOCA_FLOW_FWD_PIPE:
 		// DOCA_FLOW_FWD_PIPE
 		// printf("DOCA FWD PIPE\n");
 		{
@@ -748,7 +768,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			action[p++].conf = &_jump;
 		}
 		break;
-	case 4:
+	case DOCA_FLOW_FWD_DROP:
 		// DOCA_FLOW_FWD_DROP
 		action[p++].type = RTE_FLOW_ACTION_TYPE_DROP;
 		break;
