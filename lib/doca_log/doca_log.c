@@ -18,7 +18,10 @@ void doca_log_global_level_set(uint32_t level)
     rte_log_set_global_level(level);
 }
 uint32_t doca_log_global_level_get(void){}
-int doca_log_source_register(const char *source_name){}
+int doca_log_source_register(const char *source_name)
+{
+    return rte_log_register(source_name);
+}
 int doca_log_rate_bucket_register(uint32_t source){}
 struct doca_logger_backend *doca_log_create_file_backend(FILE *fptr){}
 struct doca_logger_backend *doca_log_create_fd_backend(int fd){}

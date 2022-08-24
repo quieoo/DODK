@@ -45,7 +45,7 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
-	RTE_LOG(INFO, L2FWD, "lcore %d has nothing to do\n", 88);
+	RTE_LOG(INFO, SIMPLE_FWD_VNF, "lcore %d has nothing to do\n", 88);
 	DOCA_LOG_INFO("*******************%d", 88);
 	uint16_t port_id;
 	struct simple_fwd_port_cfg port_cfg = {0};
