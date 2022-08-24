@@ -32,6 +32,7 @@ int _level;
 
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
+    printf("%s %s %s %s\n", level, source, line, format);
     rte_log(level, source, format);
     /*
     _level=1;
