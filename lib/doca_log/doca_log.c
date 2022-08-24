@@ -30,10 +30,38 @@ struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
 
 int _level;
 
+int
+rte_vlog(uint32_t level, uint32_t logtype, const char *format, va_list ap)
+{
+	FILE *f = rte_log_get_stream();
+	int ret;
+
+	if (logtype >= rte_logs.dynamic_types_len)
+		return -1;
+	if (!rte_log_can_log(logtype, level))
+		return 0;
+
+	/* save loglevel and logtype in a global per-lcore variable */
+	RTE_PER_LCORE(log_cur_msg).loglevel = level;
+	RTE_PER_LCORE(log_cur_msg).logtype = logtype;
+
+	ret = vfprintf(f, format, ap);
+	fflush(f);
+	return ret;
+}
+
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
-    printf("%d\n",line);
-    rte_log(level, source, format);
+    va_list ap;
+	int ret;
+
+	va_start(ap, format);
+	ret = rte_vlog(level, source, format, ap);
+
+
+	va_end(ap);
+
+//    rte_log(level, source, format);
     /*
     _level=1;
     if(level<=_level){
