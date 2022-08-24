@@ -28,33 +28,10 @@ struct doca_logger_backend *doca_log_create_fd_backend(int fd){}
 struct doca_logger_backend *doca_log_create_buffer_backend(char *buffer, size_t capacity, log_flush_callback handler){}
 struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
 
-static FILE *default_log_stream;
-
-FILE *
-rte_log_get_stream(void)
-{
-	return stderr;
-}
-
-int _level;
-
-int
-rte_vvlog(uint32_t level, uint32_t logtype, const char *format, va_list ap)
-{
-	FILE *f = rte_log_get_stream();
-	int ret;
-
-
-	ret = vfprintf(f, format, ap);
-	fflush(f);
-	return ret;
-}
-
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
     va_list ap;
 	int ret;
-
 	va_start(ap, format);
 	ret = rte_vlog(level, source, format, ap);
 	va_end(ap);
