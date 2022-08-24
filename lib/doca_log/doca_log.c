@@ -39,7 +39,7 @@ rte_log_get_stream(void)
 int _level;
 
 int
-rte_vlog(uint32_t level, uint32_t logtype, const char *format, va_list ap)
+rte_vvlog(uint32_t level, uint32_t logtype, const char *format, va_list ap)
 {
 	FILE *f = rte_log_get_stream();
 	int ret;
@@ -56,7 +56,7 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
 	int ret;
 
 	va_start(ap, format);
-	ret = rte_vlog(level, source, format, ap);
+	ret = rte_vvlog(level, source, format, ap);
 
 
 	va_end(ap);
