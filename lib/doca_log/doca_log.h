@@ -24,6 +24,7 @@ extern "C" {
 #include <stdint.h>
 
 #include <doca_compat.h>
+#include <rte_log.h>
 
 /**
  * @brief log levels
