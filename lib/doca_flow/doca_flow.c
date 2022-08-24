@@ -674,40 +674,43 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		attr.egress = 1;
 		attr.ingress = 0;
 
-		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
-		struct rte_flow_action_vxlan_encap _vlencp;
 		struct rte_flow_item items[5];
+		struct rte_flow_item_eth item_eth;
+		struct rte_flow_item_ipv4 item_ipv4;
+		struct rte_flow_item_udp item_udp;
+		struct rte_flow_item_vxlan item_vxlan;
 
-		items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
-		struct rte_flow_item_eth encap_eth_item;
-		memcpy(encap_eth_item.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
-		memcpy(encap_eth_item.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
-		encap_eth_item.hdr.ether_type=RTE_ETHER_TYPE_IPV4;
-		items[0].spec = &encap_eth_item;
+		items[0].type=RTE_FLOW_ITEM_TYPE_ETH;
+		memcpy(item_eth.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(item_eth.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
+		items[0].spec=&item_eth;
+		items[0].mask=&item_eth;
 
-		items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
-		struct rte_flow_item_ipv4 encap_ip_item;
-		encap_ip_item.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
-		encap_ip_item.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
-		items[1].spec = &encap_ip_item;
+		items[1].type=RTE_FLOW_ITEM_TYPE_IPV4;
+		item_ipv4.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
+		item_ipv4.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
+		items[1].spec = &item_ipv4;
+		items[1].mask=&item_ipv4;
 
-		items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
-		struct rte_flow_item_udp encap_udp_item;
-		encap_udp_item.hdr.dst_port = RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
-		items[2].spec = &encap_udp_item;
+		items[2].type=RTE_FLOW_ITEM_TYPE_UDP;
+		item_udp.hdr.dst_port = RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
+		items[2].spec = &item_udp;
+		items[2].mask=&item_udp;
 
-		items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
-		struct rte_flow_item_vxlan encap_vxlan_item;
+		items[3].type=RTE_FLOW_ITEM_TYPE_VXLAN;
 		uint8_t *pt = (uint8_t *)&(mactions->encap.tun.vxlan_tun_id);
 		for (int i = 0; i < 3; i++)
 		{
-			encap_vxlan_item.vni[i] = pt[3 - i];
+			item_vxlan.vni[i] = pt[3 - i];
 		}
-		items[3].spec = &encap_vxlan_item;
+		items[3].spec = &item_vxlan;
+		items[3].mask=&item_vxlan;
 
 		items[4].type = RTE_FLOW_ITEM_TYPE_END;
 
-		_vlencp.definition = items;
+		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
+		struct rte_flow_action_vxlan_encap _vlencp;
+		_vlencp.definition=items;
 		action[p++].conf = &_vlencp;
 	}
 
