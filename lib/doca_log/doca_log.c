@@ -33,12 +33,7 @@ static FILE *default_log_stream;
 FILE *
 rte_log_get_stream(void)
 {
-	FILE *f = rte_logs.file;
-
-	if (f == NULL) {
-		return default_log_stream ? : stderr;
-	}
-	return f;
+	return stdout;
 }
 
 int _level;
