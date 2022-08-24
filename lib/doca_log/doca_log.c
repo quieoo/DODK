@@ -30,6 +30,7 @@ struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
 
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
+    format+='\n';
     va_list ap;
 	int ret;
 	va_start(ap, format);
