@@ -45,8 +45,9 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
-	// RTE_LOG(INFO, SIMPLE_FWD_VNF, "lcore %d has nothing to do\n", 88);
+	doca_log_global_level_set(8);
 	DOCA_LOG_INFO("*******************%d", 88);
+
 	uint16_t port_id;
 	struct simple_fwd_port_cfg port_cfg = {0};
 	struct application_dpdk_config dpdk_config = {
@@ -79,8 +80,7 @@ main(int argc, char **argv)
 	doca_argp_start(argc, argv, &doca_general_config);
 
 	doca_log_create_syslog_backend("doca_core");
-	doca_log_global_level_set(8);
-
+	
 	/* update queues and ports */
 	dpdk_init(&dpdk_config);
 
