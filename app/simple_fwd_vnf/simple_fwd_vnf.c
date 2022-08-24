@@ -45,6 +45,8 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
+	RTE_LOG(INFO, L2FWD, "lcore %d has nothing to do\n", 88);
+
 	uint16_t port_id;
 	struct simple_fwd_port_cfg port_cfg = {0};
 	struct application_dpdk_config dpdk_config = {

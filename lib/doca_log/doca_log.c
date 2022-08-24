@@ -29,8 +29,7 @@ int _level;
 
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
-    RTE_LOG(level, L2FWD, format);
-    /*
+    
     _level=1;
     if(level<=_level){
         switch (level)
@@ -61,7 +60,7 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
         va_end(ap);
 
         printf("\n");
-    }*/
+    }
 }
 void doca_log_developer(uint32_t level, uint32_t source, int line, const char *format, ...){}
 void doca_log_rate_limit(uint32_t level, uint32_t source, int line, uint32_t bucket_id, const char *format, ...){}
