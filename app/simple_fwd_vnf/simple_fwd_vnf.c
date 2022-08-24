@@ -46,6 +46,7 @@ int
 main(int argc, char **argv)
 {
 	doca_log_global_level_set(8);
+	DOCA_LOG_ERR("vnf application init error");
 	DOCA_LOG_INFO("*******************%d\n", 10660);
 
 	uint16_t port_id;
