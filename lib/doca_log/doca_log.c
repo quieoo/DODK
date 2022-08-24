@@ -33,7 +33,7 @@ static FILE *default_log_stream;
 FILE *
 rte_log_get_stream(void)
 {
-	return stdout;
+	return stderr;
 }
 
 int _level;
