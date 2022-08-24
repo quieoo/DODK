@@ -30,13 +30,12 @@ struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
 
 void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
 {
-    format+='\n';
     va_list ap;
 	int ret;
 	va_start(ap, format);
 	ret = rte_vlog(level, source, format, ap);
 	va_end(ap);
-
+    printf("\n");
 //    rte_log(level, source, format);
     /*
     _level=1;
