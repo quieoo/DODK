@@ -31,7 +31,8 @@
 DOCA_LOG_REGISTER(SIMPLE_FWD_VNF);
 
 #define DEFAULT_NB_METERS (1 << 13)
-
+#define RTE_LOGTYPE_L2FWD RTE_LOGTYPE_USER1
+ 
 static void
 signal_handler(int signum)
 {
@@ -76,6 +77,7 @@ main(int argc, char **argv)
 	doca_argp_start(argc, argv, &doca_general_config);
 
 	doca_log_create_syslog_backend("doca_core");
+	doca_log_global_level_set(8);
 
 	/* update queues and ports */
 	dpdk_init(&dpdk_config);
