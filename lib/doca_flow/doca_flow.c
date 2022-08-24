@@ -682,6 +682,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_item_eth encap_eth_item;
 		memcpy(encap_eth_item.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
 		memcpy(encap_eth_item.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
+		encap_eth_item.hdr.ether_type=RTE_ETHER_TYPE_IPV4;
 		items[0].spec = &encap_eth_item;
 
 		items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
