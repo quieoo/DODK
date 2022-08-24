@@ -28,6 +28,19 @@ struct doca_logger_backend *doca_log_create_fd_backend(int fd){}
 struct doca_logger_backend *doca_log_create_buffer_backend(char *buffer, size_t capacity, log_flush_callback handler){}
 struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
 
+static FILE *default_log_stream;
+
+FILE *
+rte_log_get_stream(void)
+{
+	FILE *f = rte_logs.file;
+
+	if (f == NULL) {
+		return default_log_stream ? : stderr;
+	}
+	return f;
+}
+
 int _level;
 
 int
@@ -36,14 +49,6 @@ rte_vlog(uint32_t level, uint32_t logtype, const char *format, va_list ap)
 	FILE *f = rte_log_get_stream();
 	int ret;
 
-	if (logtype >= rte_logs.dynamic_types_len)
-		return -1;
-	if (!rte_log_can_log(logtype, level))
-		return 0;
-
-	/* save loglevel and logtype in a global per-lcore variable */
-	RTE_PER_LCORE(log_cur_msg).loglevel = level;
-	RTE_PER_LCORE(log_cur_msg).logtype = logtype;
 
 	ret = vfprintf(f, format, ap);
 	fflush(f);
