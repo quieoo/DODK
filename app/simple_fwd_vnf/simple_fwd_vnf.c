@@ -46,7 +46,6 @@ int
 main(int argc, char **argv)
 {
 	doca_log_global_level_set(8);
-	// DOCA_LOG_INFO("*******************%d\n", 10660);
 
 	uint16_t port_id;
 	struct simple_fwd_port_cfg port_cfg = {0};
