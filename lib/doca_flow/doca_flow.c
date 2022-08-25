@@ -834,7 +834,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		printf(" %d", action[i].type);
 	}
 	printf("\n");
-	// action: 44 35 39 28 6
+	// action: 44 35 39 28
 	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
 
 	// get port id
@@ -842,18 +842,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
-
-	if (action[3].type == 28)
-	{
-		struct rte_flow_action_vxlan_encap *vxlan = action[3].conf;
-		for (int i = 0; i < 5; i++)
-			printf("%d ", vxlan->definition[i].type);
-		struct rte_flow_item_ipv4 *ip = vxlan->definition[1].spec;
-		printf("\n");
-		struct in_addr addr;
-		addr.s_addr = ip->hdr.src_addr;
-		printf("	%s\n", inet_ntoa(addr));
-	}
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
