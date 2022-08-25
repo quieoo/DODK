@@ -768,7 +768,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 		attr.egress = 1;
 		attr.ingress = 0;
-
+/*
 		struct rte_flow_item items[5];
 		struct rte_flow_item_eth item_eth;
 		struct rte_flow_item_ipv4 item_ipv4;
@@ -806,7 +806,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
 		struct rte_flow_action_vxlan_encap _vlencp;
 		_vlencp.definition = items;
-		action[p++].conf = &_vlencp;
+		action[p++].conf = &_vlencp;*/
+		add_vxlan_encap(actions, p++);
 	}
 
 	// forward actions
@@ -870,10 +871,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		printf("DOCA FWD OTHER TYPE: %d\n", fwd->type);
 		break;
 	}
-
-	add_vxlan_encap(action, p++);
-	attr.ingress=0;
-	attr.egress=1;
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 

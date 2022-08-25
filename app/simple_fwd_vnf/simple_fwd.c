@@ -648,7 +648,7 @@ simple_fwd_build_entry_action(struct simple_fwd_pkt_info *pinfo,
 	action->mod_dst_ip.ipv4_addr = BE_IPV4_ADDR(18, 18, 18, 18);
 	action->mod_dst_port = RTE_BE16(55555);
 	/* set vxlan encap data, pipe will decide if do encap */
-	action->has_encap = false;
+	action->has_encap = true;
 	/*
 	 * we have a basic encap data when create pipe, there we do
 	 * some modify to test the modify encap and decap.
