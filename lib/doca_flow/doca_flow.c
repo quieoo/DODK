@@ -511,7 +511,7 @@ add_vxlan_encap(struct rte_flow_action *actions,
 
 	item_ipv4.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
 	item_ipv4.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
-	//item_ipv4.hdr.version_ihl = RTE_IPV4_VHL_DEF;
+	item_ipv4.hdr.version_ihl = RTE_IPV4_VHL_DEF;
 	items[1].spec = &item_ipv4;
 	items[1].mask = &item_ipv4;
 	items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
@@ -552,7 +552,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
-	printf("doca_flow_pipe_add_entry, pipe: %s\n", pipe->cfg->name);
+	DOCA_LOG_INFO("doca_flow_pipe_add_entry, pipe: %s\n", pipe->cfg->name);
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -662,7 +662,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			break;
 		}
 		default:
-			printf("TUNNEL OTHER TYPE: %d\n", mmatch->tun.type);
+			DOCA_LOG_WARN("TUNNEL OTHER TYPE: %d\n", mmatch->tun.type);
 			break;
 		}
 
@@ -711,12 +711,14 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
-	printf("patern:");
+
+	
+	DOCA_LOG_INFO("patern:");
 	for (int i = 0; i < p; i++)
 	{
-		printf(" %d", pattern[i].type);
+		DOCA_LOG_INFO(" %d", pattern[i].type);
 	}
-	printf("\n");
+	DOCA_LOG_INFO("\n");
 	/*convert actions -> action*/
 	// modify packets
 	p = 0;
@@ -773,45 +775,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 		attr.egress = 1;
 		attr.ingress = 0;
-/*
-		struct rte_flow_item items[5];
-		struct rte_flow_item_eth item_eth;
-		struct rte_flow_item_ipv4 item_ipv4;
-		struct rte_flow_item_udp item_udp;
-		struct rte_flow_item_vxlan item_vxlan;
-
-		items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
-		memcpy(item_eth.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
-		memcpy(item_eth.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
-		items[0].spec = &item_eth;
-		items[0].mask = &item_eth;
-
-		items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
-		item_ipv4.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
-		item_ipv4.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
-		items[1].spec = &item_ipv4;
-		items[1].mask = &item_ipv4;
-
-		items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
-		item_udp.hdr.dst_port = RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
-		items[2].spec = &item_udp;
-		items[2].mask = &item_udp;
-
-		items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
-		uint8_t *pt = (uint8_t *)&(mactions->encap.tun.vxlan_tun_id);
-		for (int i = 0; i < 3; i++)
-		{
-			item_vxlan.vni[i] = pt[3 - i];
-		}
-		items[3].spec = &item_vxlan;
-		items[3].mask = &item_vxlan;
-
-		items[4].type = RTE_FLOW_ITEM_TYPE_END;
-
-		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
-		struct rte_flow_action_vxlan_encap _vlencp;
-		_vlencp.definition = items;
-		action[p++].conf = &_vlencp;*/
 		add_vxlan_encap(action, p++, mactions);
 	}
 
@@ -873,18 +836,18 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p++].type = RTE_FLOW_ACTION_TYPE_DROP;
 		break;
 	default:
-		printf("DOCA FWD OTHER TYPE: %d\n", fwd->type);
+		DOCA_LOG_WARN("DOCA FWD OTHER TYPE: %d\n", fwd->type);
 		break;
 	}
 
 	action[p++].type = RTE_FLOW_ACTION_TYPE_END;
 
-	printf("action:");
+	DOCA_LOG_INFO("action:");
 	for (int i = 0; i < p; i++)
 	{
-		printf(" %d", action[i].type);
+		DOCA_LOG_INFO(" %d", action[i].type);
 	}
-	printf("\n");
+	DOCA_LOG_INFO("\n");
 	// action: 44 35 39 28
 	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
 
@@ -899,7 +862,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
 		if (!flow)
 		{
-			printf("Flow can't be created %d message: %s\n",
+			DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
 				   rte_error.type,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
 			error->type = rte_error.type;
@@ -911,8 +874,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	else
 	{
-		printf("ERROR while validate flow: %d\n", res);
-		printf("%s\n", rte_error.message);
+		DOCA_LOG_ERR("ERROR while validate flow: %d\n", res);
+		DOCA_LOG_ERR("%s\n", rte_error.message);
 	}
 }
 
