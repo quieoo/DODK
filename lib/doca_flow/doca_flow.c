@@ -491,6 +491,51 @@ merge_fwd(struct doca_flow_fwd *first, struct doca_flow_fwd *second)
 	return result;
 }
 
+static void
+add_vxlan_encap(struct rte_flow_action *actions,
+	uint8_t actions_counter)
+{
+	static struct rte_flow_action_vxlan_encap vxlan_encap[RTE_MAX_LCORE] __rte_cache_aligned;
+	static struct rte_flow_item items[5];
+	static struct rte_flow_item_eth item_eth;
+	static struct rte_flow_item_ipv4 item_ipv4;
+	static struct rte_flow_item_udp item_udp;
+	static struct rte_flow_item_vxlan item_vxlan;
+	uint32_t ip_dst = 10000;
+
+
+	items[0].spec = &item_eth;
+	items[0].mask = &item_eth;
+	items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
+
+	item_ipv4.hdr.src_addr = RTE_IPV4(127, 0, 0, 1);
+	item_ipv4.hdr.dst_addr = RTE_BE32(ip_dst);
+	item_ipv4.hdr.version_ihl = RTE_IPV4_VHL_DEF;
+	items[1].spec = &item_ipv4;
+	items[1].mask = &item_ipv4;
+	items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
+
+
+	item_udp.hdr.dst_port = RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
+	items[2].spec = &item_udp;
+	items[2].mask = &item_udp;
+	items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
+
+
+	item_vxlan.vni[2] = 1;
+	items[3].spec = &item_vxlan;
+	items[3].mask = &item_vxlan;
+	items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
+
+	items[4].type = RTE_FLOW_ITEM_TYPE_END;
+
+	vxlan_encap[para.core_idx].definition = items;
+
+	actions[actions_counter].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
+	actions[actions_counter].conf = &vxlan_encap[para.core_idx];
+}
+
+
 struct doca_flow_pipe_entry *
 doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 struct doca_flow_pipe *pipe,
@@ -825,6 +870,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		printf("DOCA FWD OTHER TYPE: %d\n", fwd->type);
 		break;
 	}
+
+	add_vxlan_encap(action, p++)
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
