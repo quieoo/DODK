@@ -806,32 +806,31 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_item_ipv4 *ip = vxlan->definition[1].spec;
 		printf("\n");
 		struct in_addr addr;
-		addr.s_addr=ip->hdr.src_addr;
+		addr.s_addr = ip->hdr.src_addr;
 		printf("	%s\n", inet_ntoa(addr));
 	}
 	printf("%d\n", ip->hdr.src_addr);
-}
-int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
-if (!res)
-{
-	flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
-	if (!flow)
+	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
+	if (!res)
 	{
-		printf("Flow can't be created %d message: %s\n",
-			   rte_error.type,
-			   rte_error.message ? rte_error.message : "(no stated reason)");
-		error->type = rte_error.type;
-		error->message = rte_error.message;
-		// rte_exit(EXIT_FAILURE, "error in creating flow");
-		return NULL;
+		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
+		if (!flow)
+		{
+			printf("Flow can't be created %d message: %s\n",
+				   rte_error.type,
+				   rte_error.message ? rte_error.message : "(no stated reason)");
+			error->type = rte_error.type;
+			error->message = rte_error.message;
+			// rte_exit(EXIT_FAILURE, "error in creating flow");
+			return NULL;
+		}
+		// output_flow(port_id, &attr, pattern, action, &error);
 	}
-	// output_flow(port_id, &attr, pattern, action, &error);
-}
-else
-{
-	printf("ERROR while validate flow: %d\n", res);
-	printf("%s\n", rte_error.message);
-}
+	else
+	{
+		printf("ERROR while validate flow: %d\n", res);
+		printf("%s\n", rte_error.message);
+	}
 }
 
 struct doca_flow_pipe_entry *
