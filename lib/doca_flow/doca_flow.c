@@ -523,10 +523,14 @@ add_vxlan_encap(struct rte_flow_action *actions,
 	items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
 
 
-	item_vxlan.vni[2] = 1;
+	items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
+	uint8_t *pt = (uint8_t *)&(mactions->encap.tun.vxlan_tun_id);
+	for (int i = 0; i < 3; i++)
+	{
+		item_vxlan.vni[i] = pt[3 - i];
+	}
 	items[3].spec = &item_vxlan;
 	items[3].mask = &item_vxlan;
-	items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
 
 	items[4].type = RTE_FLOW_ITEM_TYPE_END;
 
