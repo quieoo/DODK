@@ -808,7 +808,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_action_vxlan_encap _vlencp;
 		_vlencp.definition = items;
 		action[p++].conf = &_vlencp;*/
-		add_vxlan_encap(action, p++);
+		add_vxlan_encap(action, p++, mactions);
 	}
 
 	// forward actions
