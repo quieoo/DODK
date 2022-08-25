@@ -19,7 +19,7 @@ void doca_argp_register_param(struct doca_argp_param *input_param){
 }
 
 void usage(char* programe){
-	printf("\nusage: %s\n", progname);
+	printf("\nusage: %s\n", programe);
 	printf("\nRegistered Configuration:\n");
 	for(int i=0; i<registered; i++){
 		struct doca_argp_param *p=registered_param[i];
@@ -33,6 +33,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	if (ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 */
+	int n, opt;
+	int opt_idx;
 	static const struct option lgopts[MAX_PARAM_NUM];
 	for(int i=0;i<registered;i++){
 		struct option _opt;
