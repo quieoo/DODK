@@ -117,9 +117,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	else printf("%d",fwd_miss->type);
 	printf("\n");
 
-	char logs[100];
-	sprintf(logs, "pipe %s, fwd %s, fwd_miss ", cfg->name, (fwd==NULL)?"NULL":fwd->type, (fwd_miss==NULL)?"NULL":fwd_miss->type);
-	DOCA_LOG_INFO(logs);
+	DOCA_LOG_INFO("pipe %s, fwd %s, fwd_miss ", cfg->name, 
+		(fwd==NULL)?"NULL":fwd->type, (fwd_miss==NULL)?"NULL":fwd_miss->type);
 
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
 	pipe->cfg = malloc(sizeof(struct doca_flow_pipe_cfg));
