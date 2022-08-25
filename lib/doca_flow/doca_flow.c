@@ -495,7 +495,7 @@ static void
 add_vxlan_encap(struct rte_flow_action *actions,
 	uint8_t actions_counter)
 {
-	static struct rte_flow_action_vxlan_encap vxlan_encap[RTE_MAX_LCORE] __rte_cache_aligned;
+	static struct rte_flow_action_vxlan_encap vxlan_encap;
 	static struct rte_flow_item items[5];
 	static struct rte_flow_item_eth item_eth;
 	static struct rte_flow_item_ipv4 item_ipv4;
@@ -529,10 +529,10 @@ add_vxlan_encap(struct rte_flow_action *actions,
 
 	items[4].type = RTE_FLOW_ITEM_TYPE_END;
 
-	vxlan_encap[para.core_idx].definition = items;
+	vxlan_encap.definition = items;
 
 	actions[actions_counter].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
-	actions[actions_counter].conf = &vxlan_encap[para.core_idx];
+	actions[actions_counter].conf = &vxlan_encap;
 }
 
 
