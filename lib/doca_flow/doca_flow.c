@@ -181,10 +181,10 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 			flow = rte_flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
 			if (!flow)
 			{
-				printf("Flow can't be created %d message: %s\n",
+				DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
 					   rte_error.type,
 					   rte_error.message ? rte_error.message : "(no stated reason)");
-				rte_exit(EXIT_FAILURE, "error in creating flow");
+				return NULL;
 			}
 			//output_flow(cfg->port->port_id, &attr, pattern, action, &error);
 		}
