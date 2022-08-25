@@ -14,7 +14,6 @@
 #define MAX_ACTION_NUM 10
 DOCA_LOG_REGISTER(DOCA_FLOW);
 
-
 const uint8_t mac0[6] = {0};
 const uint32_t ip0 = 0;
 const uint16_t port0 = 0;
@@ -88,10 +87,11 @@ print_ether_addr(const char *what, uint8_t eth_addr[])
 }
 int doca_flow_port_stop(struct doca_flow_port *port) {}
 
-int doca_flow_port_pair(struct doca_flow_port *port, struct doca_flow_port *pair_port) {
-	printf("Pair-Port: %d-%d\n",port->port_id, pair_port->port_id);
+int doca_flow_port_pair(struct doca_flow_port *port, struct doca_flow_port *pair_port)
+{
+	printf("Pair-Port: %d-%d\n", port->port_id, pair_port->port_id);
 	return 0;
-}  
+}
 
 uint8_t *
 doca_flow_port_priv_data(struct doca_flow_port *port) {}
@@ -110,11 +110,14 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  struct doca_flow_error *error)
 {
 	DOCA_LOG_INFO("Create pipe %s", cfg->name);
-	if(fwd==NULL) DOCA_LOG_INFO("	fwd: NULL");
-	else DOCA_LOG_INFO("	fwd: %d",fwd->type);
-	if(fwd_miss==NULL) DOCA_LOG_INFO("	fwd_miss: NULL");
-	else DOCA_LOG_INFO("	fwd_miss: %d",fwd_miss->type);
-	
+	if (fwd == NULL)
+		DOCA_LOG_INFO("	fwd: NULL");
+	else
+		DOCA_LOG_INFO("	fwd: %d", fwd->type);
+	if (fwd_miss == NULL)
+		DOCA_LOG_INFO("	fwd_miss: NULL");
+	else
+		DOCA_LOG_INFO("	fwd_miss: %d", fwd_miss->type);
 
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
 	pipe->cfg = malloc(sizeof(struct doca_flow_pipe_cfg));
@@ -182,12 +185,12 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 			if (!flow)
 			{
 				DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
-					   rte_error.type,
-					   rte_error.message ? rte_error.message : "(no stated reason)");
+							 rte_error.type,
+							 rte_error.message ? rte_error.message : "(no stated reason)");
 				rte_exit(EXIT_FAILURE, "error in creating flow");
 				return NULL;
 			}
-			//output_flow(cfg->port->port_id, &attr, pattern, action, &error);
+			// output_flow(cfg->port->port_id, &attr, pattern, action, &error);
 		}
 		else
 		{
@@ -464,7 +467,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	memset(&attr, 0, sizeof(struct rte_flow_attr));
 	memset(pattern, 0, sizeof(pattern));
 	memset(action, 0, sizeof(action));
-	
+
 	attr.ingress = 1;
 	// merge match, actions, fwd
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
@@ -682,37 +685,37 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_item_udp item_udp;
 		struct rte_flow_item_vxlan item_vxlan;
 
-		items[0].type=RTE_FLOW_ITEM_TYPE_ETH;
+		items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
 		memcpy(item_eth.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
 		memcpy(item_eth.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);
-		items[0].spec=&item_eth;
-		items[0].mask=&item_eth;
+		items[0].spec = &item_eth;
+		items[0].mask = &item_eth;
 
-		items[1].type=RTE_FLOW_ITEM_TYPE_IPV4;
+		items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		item_ipv4.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
 		item_ipv4.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
 		items[1].spec = &item_ipv4;
-		items[1].mask=&item_ipv4;
+		items[1].mask = &item_ipv4;
 
-		items[2].type=RTE_FLOW_ITEM_TYPE_UDP;
+		items[2].type = RTE_FLOW_ITEM_TYPE_UDP;
 		item_udp.hdr.dst_port = RTE_BE16(RTE_VXLAN_DEFAULT_PORT);
 		items[2].spec = &item_udp;
-		items[2].mask=&item_udp;
+		items[2].mask = &item_udp;
 
-		items[3].type=RTE_FLOW_ITEM_TYPE_VXLAN;
+		items[3].type = RTE_FLOW_ITEM_TYPE_VXLAN;
 		uint8_t *pt = (uint8_t *)&(mactions->encap.tun.vxlan_tun_id);
 		for (int i = 0; i < 3; i++)
 		{
 			item_vxlan.vni[i] = pt[3 - i];
 		}
 		items[3].spec = &item_vxlan;
-		items[3].mask=&item_vxlan;
+		items[3].mask = &item_vxlan;
 
 		items[4].type = RTE_FLOW_ITEM_TYPE_END;
 
 		action[p].type = RTE_FLOW_ACTION_TYPE_VXLAN_ENCAP;
 		struct rte_flow_action_vxlan_encap _vlencp;
-		_vlencp.definition=items;
+		_vlencp.definition = items;
 		action[p++].conf = &_vlencp;
 	}
 
@@ -722,29 +725,32 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	case DOCA_FLOW_FWD_RSS:
 		// DOCA_FLOW_FWD_RSS
 		{
-			action[p].type=RTE_FLOW_ACTION_TYPE_RSS;
+			action[p].type = RTE_FLOW_ACTION_TYPE_RSS;
 			struct rte_flow_action_rss _rss;
 			memset(&(_rss), 0, sizeof(struct rte_flow_action_rss));
-			_rss.func=RTE_ETH_HASH_FUNCTION_DEFAULT;
-			_rss.level=0;
-			uint32_t _type =fwd->rss_flags;
-			if(_type%2==1){
-				//DOCA_FLOW_RSS_IP
+			_rss.func = RTE_ETH_HASH_FUNCTION_DEFAULT;
+			_rss.level = 0;
+			uint32_t _type = fwd->rss_flags;
+			if (_type % 2 == 1)
+			{
+				// DOCA_FLOW_RSS_IP
 				_rss.types |= RTE_ETH_RSS_IP;
 			}
-			_type=_type>>1;
-			if(_type%2==1){
-				//DOCA_FLOW_RSS_UDP
+			_type = _type >> 1;
+			if (_type % 2 == 1)
+			{
+				// DOCA_FLOW_RSS_UDP
 				_rss.types |= RTE_ETH_RSS_UDP;
 			}
-			_type=_type>>1;
-			if(_type%2==1){
-				//DOCA_FLOW_RSS_TCP
+			_type = _type >> 1;
+			if (_type % 2 == 1)
+			{
+				// DOCA_FLOW_RSS_TCP
 				_rss.types |= RTE_ETH_RSS_TCP;
 			}
-			_rss.queue_num=fwd->num_of_queues;
-			_rss.queue=fwd->rss_queues;
-			action[p++].conf=&(_rss);
+			_rss.queue_num = fwd->num_of_queues;
+			_rss.queue = fwd->rss_queues;
+			action[p++].conf = &(_rss);
 		}
 		break;
 	case DOCA_FLOW_FWD_PORT:
@@ -777,8 +783,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
-
-
 	printf("action:");
 	for (int i = 0; i < p; i++)
 	{
@@ -788,41 +792,46 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// action: 44 35 39 28 6
 	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
 
-
 	// get port id
 	int port_id = pipe->cfg->port->port_id;
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
 
-	if(action[2].type==28){
-		struct rte_flow_action_vxlan_encap *vxlan=action[2].conf;
-		for(int i=0;i<5;i++)
+	if (action[2].type == 28)
+	{
+		struct rte_flow_action_vxlan_encap *vxlan = action[2].conf;
+		for (int i = 0; i < 5; i++)
 			printf("%d ", vxlan->definition[i].type);
+		struct rte_flow_item_ipv4 *ip = vxlan->definition[1].spec;
 		printf("\n");
-
+		struct in_addr addr;
+		addr.s_addr=ip->hdr.src_addr;
+		printf("	%s\n", inet_ntoa(addr));
 	}
-	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
-	if (!res)
+	printf("%d\n", ip->hdr.src_addr);
+}
+int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
+if (!res)
+{
+	flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
+	if (!flow)
 	{
-		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
-		if (!flow)
-		{
-			printf("Flow can't be created %d message: %s\n",
-				   rte_error.type,
-				   rte_error.message ? rte_error.message : "(no stated reason)");
-			error->type=rte_error.type;
-			error->message=rte_error.message;
-			// rte_exit(EXIT_FAILURE, "error in creating flow");
-			return NULL;
-		}
-		//output_flow(port_id, &attr, pattern, action, &error);
+		printf("Flow can't be created %d message: %s\n",
+			   rte_error.type,
+			   rte_error.message ? rte_error.message : "(no stated reason)");
+		error->type = rte_error.type;
+		error->message = rte_error.message;
+		// rte_exit(EXIT_FAILURE, "error in creating flow");
+		return NULL;
 	}
-	else
-	{
-		printf("ERROR while validate flow: %d\n", res);
-		printf("%s\n", rte_error.message);
-	}
+	// output_flow(port_id, &attr, pattern, action, &error);
+}
+else
+{
+	printf("ERROR while validate flow: %d\n", res);
+	printf("%s\n", rte_error.message);
+}
 }
 
 struct doca_flow_pipe_entry *
