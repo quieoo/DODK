@@ -558,7 +558,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
-	DOCA_LOG_INFO("doca_flow_pipe_add_entry, pipe: %s\n", pipe->cfg->name);
+	DOCA_LOG_INFO("doca_flow_pipe_add_entry, pipe: %s", pipe->cfg->name);
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -668,7 +668,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			break;
 		}
 		default:
-			DOCA_LOG_WARN("TUNNEL OTHER TYPE: %d\n", mmatch->tun.type);
+			DOCA_LOG_WARN("TUNNEL OTHER TYPE: %d", mmatch->tun.type);
 			break;
 		}
 
@@ -718,13 +718,14 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
 
-	
-	DOCA_LOG_INFO("patern:");
+	char str[50]="	pattern:";
 	for (int i = 0; i < p; i++)
 	{
-		DOCA_LOG_INFO(" %d", pattern[i].type);
+		char _t[5];
+		fprintf(_t, " %d",pattern[i].type);
+		strcpy(str+strlen(str), _t);	
 	}
-	DOCA_LOG_INFO("\n");
+	DOCA_LOG_INFO("%s", str);
 	/*convert actions -> action*/
 	// modify packets
 	p = 0;
