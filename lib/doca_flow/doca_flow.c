@@ -109,7 +109,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd_miss,
 					  struct doca_flow_error *error)
 {
-	DOCA_LOG_INFO("Create pipe %s");
+	DOCA_LOG_INFO("Create pipe %s", cfg->name);
 	if(fwd==NULL) DOCA_LOG_INFO("	fwd: NULL");
 	else DOCA_LOG_INFO("	fwd: %d",fwd->type);
 	if(fwd_miss==NULL) DOCA_LOG_INFO("	fwd_miss: NULL");
