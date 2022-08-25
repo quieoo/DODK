@@ -843,7 +843,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p++].type = RTE_FLOW_ACTION_TYPE_DROP;
 		break;
 	default:
-		DOCA_LOG_INFO("DOCA FWD OTHER TYPE: %d\n", fwd->type);
+		DOCA_LOG_INFO("DOCA FWD OTHER TYPE: %d", fwd->type);
 		break;
 	}
 
