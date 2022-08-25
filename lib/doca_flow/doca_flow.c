@@ -722,7 +722,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	for (int i = 0; i < p; i++)
 	{
 		char _t[5];
-		fprintf(_t, " %d",pattern[i].type);
+		sprintf(_t, " %d",pattern[i].type);
 		strcpy(str+strlen(str), _t);	
 	}
 	DOCA_LOG_INFO("%s", str);
