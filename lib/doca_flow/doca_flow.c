@@ -66,11 +66,11 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 }
 void doca_flow_destroy(void)
 {
-	printf("DESTROY PIPES: \n");
+	DOCA_LOG_INFO("DESTROY PIPES: \n");
 	for (int i = 0; i < p_pipe; i++)
 	{
 		struct doca_flow_pipe *p = pipes[i];
-		printf("	%s\n", p->cfg->name);
+		DOCA_LOG_INFO("	%s\n", p->cfg->name);
 		free(p->cfg->port);
 		free(p->cfg->match);
 		free(p->cfg->actions);
@@ -89,7 +89,7 @@ int doca_flow_port_stop(struct doca_flow_port *port) {}
 
 int doca_flow_port_pair(struct doca_flow_port *port, struct doca_flow_port *pair_port)
 {
-	printf("Pair-Port: %d-%d\n", port->port_id, pair_port->port_id);
+	DOCA_LOG_INFO("Pair-Port: %d-%d\n", port->port_id, pair_port->port_id);
 	return 0;
 }
 
@@ -194,8 +194,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		}
 		else
 		{
-			printf("ERROR while validate flow: %d\n", res);
-			printf("%s\n", rte_error.message);
+			DOCA_LOG_ERR("ERROR while validate flow: %d\n", res);
+			DOCA_LOG_ERR("%s\n", rte_error.message);
 		}
 	}
 	pipes[p_pipe++] = pipe;
@@ -898,7 +898,7 @@ void doca_flow_port_pipes_flush(uint16_t port_id) {}
 
 void doca_flow_destroy_port(uint16_t port_id)
 {
-	printf("DESTROY PORT: %d\n", port_id);
+	DOCA_LOG_INFO("DESTROY PORT: %d\n", port_id);
 }
 
 void doca_flow_port_pipes_dump(uint16_t port_id, FILE *f) {}
