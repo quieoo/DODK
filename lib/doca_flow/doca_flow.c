@@ -12,6 +12,8 @@
 
 #define MAX_PATTERN_NUM 10
 #define MAX_ACTION_NUM 10
+DOCA_LOG_REGISTER(DOCA_FLOW);
+
 
 const uint8_t mac0[6] = {0};
 const uint32_t ip0 = 0;

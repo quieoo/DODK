@@ -1,8 +1,8 @@
 libraries=[
     'common',
+    'doca_log',
     'doca_argp',
-    'doca_flow',
-    'doca_log'
+    'doca_flow'
 ]
 
 default_cflags = []
