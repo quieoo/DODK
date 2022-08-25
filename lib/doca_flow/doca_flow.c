@@ -872,7 +872,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		break;
 	}
 
-	action[p].type = RTE_FLOW_ACTION_TYPE_END;
+	action[p++].type = RTE_FLOW_ACTION_TYPE_END;
 
 	printf("action:");
 	for (int i = 0; i < p; i++)
