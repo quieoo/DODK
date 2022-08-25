@@ -795,6 +795,13 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	// validate and create entry
 	struct rte_flow_error rte_error;
 
+	if(action[2].type==28){
+		struct rte_flow_action_vxlan_encap *vxlan=action[2].conf;
+		for(int i=0;i<5;i++)
+			printf("%d ", vxlan->definition[i].type);
+		printf("\n");
+
+	}
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
@@ -804,6 +811,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			printf("Flow can't be created %d message: %s\n",
 				   rte_error.type,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
+			error->type=rte_error.type;
+			error->message=rte_error.message;
 			// rte_exit(EXIT_FAILURE, "error in creating flow");
 			return NULL;
 		}
