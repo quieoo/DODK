@@ -845,7 +845,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	if (action[3].type == 28)
 	{
-		struct rte_flow_action_vxlan_encap *vxlan = action[2].conf;
+		struct rte_flow_action_vxlan_encap *vxlan = action[3].conf;
 		for (int i = 0; i < 5; i++)
 			printf("%d ", vxlan->definition[i].type);
 		struct rte_flow_item_ipv4 *ip = vxlan->definition[1].spec;
