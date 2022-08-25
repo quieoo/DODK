@@ -66,11 +66,11 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 }
 void doca_flow_destroy(void)
 {
-	DOCA_LOG_INFO("DESTROY PIPES: \n");
+	DOCA_LOG_INFO("DESTROY PIPES: ");
 	for (int i = 0; i < p_pipe; i++)
 	{
 		struct doca_flow_pipe *p = pipes[i];
-		DOCA_LOG_INFO("	%s\n", p->cfg->name);
+		DOCA_LOG_INFO("	%s", p->cfg->name);
 		free(p->cfg->port);
 		free(p->cfg->match);
 		free(p->cfg->actions);
@@ -843,18 +843,21 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p++].type = RTE_FLOW_ACTION_TYPE_DROP;
 		break;
 	default:
-		DOCA_LOG_WARN("DOCA FWD OTHER TYPE: %d\n", fwd->type);
+		DOCA_LOG_INFO("DOCA FWD OTHER TYPE: %d\n", fwd->type);
 		break;
 	}
 
 	action[p++].type = RTE_FLOW_ACTION_TYPE_END;
 
-	DOCA_LOG_INFO("action:");
+	sprintf(str, "%s", "	action");
 	for (int i = 0; i < p; i++)
 	{
-		DOCA_LOG_INFO(" %d", action[i].type);
+		char _t[5];
+		sprintf(_t, " %d",action[i].type);
+		strcpy(str+strlen(str), _t);	
 	}
-	DOCA_LOG_INFO("\n");
+	DOCA_LOG_INFO("%s", str);
+
 	// action: 44 35 39 28
 	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
 
@@ -869,7 +872,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
 		if (!flow)
 		{
-			DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
+			DOCA_LOG_ERR("Flow can't be created %d message: %s",
 				   rte_error.type,
 				   rte_error.message ? rte_error.message : "(no stated reason)");
 			error->type = rte_error.type;
@@ -881,7 +884,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	else
 	{
-		DOCA_LOG_ERR("ERROR while validate flow: %d\n", res);
+		DOCA_LOG_ERR("ERROR while validate flow: %d", res);
 		DOCA_LOG_ERR("%s\n", rte_error.message);
 	}
 }
@@ -905,7 +908,7 @@ void doca_flow_port_pipes_flush(uint16_t port_id) {}
 
 void doca_flow_destroy_port(uint16_t port_id)
 {
-	DOCA_LOG_INFO("DESTROY PORT: %d\n", port_id);
+	DOCA_LOG_INFO("DESTROY PORT: %d", port_id);
 }
 
 void doca_flow_port_pipes_dump(uint16_t port_id, FILE *f) {}
