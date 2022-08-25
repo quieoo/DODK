@@ -809,7 +809,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		addr.s_addr = ip->hdr.src_addr;
 		printf("	%s\n", inet_ntoa(addr));
 	}
-	printf("%d\n", ip->hdr.src_addr);
 	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
