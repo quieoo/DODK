@@ -493,7 +493,7 @@ merge_fwd(struct doca_flow_fwd *first, struct doca_flow_fwd *second)
 
 static void
 add_vxlan_encap(struct rte_flow_action *actions,
-	uint8_t actions_counter)
+	uint8_t actions_counter, struct doca_flow_actions *mactions)
 {
 	static struct rte_flow_action_vxlan_encap vxlan_encap;
 	static struct rte_flow_item items[5];
@@ -503,7 +503,8 @@ add_vxlan_encap(struct rte_flow_action *actions,
 	static struct rte_flow_item_vxlan item_vxlan;
 	uint32_t ip_dst = 10000;
 
-
+	memcpy(item_eth.hdr.dst_addr.addr_bytes, mactions->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+	memcpy(item_eth.hdr.src_addr.addr_bytes, mactions->encap.src_mac, DOCA_ETHER_ADDR_LEN);	
 	items[0].spec = &item_eth;
 	items[0].mask = &item_eth;
 	items[0].type = RTE_FLOW_ITEM_TYPE_ETH;
