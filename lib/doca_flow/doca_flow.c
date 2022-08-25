@@ -457,6 +457,7 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 			result->encap.tun.gtp_teid=first->encap.tun.gtp_teid;
 			break;
 		default:
+			break;
 		}
 	}else{
 		switch (first->encap.tun.type)
@@ -472,9 +473,10 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 			result->encap.tun.gtp_teid=second->encap.tun.gtp_teid;
 			break;
 		default:
+			break;
 		}
 	}
-	
+
 
 	CHOOSE21(meta.pkt_meta, 0);
 
