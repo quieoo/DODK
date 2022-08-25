@@ -871,7 +871,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		break;
 	}
 
-	add_vxlan_encap(action, p++)
+	add_vxlan_encap(action, p++);
 
 	action[p].type = RTE_FLOW_ACTION_TYPE_END;
 
