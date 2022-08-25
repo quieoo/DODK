@@ -109,16 +109,12 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd_miss,
 					  struct doca_flow_error *error)
 {
-	printf("pipe %s, fwd ",cfg->name);
-	if(fwd==NULL) printf("NULL");
-	else printf("%d",fwd->type);
-	printf(" fwd_miss ");
-	if(fwd_miss==NULL) printf("NULL");
-	else printf("%d",fwd_miss->type);
-	printf("\n");
-
-	DOCA_LOG_INFO("pipe %s, fwd %s, fwd_miss ", cfg->name, 
-		(fwd==NULL)?"NULL":fwd->type, (fwd_miss==NULL)?"NULL":fwd_miss->type);
+	DOCA_LOG_INFO("Create pipe %s");
+	if(fwd==NULL) DOCA_LOG_INFO("	fwd: NULL");
+	else DOCA_LOG_INFO("	fwd: %d",fwd->type);
+	if(fwd_miss==NULL) DOCA_LOG_INFO("	fwd_miss: NULL");
+	else DOCA_LOG_INFO("	fwd_miss: %d",fwd_miss->type);
+	
 
 	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
 	pipe->cfg = malloc(sizeof(struct doca_flow_pipe_cfg));
