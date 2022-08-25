@@ -107,6 +107,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd_miss,
 					  struct doca_flow_error *error)
 {
+	DOCA_LOG_INFO("pipe %s, fwd ",cfg->name);
 	printf("pipe %s, fwd ",cfg->name);
 	if(fwd==NULL) printf("NULL");
 	else printf("%d",fwd->type);

@@ -6,3 +6,4 @@ headers=files(
     'doca_flow_net.h'
 )
 includes+=include_directories('../common')
+includes+=include_directories('../doca_log')

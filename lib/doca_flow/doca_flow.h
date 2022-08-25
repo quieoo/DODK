@@ -22,7 +22,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include <doca_compat.h>
-
+#include <doca_log.h>
 #include <doca_flow_net.h>
 
 /**
