@@ -35,7 +35,6 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
 	va_start(ap, format);
 	ret = rte_vlog(level, source, format, ap);
 	va_end(ap);
-    printf("\n");
     /*
     _level=1;
     if(level<=_level){
