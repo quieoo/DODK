@@ -410,10 +410,6 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 struct doca_flow_actions *
 merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 {
-	struct in_addr addr;
-	addr.s_addr = first->encap.src_ip.ipv4_addr;
-	printf("	%s\n", inet_ntoa(addr));
-
 	struct doca_flow_actions *result = malloc(sizeof(struct doca_flow_actions));
 	CHOOSE21(flags, 0);
 	CHOOSE21(decap, false);
@@ -479,10 +475,6 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 
 
 	CHOOSE21(meta.pkt_meta, 0);
-
-	addr.s_addr = result->encap.src_ip.ipv4_addr;
-	printf("	%s\n", inet_ntoa(addr));
-
 	return result;
 }
 
@@ -770,15 +762,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct rte_flow_action_vxlan_encap _vlencp;
 		_vlencp.definition = items;
 		action[p++].conf = &_vlencp;
-
-
-		struct in_addr addr;
-		addr.s_addr = item_ipv4.hdr.src_addr;
-		printf("	%s\n", inet_ntoa(addr));
-
-		addr.s_addr=mactions->encap.src_ip.ipv4_addr;
-		printf("	%s\n", inet_ntoa(addr));
-
 	}
 
 	// forward actions
