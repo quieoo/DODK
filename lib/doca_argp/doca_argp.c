@@ -15,7 +15,10 @@ void doca_argp_init(const char *program_name, struct doca_argp_program_type_conf
 }
 
 void doca_argp_register_param(struct doca_argp_param *input_param){
-	registered_param[registered++]=input_param;
+	struct doca_argp_param p=malloc(sizeof(struct doca_argp_param));
+	memcpy(p, input_param, sizeof(struct doca_argp_param));
+	
+	registered_param[registered++]=p;
 }
 
 void usage(char* programe){
@@ -64,7 +67,9 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 }
 
 void doca_argp_destroy(void){
-
+	for(int i=0;i<registered;i++){
+		free(registered_param[i]);
+	}
 }
 
 void doca_argp_usage(void){}
