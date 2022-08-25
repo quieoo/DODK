@@ -15,7 +15,7 @@ void doca_argp_init(const char *program_name, struct doca_argp_program_type_conf
 }
 
 void doca_argp_register_param(struct doca_argp_param *input_param){
-	struct doca_argp_param p=malloc(sizeof(struct doca_argp_param));
+	struct doca_argp_param *p=malloc(sizeof(struct doca_argp_param));
 	memcpy(p, input_param, sizeof(struct doca_argp_param));
 	
 	registered_param[registered++]=p;
