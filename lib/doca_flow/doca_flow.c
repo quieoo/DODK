@@ -511,7 +511,7 @@ add_vxlan_encap(struct rte_flow_action *actions,
 
 	item_ipv4.hdr.src_addr = mactions->encap.src_ip.ipv4_addr;
 	item_ipv4.hdr.dst_addr = mactions->encap.dst_ip.ipv4_addr;
-	item_ipv4.hdr.version_ihl = RTE_IPV4_VHL_DEF;
+	//item_ipv4.hdr.version_ihl = RTE_IPV4_VHL_DEF;
 	items[1].spec = &item_ipv4;
 	items[1].mask = &item_ipv4;
 	items[1].type = RTE_FLOW_ITEM_TYPE_IPV4;
