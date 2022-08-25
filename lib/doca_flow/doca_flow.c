@@ -440,6 +440,10 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 	// CHOOSE21(encap.tun.type, 0);
 	CHOOSE21(meta.pkt_meta, 0);
 
+	struct in_addr addr;
+	addr.s_addr = result->encap.src_ip.ipv4_addr;
+	printf("	%s\n", inet_ntoa(addr));
+
 	return result;
 }
 
