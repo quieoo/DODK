@@ -431,13 +431,51 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 	CHOOSE21(mod_dst_port, 0);
 	CHOOSE21(dec_ttl, false);
 	CHOOSE21(has_encap, false);
-	if(result->has_encap){
-		if(result==first->has_encap)
-			memcpy(&(result->encap), &(first->encap), sizeof(struct doca_flow_encap_action));
-		else
-			memcpy(&(result->encap), &(second->encap), sizeof(struct doca_flow_encap_action));
+	if (memcmp(first->encap.src_mac, mac0, sizeof(mac0)) == 0)
+		memcpy(result->encap.src_mac, second->encap.src_mac, DOCA_ETHER_ADDR_LEN);
+	else
+		memcpy(result->encap.src_mac, first->encap.src_mac, DOCA_ETHER_ADDR_LEN);
+	
+	if (memcmp(first->encap.dst_mac, mac0, sizeof(mac0)) == 0)
+		memcpy(result->encap.dst_mac, second->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+	else
+		memcpy(result->encap.dst_mac, first->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+	CHOOSE21(encap.src_ip.ipv4_addr, 0);
+	CHOOSE21(encap.dst_ip.ipv4_addr, 0);
+	CHOOSE21(encap.tun.type, 0);
+	if(result->encap.tun.type == first->encap.tun.type){
+		switch (first->encap.tun.type)
+		{
+		case DOCA_FLOW_TUN_VXLAN:
+			result->encap.tun.vxlan_tun_id=first->encap.tun.vxlan_tun_id;
+			break;
+		case DOCA_FLOW_TUN_GRE:
+			result->encap.tun.gre_key=first->encap.tun.gre_key;
+			result->encap.tun.protocol=first->encap.tun.protocol;
+			break;
+		case DOCA_FLOW_TUN_GTPU:
+			result->encap.tun.gtp_teid=first->encap.tun.gtp_teid;
+			break;
+		default:
+		}
+	}else{
+		switch (first->encap.tun.type)
+		{
+		case DOCA_FLOW_TUN_VXLAN:
+			result->encap.tun.vxlan_tun_id=second->encap.tun.vxlan_tun_id;
+			break;
+		case DOCA_FLOW_TUN_GRE:
+			result->encap.tun.gre_key=second->encap.tun.gre_key;
+			result->encap.tun.protocol=second->encap.tun.protocol;
+			break;
+		case DOCA_FLOW_TUN_GTPU:
+			result->encap.tun.gtp_teid=second->encap.tun.gtp_teid;
+			break;
+		default:
+		}
 	}
-	// CHOOSE21(encap.tun.type, 0);
+	
+
 	CHOOSE21(meta.pkt_meta, 0);
 
 	addr.s_addr = result->encap.src_ip.ipv4_addr;
