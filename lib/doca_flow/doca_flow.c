@@ -429,9 +429,9 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 	CHOOSE21(has_encap, false);
 	if(result->has_encap){
 		if(result==first->has_encap)
-			memcpy(result->encap, first->encap, sizeof(struct doca_flow_encap_action));
+			memcpy(&(result->encap), &(first->encap), sizeof(struct doca_flow_encap_action));
 		else
-			memcpy(result->encap, second->encap, sizeof(struct doca_flow_encap_action));
+			memcpy(&(result->encap), &(second->encap), sizeof(struct doca_flow_encap_action));
 	}
 	// CHOOSE21(encap.tun.type, 0);
 	CHOOSE21(meta.pkt_meta, 0);
