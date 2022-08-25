@@ -410,6 +410,10 @@ merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 struct doca_flow_actions *
 merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 {
+	struct in_addr addr;
+	addr.s_addr = first->encap.src_ip;
+	printf("	%s\n", inet_ntoa(addr));
+
 	struct doca_flow_actions *result = malloc(sizeof(struct doca_flow_actions));
 	CHOOSE21(flags, 0);
 	CHOOSE21(decap, false);
