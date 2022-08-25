@@ -45,7 +45,7 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
-	doca_log_global_level_set(8);
+	doca_log_global_level_set(7);
 
 	uint16_t port_id;
 	struct simple_fwd_port_cfg port_cfg = {0};
