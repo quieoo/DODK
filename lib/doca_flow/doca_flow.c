@@ -411,7 +411,7 @@ struct doca_flow_actions *
 merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 {
 	struct in_addr addr;
-	addr.s_addr = first->encap.src_ip;
+	addr.s_addr = first->encap.src_ip.ipv4_addr;
 	printf("	%s\n", inet_ntoa(addr));
 
 	struct doca_flow_actions *result = malloc(sizeof(struct doca_flow_actions));
