@@ -722,6 +722,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		struct in_addr addr;
 		addr.s_addr = item_ipv4.hdr.src_addr;
 		printf("	%s\n", inet_ntoa(addr));
+
+		addr.s_addr=mactions->encap.src_ip.ipv4_addr;
+		printf("	%s\n", inet_ntoa(addr));
+
 	}
 
 	// forward actions
