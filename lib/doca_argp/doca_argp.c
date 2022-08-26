@@ -80,12 +80,39 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	shortopt[shortopt_point]='\0';
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
-		printf("%d\n",opt);
+		printf("%c\n",opt);
 		for(int i=0;i<registered;i++){
 			struct doca_argp_param *p=registered_param[i];
+			printf("	%s\n", p->short_flag);
 			if(opt == p->short_flag[0]){
 				//for those short flag with more than one characters
-				printf("%s %d\n",p->long_flag, strlen(p->short_flag));
+				bool hit=true;
+				int j=0;
+				int flag_length=strlen(p->short_flag);
+				if(flag_length >= 2){
+					if(p->short_flag[1] != optarg)
+						{hit=false;	break;}
+					for(j=2;j<flag_length;j++){
+						if(p->short_flag[j] != argv[optind + j -2])
+							{hit=false; break;}
+					}
+				}
+
+				if(hit){
+					printf("		hit\n");
+					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
+						p->callback(config, true);
+					}else{
+						if(flag_length == 1){
+							p->callback(config, optarg);
+						}else{
+							p->callback(config, argv[optind + j]);
+						}
+					}
+
+					break;
+				}
+
 			}
 		}
 		/*
