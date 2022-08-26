@@ -77,7 +77,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			shortopt[shortopt_point++]=':';
 		}
 	}
-	printf("%s\n", shortopt);
+	printf("%d %s\n", sizeof(shortopt),shortopt);
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
 		printf("%s\n",opt);
