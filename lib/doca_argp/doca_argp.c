@@ -63,6 +63,8 @@ void call_function(struct doca_argp_param *opt, char *param){
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
+	printf("%d\n",  argc);
+	printf("%d\n", sizeof(argv)/sizeof(char *));
 	/*
 	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
@@ -77,6 +79,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		.arg_type = DOCA_ARGP_TYPE_INT,
 		.is_mandatory = false,
 		.is_cli_only = false};
+
 	doca_argp_register_param(&log_level);
 
 
