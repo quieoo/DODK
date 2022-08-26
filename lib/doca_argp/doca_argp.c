@@ -143,7 +143,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 
 	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
-		rte_exit("Cannot init EAL\n");
+		rte_exit(1,"Cannot init EAL\n");
 }
 
 void doca_argp_destroy(void)
