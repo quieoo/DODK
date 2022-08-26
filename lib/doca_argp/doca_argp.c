@@ -116,6 +116,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 							{hit=false; break;}
 					}
 				}
+				printf("j %d\n",j);
 
 				if(hit){
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
