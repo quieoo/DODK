@@ -102,6 +102,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	shortopt[shortopt_point]='\0';
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
+		bool hit_noce=false;
 		for(int i=0;i<registered;i++){
 			struct doca_argp_param *p=registered_param[i];
 			if(opt == p->short_flag[0]){
@@ -120,6 +121,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				
 
 				if(hit){
+					hit_noce=true;
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
 						bool _param=true;
 						p->callback(config, &(_param));
@@ -133,6 +135,9 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 					break;
 				}
 			}
+		}
+		if(!hit_noce){
+			usage(argv[0])
 		}
 	}
 }
