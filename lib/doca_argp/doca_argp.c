@@ -23,9 +23,8 @@ void doca_argp_register_param(struct doca_argp_param *input_param)
 	registered_param[registered++] = p;
 }
 
-void usage(char *programe)
+void usage(void *config, void *param)
 {
-	printf("\nusage: %s\n", programe);
 	printf("\nRegistered Configuration:\n");
 	for (int i = 0; i < registered; i++)
 	{
@@ -63,23 +62,28 @@ void call_function(struct doca_argp_param *opt, char *param){
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
+
+	//copy all args
 	int _argc=argc;
 	char* _argv[MAX_PARAM_NUM];
 	for(int i=0;i<argc;i++){
-		char *arg=malloc(20);
+		char *arg=malloc(100);
 		memcpy(arg, argv[i], sizeof(argv[i]));
 		_argv[i]=arg;
 	}
-	for(int i=0;i<argc;i++){
-		printf("	%s\n",_argv[i]);
-	}
 
+	printf("arg: %d\n",argc);
+	for(int i=0;i<argc;i++){
+		printf("	%s\n",argv[i]);
+	}
 
 	/*
 	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 */
+
+	// add a global args of log_level
 	struct doca_argp_param log_level = {
 		.short_flag = "ll",
 		.long_flag = "log-level",
@@ -91,9 +95,19 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		.is_cli_only = false};
 
 	doca_argp_register_param(&log_level);
+	struct doca_argp_param help = {
+		.short_flag = "h",
+		.long_flag = "help",
+		.arguments = "<none>",
+		.description = "print usage",
+		.callback = usage,
+		.arg_type = DOCA_ARGP_TYPE_BOOLEAN,
+		.is_mandatory = false,
+		.is_cli_only = false};
 
+	doca_argp_register_param(&help);
 
-
+	// parse doca registered args
 	int n, opt;
 	int opt_idx;
 	static struct option lgopts[MAX_PARAM_NUM];
@@ -132,7 +146,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 						if(p->short_flag[j+2] != argv[optind + j])
 							{hit=false; break;}
 					}
-				}
+				}			
 				if(hit){
 					hit_noce=true;
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
@@ -145,16 +159,42 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 							call_function(p, argv[optind + j]);
 						}
 					}
+
+					//if a arg hit doca registered list, remove it from _argv
+					int k=0;
+					int num_rm;
+					if(p->arg_type==DOCA_ARGP_TYPE_BOOLEAN)
+						num_rm=1;
+					else
+						num_rm=2;
+					while(k < _argc){
+						bool to_remove=false;
+						if((argv[k][0]=='-' && _argv[k][1]=='-' && strcmp(_argv[k][2], p->long_flag)==0)
+						|| (argv[k][0]=='-' && strcmp(_argv[k][1], p->short_flag)==0))
+							to_remove=true;
+						if(to_remove){
+							for(int j=k;j<i+num_rm;j++)
+								free(_argv[k]);
+							for(int j=k;j<_argc-num_rm;j++)
+								_argv[j]=_argv[j+num_rm];
+							_argc-=num_rm;
+						}
+						k++;
+					}
+
 					break;
 				}
 			}
 		}
-		if(!hit_noce){
-			usage(argv[0]);
-		}
 	}
 
-	int ret = rte_eal_init(argc, argv);
+	printf("_arg: %d\n",_argc);
+	for(int i=0;i<_argc;i++){
+		printf("	%s\n",_argv[i]);
+	}
+
+
+	int ret = rte_eal_init(_argc, _argv);
 
 	//clean resources
 	for(int i=0;i<argc;i++){
