@@ -104,6 +104,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 						p->callback(config, &(_param));
 					}else{
 						if(flag_length == 1){
+							printf("%d\n",*optarg);
 							p->callback(config, optarg);
 						}else{
 							p->callback(config, argv[optind + j]);
