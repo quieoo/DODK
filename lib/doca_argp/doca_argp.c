@@ -58,7 +58,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 
 	int n, opt;
 	int opt_idx;
-	static const struct option lgopts[MAX_PARAM_NUM];
+	static struct option lgopts[MAX_PARAM_NUM];
 	lgopts[0].name="help";
 
 	for (int i = 0; i < registered; i++)
