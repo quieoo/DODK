@@ -66,7 +66,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	int _argc=argc;
 	char* _argv[MAX_PARAM_NUM];
 	for(int i=0;i<argc;i++){
-		char arg[10];
+		char *arg=malloc(20);
 		memcpy(arg, argv[i], sizeof(argv[i]));
 		_argv[i]=arg;
 	}
@@ -155,8 +155,11 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	}
 
 	int ret = rte_eal_init(argc, argv);
-	if (ret < 0)
-		rte_exit(1,"Cannot init EAL\n");
+
+	//clean resources
+	for(int i=0;i<argc;i++){
+		free(_argv[i]);
+	}
 }
 
 void doca_argp_destroy(void)
