@@ -61,7 +61,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	int opt_idx;
 	static struct option lgopts[MAX_PARAM_NUM];
 	
-	char *shortopt[MAX_PARAM_NUM*2];
+	char shortopt[MAX_PARAM_NUM*2];
 	int shortopt_point=0;
 
 	for (int i = 0; i < registered; i++)
