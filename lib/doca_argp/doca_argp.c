@@ -45,7 +45,7 @@ void call_function(struct doca_argp_param *opt, char *param){
 	if(opt->arg_type==DOCA_ARGP_TYPE_INT){
 		int i=0,sum=0;	
 		while (s[i]){
-			sum=10*sum+s[i]-'0';
+			sum=10*sum+param[i]-'0';
 			i++;
 		}
 
