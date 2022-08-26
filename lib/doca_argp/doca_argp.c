@@ -76,11 +76,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		printf("	%s\n",argv[i]);
 	}
 
-	printf("_arg: %d\n",_argc);
-	for(int i=0;i<_argc;i++){
-		printf("	%s\n",_argv[i]);
-	}
-
 	/*
 	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
@@ -173,8 +168,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 						num_rm=2;
 					while(k < _argc){
 						bool to_remove=false;
-						if((argv[k][0]=='-' && _argv[k][1]=='-' && strcmp(_argv[k][2], p->long_flag)==0)
-						|| (argv[k][0]=='-' && strcmp(_argv[k][1], p->short_flag)==0))
+						if((_argv[k][0]=='-' && _argv[k][1]=='-' && strcmp(_argv[k][2], p->long_flag)==0)
+						|| (_argv[k][0]=='-' && strcmp(_argv[k][1], p->short_flag)==0))
 							to_remove=true;
 						if(to_remove){
 							for(int j=k;j<i+num_rm;j++)
