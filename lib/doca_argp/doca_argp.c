@@ -64,7 +64,9 @@ void call_function(struct doca_argp_param *opt, char *param){
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
 	printf("%d\n",  argc);
-	printf("%d\n", sizeof(argv)/sizeof(char *));
+	for(int i=0;i<argc;i++){
+		printf("	%s\n", argv[i]);
+	}
 	/*
 	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
