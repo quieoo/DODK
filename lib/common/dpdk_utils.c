@@ -238,7 +238,6 @@ void dpdk_init(struct application_dpdk_config *app_dpdk_config)
 	int ret = 0;
 
 	/* Check that DPDK enabled the required ports to send/receive on */
-
 	ret = rte_eth_dev_count_avail();
 	if (app_dpdk_config->port_config.nb_ports > 0 && ret != app_dpdk_config->port_config.nb_ports)
 	{

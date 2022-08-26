@@ -79,6 +79,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		.is_cli_only = false};
 	doca_argp_register_param(&log_level);
 
+
+
 	int n, opt;
 	int opt_idx;
 	static struct option lgopts[MAX_PARAM_NUM];
@@ -118,8 +120,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 							{hit=false; break;}
 					}
 				}
-				
-
 				if(hit){
 					hit_noce=true;
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
@@ -140,6 +140,10 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			usage(argv[0]);
 		}
 	}
+
+	ret = rte_eal_init(argc, argv);
+	if (ret < 0)
+		rte_panic("Cannot init EAL\n");
 }
 
 void doca_argp_destroy(void)
