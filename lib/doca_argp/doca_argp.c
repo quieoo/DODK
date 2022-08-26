@@ -90,6 +90,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				int j=0;
 				int flag_length=strlen(p->short_flag);
 				if(flag_length >= 2){
+					printf("			%c %c\n", p->short_flag[1], optarg);
 					if(p->short_flag[1] != optarg)
 						{hit=false;	break;}
 					for(j=2;j<flag_length;j++){
