@@ -147,6 +147,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 					}
 				}			
 				if(hit){
+					printf("hit %s\n", p->short_flag);
 					hit_noce=true;
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
 						bool _param=true;
