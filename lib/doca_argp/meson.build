@@ -4,3 +4,8 @@ sources=files(
 headers=files(
     'doca_argp.h'
 )
+includes+=include_directories('../doca_log')
+
+deps+=[
+    'doca_log'
+]

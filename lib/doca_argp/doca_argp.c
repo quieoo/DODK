@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <rte_eal.h>
 #include <getopt.h>
+#include <doca_log.h>
 
 #define MAX_PARAM_NUM 100
 
@@ -38,7 +39,7 @@ static void
 set_log_level_callback(void *config, void *param)
 {
 	int level = *(int *) param;
-	printf("set_log_level_callback %d\n", level);
+	doca_log_global_level_set(level);
 }
 
 /*
