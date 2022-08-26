@@ -41,6 +41,11 @@ set_log_level_callback(void *config, void *param)
 	printf("set_log_level_callback %d\n", level);
 }
 
+/*
+	DOCA_ARGP_TYPE_INT
+	DOCA_ARGP_TYPE_STRING 
+	DOCA_ARGP_TYPE_JSON_OBJ x
+*/
 void call_function(struct doca_argp_param *opt, char *param){
 	if(opt->arg_type==DOCA_ARGP_TYPE_INT){
 		int i=0,sum=0;	
@@ -50,6 +55,8 @@ void call_function(struct doca_argp_param *opt, char *param){
 		}
 
 		opt->callback(config, &sum);
+	}else if(opt->arg_type==DOCA_ARGP_TYPE_STRING){
+		opt->callback(config, param);
 	}
 }
 
