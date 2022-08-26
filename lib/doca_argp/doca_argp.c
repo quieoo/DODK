@@ -29,7 +29,8 @@ void usage(char *programe)
 	for (int i = 0; i < registered; i++)
 	{
 		struct doca_argp_param *p = registered_param[i];
-		printf("	--%s(-%s)=%s, %s\n", p->long_flag, p->short_flag, p->arguments, p->description);
+		printf("	-%s, --%s\n", p->short_flag, p->long_flag);
+		printf("		%s\n", p->description);
 	}
 }
 
@@ -59,39 +60,49 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	int n, opt;
 	int opt_idx;
 	static struct option lgopts[MAX_PARAM_NUM];
-	lgopts[0].name="help";
+	
+	char *shortopt[MAX_PARAM_NUM*2];
+	int shortopt_point=0;
 
 	for (int i = 0; i < registered; i++)
 	{
 		struct doca_argp_param *par = registered_param[i];
 
-		lgopts[i+1].name = par->long_flag;
+		lgopts[i].name = par->long_flag;
+		lgopts[i].val = par->short_flag[0];
+		shortopt[shortopt_point++]=par->short_flag[0];
 		if (par->arg_type != DOCA_ARGP_TYPE_BOOLEAN)
 		{
-			lgopts[i+1].has_arg = true;
+			lgopts[i].has_arg = true;
+			shortopt[shortopt_point++]=':';
 		}
 	}
 
-	char **argvopt = argv;
-	while ((opt = getopt_long(argc, argvopt, "",
-							  lgopts, &opt_idx)) != EOF)
+	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
-		printf("get opt: %d %s\n",opt_idx, lgopts[opt_idx].name);
+		printf("%s\n".opt);
+		/*
 		switch (opt)
 		{
-		case 0:
-			if (strcmp(lgopts[opt_idx].name, "help") == 0)
-			{
-				usage(argv[0]);
-				exit(EXIT_SUCCESS);
-			}
+		case 'a':
+			n = intchar(optarg);
+			m = intchar(argv[optind]);
+			printf("option: a, %d+%d=%d\n", n, m, n + m);
 			break;
-
-		default:
-			usage(argv[0]);
-			rte_exit(EXIT_FAILURE, "Invalid option: %s\n", argv[optind - 1]);
+		case 's':
+			sum = intchar(optarg);
+			printf("option: s, %d*%d=%d\n", sum, sum, sum * sum);
 			break;
-		}
+		case 'l':
+			printf("file is:%s\n", optarg);
+			break;
+		case ':':
+			printf("option needs a value\n");
+			break;
+		case '?':
+			printf("unknown option: %c\n", optopt);
+			break;
+		}*/
 	}
 }
 
