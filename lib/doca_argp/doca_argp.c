@@ -41,6 +41,18 @@ set_log_level_callback(void *config, void *param)
 	printf("set_log_level_callback %d\n", level);
 }
 
+void call_function(struct doca_argp_param *opt, char *param){
+	if(opt->arg_type==DOCA_ARGP_TYPE_INT){
+		int i=0,sum=0;	
+		while (s[i]){
+			sum=10*sum+s[i]-'0';
+			i++;
+		}
+
+		opt->callback(config, &sum);
+	}
+}
+
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
 	/*
@@ -104,10 +116,9 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 						p->callback(config, &(_param));
 					}else{
 						if(flag_length == 1){
-							printf("%d\n",*optarg);
-							p->callback(config, optarg);
+							call_function(p, optarg);
 						}else{
-							p->callback(config, argv[optind + j]);
+							call_function(p, argv[optind + j]);
 						}
 					}
 					break;
