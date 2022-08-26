@@ -65,7 +65,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	{
 		struct doca_argp_param *par = registered_param[i];
 
-		lgopts[i+1].name = _opt.name;
+		lgopts[i+1].name = par->long_flag;
 		if (par->arg_type != DOCA_ARGP_TYPE_BOOLEAN)
 		{
 			lgopts[i+1].has_arg = true;
