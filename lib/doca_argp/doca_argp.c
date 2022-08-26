@@ -102,7 +102,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 					printf("		hit\n");
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
 						bool _param=true;
-						p->callback(config, _param);
+						p->callback(config, &(_param));
 					}else{
 						if(flag_length == 1){
 							p->callback(config, optarg);
