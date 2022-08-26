@@ -71,7 +71,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		lgopts[i].name = par->long_flag;
 		lgopts[i].val = par->short_flag[0];
 		shortopt[shortopt_point++]=par->short_flag[0];
-		if (par->arg_type != DOCA_ARGP_TYPE_BOOLEAN)
+		if (par->arg_type != DOCA_ARGP_TYPE_BOOLEAN || strlen(par->short_flag) > 1)
 		{
 			lgopts[i].has_arg = true;
 			shortopt[shortopt_point++]=':';
