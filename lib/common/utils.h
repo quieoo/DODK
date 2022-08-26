@@ -6,11 +6,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// #include <doca_log.h>
-
 #define APP_EXIT(format, ...)					\
 	do {							\
-		DOCA_LOG_ERR(format "\n", ##__VA_ARGS__);	\
+		printf(format);	\
 		exit(1);					\
 	} while (0)
 
