@@ -68,11 +68,15 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	char* _argv[MAX_PARAM_NUM];
 	for(int i=0;i<argc;i++){
 		char *arg=malloc(100);
-		memcpy(arg, argv[i], strlen(argv[i]));
+		memcpy(arg, argv[i], strlen(argv[i])*sizeof(char));
 		_argv[i]=arg;
 	}
+	printf("arg: %d\n",argc);
+	for(int i=0;i<argc;i++){
+		printf("	%s\n",argv[i]);
+	}
 
-	printf("arg: %d\n",_argc);
+	printf("_arg: %d\n",_argc);
 	for(int i=0;i<_argc;i++){
 		printf("	%s\n",_argv[i]);
 	}
