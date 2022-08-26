@@ -66,10 +66,12 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	int _argc=argc;
 	char* _argv[MAX_PARAM_NUM];
 	for(int i=0;i<argc;i++){
-		char arg[5];
+		char arg[10];
 		memcpy(arg, argv[i], sizeof(argv[i]));
 		_argv[i]=arg;
-		printf("	%s\n", _argv[i]);
+	}
+	for(int i=0;i<argc;i++){
+		printf("	%s\n",_argv[i]);
 	}
 
 
