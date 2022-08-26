@@ -141,7 +141,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		}
 	}
 
-	ret = rte_eal_init(argc, argv);
+	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
 		rte_panic("Cannot init EAL\n");
 }
