@@ -158,7 +158,7 @@ nr_queues_callback(void *config, void *param)
 {
 	struct simple_fwd_config *app_config = (struct simple_fwd_config *) config;
 	int nr_queues = *(int *) param;
-
+	printf("nr_queues_callback %d\n", nr_queues);
 	if (nr_queues < 2) {
 		DOCA_LOG_ERR("nr_queues should >= 2\n");
 		doca_argp_usage();
