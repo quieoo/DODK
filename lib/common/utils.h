@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define APP_EXIT(format, ...)					\
+#define APP_EXIT(format...)					\
 	do {							\
 		printf(format);	\
 		exit(1);					\
