@@ -84,7 +84,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		for(int i=0;i<registered;i++){
 			struct doca_argp_param *p=registered_param[i];
 			if(opt == p->short_flag[0]){
-				printf("%s\n", p->description);
+				//for those short flag with more than one characters
+				printf("%s %d\n",p->long_flag, strlen(p->short_flag));
 			}
 		}
 		/*
