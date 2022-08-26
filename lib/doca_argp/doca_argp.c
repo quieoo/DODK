@@ -76,6 +76,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	while ((opt = getopt_long(argc, argvopt, "",
 							  lgopts, &opt_idx)) != EOF)
 	{
+		printf("get opt: %d %s\n",opt_idx, lgopts[opt_idx].name);
 		switch (opt)
 		{
 		case 0:
