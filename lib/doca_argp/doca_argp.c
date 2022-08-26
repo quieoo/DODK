@@ -137,7 +137,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			}
 		}
 		if(!hit_noce){
-			usage(argv[0])
+			usage(argv[0]);
 		}
 	}
 }
