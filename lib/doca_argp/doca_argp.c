@@ -37,6 +37,8 @@ void usage(char *programe)
 static void
 set_log_level_callback(void *config, void *param)
 {
+	int level = *(int *) param;
+	printf("set_log_level_callback %d\n", level);
 }
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
@@ -80,19 +82,14 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	shortopt[shortopt_point]='\0';
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
-		printf("%c\n",opt);
 		for(int i=0;i<registered;i++){
 			struct doca_argp_param *p=registered_param[i];
-			printf("	%s\n", p->short_flag);
 			if(opt == p->short_flag[0]){
 				//for those short flag with more than one characters
 				bool hit=true;
 				int j=0;
 				int flag_length=strlen(p->short_flag);
 				if(flag_length >= 2){
-					printf("			%c\n", p->short_flag[1]);
-					printf("			%c\n", *optarg);
-					
 					if(p->short_flag[1] != *optarg)
 						{hit=false;	break;}
 					for(j=2;j<flag_length;j++){
@@ -102,7 +99,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				}
 
 				if(hit){
-					printf("		hit\n");
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
 						bool _param=true;
 						p->callback(config, &(_param));
@@ -113,34 +109,10 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 							p->callback(config, argv[optind + j]);
 						}
 					}
-
 					break;
 				}
-
 			}
 		}
-		/*
-		switch (opt)
-		{
-		case 'a':
-			n = intchar(optarg);
-			m = intchar(argv[optind]);
-			printf("option: a, %d+%d=%d\n", n, m, n + m);
-			break;
-		case 's':
-			sum = intchar(optarg);
-			printf("option: s, %d*%d=%d\n", sum, sum, sum * sum);
-			break;
-		case 'l':
-			printf("file is:%s\n", optarg);
-			break;
-		case ':':
-			printf("option needs a value\n");
-			break;
-		case '?':
-			printf("unknown option: %c\n", optopt);
-			break;
-		}*/
 	}
 }
 
