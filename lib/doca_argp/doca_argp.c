@@ -28,6 +28,14 @@ void usage(char* programe){
 		struct doca_argp_param *p=registered_param[i];
 		printf("	--%s(-%s)=%s, %s\n", p->long_flag, p->short_flag, p->arguments, p->description);
 	}
+
+
+}
+
+static void
+set_log_level_callback(void *config, void *param)
+{
+
 }
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config){
@@ -36,6 +44,18 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	if (ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 */
+	struct doca_argp_param log_level = {
+		.short_flag = "ll",
+		.long_flag = "log-level",
+		.arguments = "<level>",
+		.description = "Set the log level, 0-CRIT, 1-ERROR, 2-WARNING, 3-INFO, 4-DEBUG",
+		.callback = set_log_level_callback,
+		.arg_type = DOCA_ARGP_TYPE_INT,
+		.is_mandatory = false,
+		.is_cli_only = false
+	};
+	doca_argp_register_param(&log_level);
+
 	int n, opt;
 	int opt_idx;
 	static const struct option lgopts[MAX_PARAM_NUM];
