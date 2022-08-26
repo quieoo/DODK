@@ -130,6 +130,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	shortopt[shortopt_point]='\0';
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
+		printf("opt: %c\n", opt);
 		bool hit_noce=false;
 		for(int i=0;i<registered;i++){
 			struct doca_argp_param *p=registered_param[i];
