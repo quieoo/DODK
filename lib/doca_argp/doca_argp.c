@@ -72,9 +72,9 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		_argv[i]=arg;
 	}
 
-	printf("arg: %d\n",argc);
-	for(int i=0;i<argc;i++){
-		printf("	%s\n",argv[i]);
+	printf("arg: %d\n",_argc);
+	for(int i=0;i<_argc;i++){
+		printf("	%s\n",_argv[i]);
 	}
 
 	/*
