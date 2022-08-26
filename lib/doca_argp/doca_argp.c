@@ -82,7 +82,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
 		printf("ch\n");
-		printf("%s\n",opt);
+		printf("%d\n",opt);
 		/*
 		switch (opt)
 		{
