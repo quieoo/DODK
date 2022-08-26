@@ -78,11 +78,15 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		}
 	}
 	shortopt[shortopt_point]='\0';
-	printf("%d %s\n", sizeof(shortopt),shortopt);
 	while ((opt = getopt_long(argc, argv, shortopt, lgopts, NULL)) != -1)
 	{
-		printf("ch\n");
 		printf("%d\n",opt);
+		for(int i=0;i<registered;i++){
+			struct doca_argp_param *p=registered_param[i];
+			if(opt == p->short_flag[0]){
+				printf("%s\n", p->description);
+			}
+		}
 		/*
 		switch (opt)
 		{
