@@ -26,7 +26,7 @@ void usage(char* programe){
 	printf("\nRegistered Configuration:\n");
 	for(int i=0; i<registered; i++){
 		struct doca_argp_param *p=registered_param[i];
-		printf("	--%s(-%s)=%s \n", p->long_flag, p->short_flag, p->arguments);
+		printf("	--%s(-%s)=%s, %s\n", p->long_flag, p->short_flag, p->arguments, p->description);
 	}
 }
 
