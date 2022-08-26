@@ -59,15 +59,16 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	int n, opt;
 	int opt_idx;
 	static const struct option lgopts[MAX_PARAM_NUM];
+	lgopts[0].name="help";
+
 	for (int i = 0; i < registered; i++)
 	{
-		struct option _opt;
 		struct doca_argp_param *par = registered_param[i];
 
-		_opt.name = _opt.name;
+		lgopts[i+1].name = _opt.name;
 		if (par->arg_type != DOCA_ARGP_TYPE_BOOLEAN)
 		{
-			_opt.has_arg = true;
+			lgopts[i+1].has_arg = true;
 		}
 	}
 
