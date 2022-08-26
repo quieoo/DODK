@@ -111,12 +111,12 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				if(flag_length >= 2){
 					if(p->short_flag[1] != *optarg)
 						{hit=false;	break;}
-					for(j=2;j<flag_length;j++){
-						if(p->short_flag[j] != argv[optind + j -2])
+					for(;j+2<flag_length;j++){
+						if(p->short_flag[j+2] != argv[optind + j])
 							{hit=false; break;}
 					}
 				}
-				printf("j %d\n",j);
+				
 
 				if(hit){
 					if(p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
