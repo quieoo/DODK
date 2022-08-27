@@ -25,13 +25,14 @@ void doca_argp_register_param(struct doca_argp_param *input_param)
 
 void usage(void *config, void *param)
 {
-	printf("\nRegistered Configuration:\n");
+	printf("\nDOCA Registered Configuration:\n");
 	for (int i = 0; i < registered; i++)
 	{
 		struct doca_argp_param *p = registered_param[i];
 		printf("	-%s, --%s\n", p->short_flag, p->long_flag);
 		printf("		%s\n", p->description);
 	}
+	printf("\n DPDK Configuration...\n");
 	exit(0);
 }
 
