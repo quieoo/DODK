@@ -118,7 +118,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		struct doca_argp_param *p={0};
 		for (int j = 0; j < registered; j++)
 		{
-			printf("	%s - %s\n",argv[i], registered_param[j]->long_flag);
 			if(argv[i][0]=='-' && argv[i][1]=='-'){
 				if((strlen(argv[i])-2 == strlen(registered_param[j]->long_flag))  && 
 					(strcmp(argv[i]+2, registered_param[j]->long_flag)==0)){
@@ -134,7 +133,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			}
 		}
 		if(p){
-			printf("	hit %s\n", p->long_flag);
 			// call_backs
 			if (p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
 				bool _param = true;
@@ -142,6 +140,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			}
 			else
 				call_function(p, argv[i+1]);
+			
 			
 			//remove doca regisered args from _argv
 			int k = 0;

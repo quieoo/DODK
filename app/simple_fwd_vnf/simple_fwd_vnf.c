@@ -81,6 +81,7 @@ main(int argc, char **argv)
 	/* update queues and ports */
 	dpdk_init(&dpdk_config);
 
+	printf("finish dpdk initialize\n");
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 
