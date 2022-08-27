@@ -67,7 +67,11 @@ void call_function(struct doca_argp_param *opt, char *param)
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
-	
+	printf("arg: %d\n", argc);
+	for (int i = 0; i < argc; i++)
+	{
+		printf("	%s\n", argv[i]);
+	}
 	int rett = rte_eal_init(argc, argv);
 	if (rett < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
