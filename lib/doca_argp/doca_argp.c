@@ -115,7 +115,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	// parse doca registered args
 	for (int i = 0; i < argc; i++)
 	{
-		struct doca_argp_param *p=NULL;
+		struct doca_argp_param *p;
 		for (int j = 0; j < registered; j++)
 		{
 			printf("	%s - %s\n",argv[i], registered_param[j]->long_flag);
