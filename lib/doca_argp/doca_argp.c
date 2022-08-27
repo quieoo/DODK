@@ -176,7 +176,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	{
 		printf("	%s\n", _argv[i]);
 	}
-	//printf("%d %d\n",sizeof(argv), sizeof(_argv));
+	printf("%d %d\n",sizeof(argv), sizeof(_argv[0]));
 	int ret = rte_eal_init(_argc, _argv[0]);
 	if(ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
