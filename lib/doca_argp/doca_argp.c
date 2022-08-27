@@ -67,7 +67,6 @@ void call_function(struct doca_argp_param *opt, char *param)
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
-	usage(NULL, NULL);
 	// copy all args
 	int _argc = argc;
 	char *_argv[MAX_PARAM_NUM];
@@ -112,6 +111,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		.is_cli_only = false};
 
 	doca_argp_register_param(&help);
+	usage(NULL, NULL);
 
 	// parse doca registered args
 	for (int i = 0; i < argc; i++)
