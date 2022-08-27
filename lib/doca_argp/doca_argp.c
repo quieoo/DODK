@@ -73,14 +73,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 	return;
 */
-	printf("arg: %d\n", argc);
-	for (int i = 0; i < argc; i++)
-	{
-		printf("	%s\n", argv[i]);
-	}
-
-
-
 	// add a global args of log_level
 	struct doca_argp_param log_level = {
 		.short_flag = "ll",
@@ -145,11 +137,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			argc -= num_rm;
 		}
 		i++;
-	}
-	printf("_arg: %d\n", argc);
-	for (int i = 0; i < argc; i++)
-	{
-		printf("	%s\n", argv[i]);
 	}
 	int ret = rte_eal_init(argc, argv);
 	if(ret < 0)
