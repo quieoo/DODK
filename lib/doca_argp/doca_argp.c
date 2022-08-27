@@ -111,7 +111,6 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		.is_cli_only = false};
 
 	doca_argp_register_param(&help);
-	usage(NULL, NULL);
 
 	// parse doca registered args
 	for (int i = 0; i < argc; i++)
@@ -121,7 +120,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		{
 			// long args
 			if((argv[i][0] == '-' && argv[i][1] == '-' && strcmp(argv[i][2], registered_param[j]->long_flag) == 0) ||
-				(argv[i][0]=='-' && strcmp(argv[i][1], registered_param[j]->short_flag))){ 
+				(argv[i][0]=='-' && strcmp(argv[i][1], registered_param[j]->short_flag)==0 )){ 
 				p=registered_param[j];
 				break;;
 			}
@@ -159,6 +158,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				}
 				k++;
 			}
+		}else{
+			printf("miss %s\n",p->long_flag);
 		}
 	}
 		printf("_arg: %d\n", _argc);
