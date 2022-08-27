@@ -126,6 +126,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				break;;
 			}
 		}
+		printf("check\n");
 		if(p){
 			printf("	hit %s\n", p->long_flag);
 			// call_backs
