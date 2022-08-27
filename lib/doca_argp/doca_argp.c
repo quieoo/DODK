@@ -129,7 +129,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				}
 			}else if(argv[i][0]=='-'){
 				if((strlen(argv[i])-1 == strlen(registered_param[j]->short_flag))  && 
-					(strcmp(argv[i][1], registered_param[j]->short_flag)==0)){
+					(strcmp(argv[i]+1, registered_param[j]->short_flag)==0)){
 					printf("4\n");
 					p=registered_param[j];
 					break;
