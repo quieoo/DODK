@@ -67,16 +67,12 @@ void call_function(struct doca_argp_param *opt, char *param)
 
 void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
 {
-	printf("arg: %d\n", argc);
-	for (int i = 0; i < argc; i++)
-	{
-		printf("	%s\n", argv[i]);
-	}
+/*
 	int rett = rte_eal_init(argc, argv);
 	if (rett < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 	return;
-
+*/
 	// copy all args
 	int _argc = argc;
 	char *_argv[MAX_PARAM_NUM];
@@ -182,6 +178,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	}
 
 	int ret = rte_eal_init(_argc, _argv);
+	if(ret < 0)
+		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 
 	// clean resources
 	for (int i = 0; i < argc; i++)
