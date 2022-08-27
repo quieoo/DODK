@@ -38,8 +38,6 @@ static void
 set_log_level_callback(void *config, void *param)
 {
 	int level = *(int *)param;
-	printf("	set log level:%d\n", level);
-
 	doca_log_global_level_set(level);
 }
 
@@ -155,8 +153,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			while (k < _argc)
 			{
 				bool to_remove = false;
-				if ((_argv[k][0] == '-' && _argv[k][1] == '-' && strcmp(_argv[k][2], p->long_flag) == 0) || 
-				(_argv[k][0] == '-' && strcmp(_argv[k][1], p->short_flag) == 0))
+				if ((_argv[k][0] == '-' && _argv[k][1] == '-' && strcmp(_argv[k]+2, p->long_flag) == 0) || 
+				(_argv[k][0] == '-' && strcmp(_argv[k]+1, p->short_flag) == 0))
 					to_remove = true;
 				if (to_remove)
 				{
@@ -165,6 +163,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 					for (int j = k; j < _argc - num_rm; j++)
 						_argv[j] = _argv[j + num_rm];
 					_argc -= num_rm;
+
+					break;
 				}
 				k++;
 			}
