@@ -180,7 +180,7 @@ dpdk_ports_init(struct application_dpdk_config *app_config)
 	const uint8_t nb_ports = app_config->port_config.nb_ports;
 	const uint32_t total_nb_mbufs = app_config->port_config.nb_queues * nb_ports * NUM_MBUFS;
 	struct rte_mempool *mbuf_pool;
-	printf("before allocate mempool\n");
+	printf("before allocate mempool: %d\n", total_nb_mbufs);
 	/* Initialize mbufs mempool */
 	mbuf_pool = allocate_mempool(total_nb_mbufs);
 
