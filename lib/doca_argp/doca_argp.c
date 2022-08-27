@@ -160,23 +160,21 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				}
 				k++;
 			}
-		}else{
-			printf("miss %s\n",p->long_flag);
 		}
 	}
-		printf("_arg: %d\n", _argc);
-		for (int i = 0; i < _argc; i++)
-		{
-			printf("	%s\n", _argv[i]);
-		}
+	printf("_arg: %d\n", _argc);
+	for (int i = 0; i < _argc; i++)
+	{
+		printf("	%s\n", _argv[i]);
+	}
 
-		int ret = rte_eal_init(_argc, _argv);
+	int ret = rte_eal_init(_argc, _argv);
 
-		// clean resources
-		for (int i = 0; i < argc; i++)
-		{
-			free(_argv[i]);
-		}
+	// clean resources
+	for (int i = 0; i < argc; i++)
+	{
+		free(_argv[i]);
+	}
 }
 
 	void doca_argp_destroy(void)
