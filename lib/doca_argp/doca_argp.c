@@ -176,6 +176,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	{
 		printf("	%s\n", _argv[i]);
 	}
+	printf("%d %d\n",sizeof(argv), sizeof(_argv));
 
 	int ret = rte_eal_init(argc, argv);
 	if(ret < 0)
