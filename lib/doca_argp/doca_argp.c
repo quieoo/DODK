@@ -32,6 +32,7 @@ void usage(void *config, void *param)
 		printf("	-%s, --%s\n", p->short_flag, p->long_flag);
 		printf("		%s\n", p->description);
 	}
+	exit(0);
 }
 
 static void
