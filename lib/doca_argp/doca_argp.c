@@ -38,6 +38,8 @@ static void
 set_log_level_callback(void *config, void *param)
 {
 	int level = *(int *)param;
+	printf("	set log level:%d\n", level);
+
 	doca_log_global_level_set(level);
 }
 
