@@ -183,7 +183,7 @@ dpdk_ports_init(struct application_dpdk_config *app_config)
 	printf("before allocate mempool: %d\n", total_nb_mbufs);
 	/* Initialize mbufs mempool */
 	mbuf_pool = allocate_mempool(total_nb_mbufs);
-
+	printf("finish mempool allocalte");
 	ret = rte_flow_dynf_metadata_register();
 	if (ret < 0)
 		APP_EXIT("Metadata register failed");
