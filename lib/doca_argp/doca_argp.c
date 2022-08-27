@@ -120,8 +120,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		for (int j = 0; j < registered; j++)
 		{
 			// long args
-			if((argv[i][0] == '-' && argv[i][1] == '-' && strcmp(argv[i][2], p->long_flag) == 0) ||
-				(argv[i][0]=='-' && strcmp(argv[i][1], p->short_flag))){ 
+			if((argv[i][0] == '-' && argv[i][1] == '-' && strcmp(argv[i][2], registered_param[j]->long_flag) == 0) ||
+				(argv[i][0]=='-' && strcmp(argv[i][1], registered_param[j]->short_flag))){ 
 				p=registered_param[j];
 				break;;
 			}
