@@ -119,11 +119,18 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		for (int j = 0; j < registered; j++)
 		{
 			printf("	%s - %s\n",argv[i], registered_param[j]->long_flag);
-			// long args
-			if((argv[i][0] == '-' && argv[i][1] == '-' && strcmp(argv[i][2], registered_param[j]->long_flag) == 0) ||
-				(argv[i][0]=='-' && strcmp(argv[i][1], registered_param[j]->short_flag)==0 )){ 
-				p=registered_param[j];
-				break;
+			if(argv[i][0]=='-' && argv[i][1]=='-'){
+				if(strlen(argv[i][2] == strlen(registered_param[j]->long_flag  && 
+					strcmp(argv[i][2], registered_param[j]->long_flag)))){
+					p=registered_param[j];
+					break;
+				}
+			}else if(argv[i][0]=='-'){	
+				if(strlen(argv[i][1] == strlen(registered_param[j]->short_flag  && 
+					strcmp(argv[i][1], registered_param[j]->short_flag)))){
+					p=registered_param[j];
+					break;
+				}
 			}
 		}
 		printf("check %x\n",p);
