@@ -73,9 +73,101 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 	return;
 */
+	printf("arg: %d\n", argc);
+	for (int i = 0; i < argc; i++)
+	{
+		printf("	%s\n", argv[i]);
+	}
+
+
+
+	// add a global args of log_level
+	struct doca_argp_param log_level = {
+		.short_flag = "ll",
+		.long_flag = "log-level",
+		.arguments = "<level>",
+		.description = "Set the log level, 0-CRIT, 1-ERROR, 2-WARNING, 3-INFO, 4-DEBUG",
+		.callback = set_log_level_callback,
+		.arg_type = DOCA_ARGP_TYPE_INT,
+		.is_mandatory = false,
+		.is_cli_only = false};
+
+	doca_argp_register_param(&log_level);
+	struct doca_argp_param help = {
+		.short_flag = "h",
+		.long_flag = "help",
+		.arguments = "<none>",
+		.description = "print usage",
+		.callback = usage,
+		.arg_type = DOCA_ARGP_TYPE_BOOLEAN,
+		.is_mandatory = false,
+		.is_cli_only = false};
+
+	doca_argp_register_param(&help);
+
+	// parse doca registered args
+	int i=0;
+	while(i<argc)
+	{
+		struct doca_argp_param *p={0};
+		for (int j = 0; j < registered; j++)
+		{
+			if(argv[i][0]=='-' && argv[i][1]=='-'){
+				if((strlen(argv[i])-2 == strlen(registered_param[j]->long_flag))  && 
+					(strcmp(argv[i]+2, registered_param[j]->long_flag)==0)){
+					p=registered_param[j];
+					break;
+				}
+			}else if(argv[i][0]=='-'){
+				if((strlen(argv[i])-1 == strlen(registered_param[j]->short_flag))  && 
+					(strcmp(argv[i]+1, registered_param[j]->short_flag)==0)){
+					p=registered_param[j];
+					break;
+				}
+			}
+		}
+		if(p){
+			int num_rm;
+			// call_backs
+			if (p->arg_type == DOCA_ARGP_TYPE_BOOLEAN){
+				bool _param = true;
+				p->callback(config, &(_param));
+				num_rm=1;
+			}
+			else{
+				call_function(p, argv[i+1]);
+				num_rm=2;
+			}
+			
+			//remove doca regisered args
+			for (int j = i; j < argc - num_rm+1; j++)
+				argv[j] = argv[j + num_rm];
+			argc -= num_rm;
+		}
+		i++;
+	}
+	printf("_arg: %d\n", argc);
+	for (int i = 0; i < argc; i++)
+	{
+		printf("	%s\n", argv[i]);
+	}
+	int ret = rte_eal_init(argc, argv);
+	if(ret < 0)
+		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
+
+}
+
+void _doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
+{
+/*
+	int rett = rte_eal_init(argc, argv);
+	if (rett < 0)
+		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
+	return;
+*/
 	// copy all args
 	int _argc = argc;
-	char **_argv;
+	char *_argv[MAX_PARAM_NUM];
 	for (int i = 0; i < argc; i++)
 	{
 		char *arg = malloc(100);
@@ -176,8 +268,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	{
 		printf("	%s\n", _argv[i]);
 	}
-	printf("%d %d\n",sizeof(argv), sizeof(_argv));
-	int ret = rte_eal_init(_argc, _argv);
+	printf("%d %d\n",sizeof(argv), sizeof(_argv[0]));
+	int ret = rte_eal_init(_argc, _argv[0]);
 	if(ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 
