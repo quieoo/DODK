@@ -159,7 +159,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 				if (to_remove)
 				{
 					for (int j = k; j < i + num_rm; j++)
-						free(_argv[k]);
+						free(_argv[j]);
 					for (int j = k; j < _argc - num_rm; j++)
 						_argv[j] = _argv[j + num_rm];
 					_argc -= num_rm;
