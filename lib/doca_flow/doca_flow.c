@@ -103,11 +103,11 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	sprintf(str1, "Create pipe %s", cfg->name);
 	char str2[20];
 	char str3[20];
-	if (fwd == NULL)
+	if (!fwd)
 		sprintf(str2, "%s","	fwd: NULL");
 	else
 		sprintf(str2, "	fwd: %d", fwd->type);
-	if (fwd_miss == NULL)
+	if (!fwd_miss)
 		sprintf(str3, "%s", "	fwd_miss: NULL");
 	else
 		sprintf(str3, "	fwd_miss: %d", fwd_miss->type);
@@ -115,34 +115,34 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	strcpy(str1+strlen(str1), str3);
 	DOCA_LOG_INFO("%s", str1);
 
-	struct doca_flow_pipe *pipe = malloc(sizeof(struct doca_flow_pipe));
-	pipe->cfg = malloc(sizeof(struct doca_flow_pipe_cfg));
-	pipe->cfg->port = malloc(sizeof(struct doca_flow_port));
-	pipe->cfg->match = malloc(sizeof(struct doca_flow_match));
-	pipe->cfg->actions = malloc(sizeof(struct doca_flow_actions));
-	pipe->fwd = malloc(sizeof(struct doca_flow_fwd));
-	pipe->fwd_miss = malloc(sizeof(struct doca_flow_fwd));
+	struct doca_flow_pipe *pipe = calloc(sizeof(struct doca_flow_pipe));
+	pipe->cfg = calloc(sizeof(struct doca_flow_pipe_cfg));
+	pipe->cfg->port = calloc(sizeof(struct doca_flow_port));
+	pipe->cfg->match = calloc(sizeof(struct doca_flow_match));
+	pipe->cfg->actions = calloc(sizeof(struct doca_flow_actions));
+	pipe->fwd = calloc(sizeof(struct doca_flow_fwd));
+	pipe->fwd_miss = calloc(sizeof(struct doca_flow_fwd));
 
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type = cfg->type;
-	if (cfg->port != NULL)
+	if (cfg->port)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
 	pipe->cfg->is_root = cfg->is_root;
-	if (cfg->match != NULL)
+	if (cfg->match)
 		memcpy(pipe->cfg->match, cfg->match, sizeof(struct doca_flow_match));
-	if (cfg->actions != NULL)
+	if (cfg->actions)
 		memcpy(pipe->cfg->actions, cfg->actions, sizeof(struct doca_flow_actions));
 	pipe->cfg->nb_flows = cfg->nb_flows;
-	if (fwd != NULL)
+	if (fwd)
 		memcpy(pipe->fwd, fwd, sizeof(struct doca_flow_fwd));
-	if (fwd_miss != NULL)
+	if (fwd_miss)
 		memcpy(pipe->fwd_miss, fwd_miss, sizeof(struct doca_flow_fwd));
-	if (!cfg->is_root)
+	if (!(cfg->is_root))
 		pipe->group_id = ++GROUP;
 	else
 		pipe->group_id = 0;
 
-	if (fwd_miss != NULL)
+	if (fwd_miss)
 	{
 		struct rte_flow_attr attr;
 		struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -223,7 +223,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			break;
 		case RTE_FLOW_ITEM_TYPE_ETH:
 			printf("RTE_FLOW_ITEM_TYPE_ETH\n");
-			if (pattern->spec != NULL)
+			if (pattern->spec)
 			{
 				const struct rte_flow_item_eth *spec = pattern->spec;
 				print_ether_addr("			src_mac:", spec->hdr.src_addr.addr_bytes);
@@ -233,7 +233,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ITEM_TYPE_IPV4:
 		{
 			printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
-			if (pattern->mask != NULL)
+			if (pattern->mask)
 			{
 				const struct rte_flow_item_ipv4 *mask = pattern->mask;
 				struct in_addr mask_dst, mask_src;
@@ -242,7 +242,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("		mask.hdr:\n");
 				printf("			dst_addr: %s\n", inet_ntoa(mask_dst));
 			}
-			if (pattern->spec != NULL)
+			if (pattern->spec)
 			{
 				const struct rte_flow_item_ipv4 *spec = pattern->spec;
 				struct in_addr dst, src;
@@ -257,7 +257,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ITEM_TYPE_UDP:
 		{
 			printf("RTE_FLOW_ITEM_TYPE_UDP\n");
-			if (pattern->spec != NULL)
+			if (pattern->spec)
 			{
 				const struct rte_flow_item_udp *udpspec = pattern->spec;
 				printf("		spec.hdr:\n");
@@ -288,7 +288,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ACTION_TYPE_QUEUE:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_QUEUE\n");
-			if (actions->conf != NULL)
+			if (actions->conf)
 			{
 				const struct rte_flow_action_queue *queue = actions->conf;
 				printf("		index: %d\n", queue->index);
@@ -298,7 +298,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_MAC_DST\n");
-			if (actions->conf != NULL)
+			if (actions->conf)
 			{
 				const struct rte_flow_action_set_mac *dst_mac = actions->conf;
 				print_ether_addr("		mac_addr: ", dst_mac->mac_addr);
@@ -308,7 +308,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_IPV4_DST\n");
-			if (actions->conf != NULL)
+			if (actions->conf)
 			{
 				const struct rte_flow_action_set_ipv4 *dst_ip = actions->conf;
 				struct in_addr addr;
@@ -320,7 +320,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_SET_TP_DST\n");
-			if (actions->conf != NULL)
+			if (actions->conf)
 			{
 				const struct rte_flow_action_set_tp *dst_tp = actions->conf;
 				printf("		port: %d\n", dst_tp->port);
@@ -330,7 +330,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		case RTE_FLOW_ACTION_TYPE_PORT_ID:
 		{
 			printf("RTE_FLOW_ACTION_TYPE_PORT_ID\n");
-			if (actions->conf != NULL)
+			if (actions->conf)
 			{
 				const struct rte_flow_action_port_id *pid = actions->conf;
 				printf("		port_id: %d\n", pid->id);
