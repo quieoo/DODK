@@ -119,7 +119,7 @@ simple_fwd_build_control_pipe(struct doca_flow_port *port)
 	pipe_cfg.name = "CONTROL_PIPE";
 	pipe_cfg.type = DOCA_FLOW_PIPE_CONTROL;
 	pipe_cfg.port = port;
-
+	printf("%d\n", pipe_cfg.actions);
 	return doca_flow_create_pipe(&pipe_cfg, NULL, NULL,  &error);
 }
 
