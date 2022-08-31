@@ -354,7 +354,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 void merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
 	// struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
-	if (second == NULL)
+	if (!second)
 	{
 		return;
 	}
@@ -395,7 +395,8 @@ void merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 
 void merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 {
-	if(second==NULL){
+	if(!second){
+		DOCA_LOG_INFO("pipe action is empty");
 		return;
 	}
 	if(first->flags==0)	first->flags=second->flags;
