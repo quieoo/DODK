@@ -102,10 +102,11 @@ simple_fwd_build_control_pipe_entry(struct doca_flow_pipe *c_pipe)
 	if (!c_pipe)
 		return -1;
 
-	if (simple_fwd_build_vxlan_control(c_pipe))
-		return -1;
 	if (simple_fwd_build_gre_control(c_pipe))
 		return -1;
+	if (simple_fwd_build_vxlan_control(c_pipe))
+		return -1;
+	
 	return 0;
 }
 
