@@ -589,6 +589,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		{
 		case DOCA_FLOW_TUN_VXLAN:
 		{
+			if(match->tun.vxlan_tun_id==0) break;
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_VXLAN;
 			struct rte_flow_item_vxlan vxlan_item;
 			// rte_vxlan_gpe_hdr.vx_vni -> rte_flow_item_vxlan.vni
@@ -603,6 +604,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		}
 		case DOCA_FLOW_TUN_GRE:
 		{ // gre_key (32bit) -> rte_flow_item_gre.c_rsvd0_ver + rte_flow_item_gre.protocol
+			if(match->tun.gre_key==0) break;
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_GRE;
 			struct rte_flow_item_gre gre_item;
 			uint16_t *pt = (uint16_t) & (match->tun.gre_key);
@@ -613,6 +615,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		}
 		case DOCA_FLOW_TUN_GTPU:
 		{
+			if(match->tun.gtp_teid ==0) break;
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_GTPU;
 			struct rte_flow_item_gtp gtp_item;
 			gtp_item.teid = match->tun.gtp_teid;
