@@ -887,6 +887,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		DOCA_LOG_ERR("ERROR while validate flow: %d", res);
 		DOCA_LOG_ERR("%s\n", rte_error.message);
 	}
+	return (struct doca_flow_pipe_entry *)flow;
 }
 
 struct doca_flow_pipe_entry *
@@ -896,7 +897,12 @@ doca_flow_control_pipe_add_entry(uint16_t pipe_queue,
 								 const struct doca_flow_match *match,
 								 const struct doca_flow_match *match_mask,
 								 const struct doca_flow_fwd *fwd,
-								 struct doca_flow_error *error) {}
+								 struct doca_flow_error *error) 
+{
+	struct doca_flow_actions action={0};
+	struct doca_flow_monitor monitor={0};
+	return doca_flow_pipe_add_entry(pipe_queue, pipe, match, action, monitor, fwd, 0, NULL, error);
+}
 
 int doca_flow_pipe_rm_entry(uint16_t pipe_queue, void *usr_ctx,
 							struct doca_flow_pipe_entry *entry) {}

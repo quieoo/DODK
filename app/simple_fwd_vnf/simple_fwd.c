@@ -546,8 +546,10 @@ simple_fwd_init_ports_and_pipes(struct simple_fwd_port_cfg *port_cfg)
 		
 		/* build control pipe and entries*/
 		pipe = simple_fwd_build_control_pipe(port);
-		if (!pipe)
+		if (!pipe){
+			DOCA_LOG_ERR("failed to build control pipe");
 			return -1;
+		}
 		if (simple_fwd_build_control_pipe_entry(pipe))
 			return -1;
 		simple_fwd_ins->pipe_control[index] = pipe;

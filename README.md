@@ -1,6 +1,13 @@
 # Prerequisite
 ## Install DPDK
-For example: 
+
+### Prerequistes for DPDK
+```
+sudo apt install build-essential
+sudo apt install python3-pyelftools
+sudo apt install libnuma-dev
+sudo apt install meson
+```
 
 ```
 git clone https://github.com/DPDK/dpdk.git
@@ -15,6 +22,7 @@ sudo ldconfig
 
 # Build Sample Applications
 ```
+sudo apt install pkg-config
 git clone https://github.com/quieoo/DODK.git
 cd DODK
 meson build
