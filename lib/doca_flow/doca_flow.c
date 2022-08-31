@@ -901,7 +901,7 @@ doca_flow_control_pipe_add_entry(uint16_t pipe_queue,
 {
 	struct doca_flow_actions action={0};
 	struct doca_flow_monitor monitor={0};
-	return doca_flow_pipe_add_entry(pipe_queue, pipe, match, action, monitor, fwd, 0, NULL, error);
+	return doca_flow_pipe_add_entry(pipe_queue, pipe, match, &action, &monitor, fwd, 0, NULL, error);
 }
 
 int doca_flow_pipe_rm_entry(uint16_t pipe_queue, void *usr_ctx,
