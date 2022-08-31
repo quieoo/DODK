@@ -17,16 +17,6 @@ DOCA_LOG_REGISTER(DOCA_FLOW);
 const uint8_t mac0[6] = {0};
 const uint32_t ip0 = 0;
 const uint16_t port0 = 0;
-#define CHOOSE(first, second, result, zero) \
-	if (first == zero)                      \
-		result = second;                    \
-	else                                    \
-		result = first;
-#define CHOOSE21(para, zero)         \
-	if (first->para == zero)         \
-		result->para = second->para; \
-	else                             \
-		result->para = first->para;
 int doca_flow_init(const struct doca_flow_cfg *cfg,
 				   struct doca_flow_error *error)
 {
@@ -361,140 +351,102 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		for all fields in doca_flow_match:
 			if first defines, use first's definition, else use second's definition
 */
-struct doca_flow_match *
-merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
+void merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
 {
-	struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
+	// struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
 	if (second == NULL)
 	{
 		return;
 	}
 	if (first->flags == 0)
-		result->flags = second->flags;
-	else
-		result->flags = first->flags;
-	CHOOSE21(flags, 0);
-	CHOOSE21(meta.pkt_meta, 0);
+		first->flags = second->flags;
+	if(first->meta.pkt_meta ==0)
+		first->meta.pkt_meta=second->meta.pkt_meta;
 	if (memcmp(first->out_src_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->out_src_mac, second->out_src_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->out_src_mac, first->out_src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(first->out_src_mac, second->out_src_mac, DOCA_ETHER_ADDR_LEN);
 	if (memcmp(first->out_dst_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->out_dst_mac, second->out_dst_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->out_src_mac, first->out_src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(first->out_dst_mac, second->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 	//	doca_be16_t out_eth_type;
 	// 	doca_be16_t out_vlan_id;
-	CHOOSE21(out_eth_type, 0);
-	CHOOSE21(out_vlan_id, 0);
-	CHOOSE21(out_src_ip.ipv4_addr, ip0);
-	CHOOSE21(out_dst_ip.ipv4_addr, ip0);
-	CHOOSE21(out_l4_type, 0)
-	CHOOSE21(out_tcp_flags, 0);
-	CHOOSE21(out_src_port, 0);
-	CHOOSE21(out_dst_port, 0);
-	CHOOSE21(tun.type, 0);
+	if(first->out_eth_type==0)	first->out_eth_type=second->out_eth_type;
+	if(first->out_vlan_id==0)	first->out_vlan_id=second->out_vlan_id;
+	if(first->out_src_ip.ipv4_addr==ip0)	first->out_src_ip.ipv4_addr=second->out_src_ip.ipv4_addr;
+	if(first->out_dst_ip.ipv4_addr==ip0)	first->out_dst_ip.ipv4_addr=second->out_dst_ip.ipv4_addr;
+	if(first->out_l4_type==0)	first->out_l4_type=second->out_l4_type;
+	if(first->out_tcp_flags==0)	first->out_tcp_flags=second->out_tcp_flags;
+	if(first->out_src_port==0)	first->out_src_port=second->out_src_port;
+	if(first->out_dst_port==0)	first->out_dst_port=second->out_dst_port;
+	if(first->tun.type==0)	first->tun.type=second->tun.type;
+
 	if (memcmp(first->in_src_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->in_src_mac, second->in_src_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->in_src_mac, first->in_src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(first->in_src_mac, second->in_src_mac, DOCA_ETHER_ADDR_LEN);
 	if (memcmp(first->in_dst_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->in_dst_mac, second->in_dst_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->in_src_mac, first->in_src_mac, DOCA_ETHER_ADDR_LEN);
-	CHOOSE21(in_eth_type, 0);
-	CHOOSE21(in_vlan_id, 0);
-	CHOOSE21(in_src_ip.ipv4_addr, 0);
-	CHOOSE21(in_dst_ip.ipv4_addr, 0);
-	CHOOSE21(in_l4_type, 0);
-	CHOOSE21(in_tcp_flags, 0);
-	CHOOSE21(in_src_port, 0);
-	CHOOSE21(in_dst_port, 0);
-	return result;
+		memcpy(first->in_dst_mac, second->in_dst_mac, DOCA_ETHER_ADDR_LEN);
+
+	if(first->in_eth_type==0)	first->in_eth_type=second->in_eth_type;
+	if(first->in_vlan_id==0)	first->in_vlan_id=second->in_vlan_id;
+	if(first->in_src_ip.ipv4_addr==0)	first->in_src_ip.ipv4_addr=second->in_src_ip.ipv4_addr;
+	if(first->in_dst_ip.ipv4_addr==0)	first->in_dst_ip.ipv4_addr=second->in_dst_ip.ipv4_addr;
+	if(first->in_l4_type==0)	first->in_l4_type=second->in_l4_type;
+	if(first->in_tcp_flags==0)	first->in_tcp_flags=second->in_tcp_flags;
+	if(first->in_src_port==0)	first->in_src_port=second->in_src_port;
+	if(first->in_dst_port==0)	first->in_dst_port=second->in_dst_port;
 }
 
-struct doca_flow_actions *
-merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
+void merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 {
-	struct doca_flow_actions *result = malloc(sizeof(struct doca_flow_actions));
-	CHOOSE21(flags, 0);
-	CHOOSE21(decap, false);
+	if(second==NULL){
+		return;
+	}
+	if(first->flags==0)	first->flags=second->flags;
+	if(!(first->decap) && second->decap) first->decap=second->decap;
 	if (memcmp(first->mod_src_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->mod_src_mac, second->mod_src_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->mod_src_mac, first->mod_src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(first->mod_src_mac, second->mod_src_mac, DOCA_ETHER_ADDR_LEN);
 	if (memcmp(first->mod_dst_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->mod_dst_mac, second->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->mod_dst_mac, first->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
-	CHOOSE21(mod_src_ip.ipv4_addr, 0);
-	CHOOSE21(mod_dst_ip.ipv4_addr, 0);
-	CHOOSE21(mod_src_port, 0);
-	CHOOSE21(mod_dst_port, 0);
-	CHOOSE21(dec_ttl, false);
-	CHOOSE21(has_encap, false);
+		memcpy(first->mod_dst_mac, second->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
+	if(first->mod_src_ip.ipv4_addr==0)	first->mod_src_ip.ipv4_addr=second->mod_src_ip.ipv4_addr;
+	if(first->mod_dst_ip.ipv4_addr==0)	first->mod_dst_ip.ipv4_addr=second->mod_dst_ip.ipv4_addr;
+	if(first->mod_src_port==0)	first->mod_src_port=second->mod_src_port;
+	if(first->mod_dst_port==0)	first->mod_dst_port=second->mod_dst_port;
+	if(!(first->dec_ttl) && second->dec_ttl)	first->dec_ttl=second->dec_ttl;
+	if(!(first->has_encap) && second->has_encap)	first->has_encap=second->has_encap;
 	if (memcmp(first->encap.src_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->encap.src_mac, second->encap.src_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->encap.src_mac, first->encap.src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(first->encap.src_mac, second->encap.src_mac, DOCA_ETHER_ADDR_LEN);
 	
 	if (memcmp(first->encap.dst_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(result->encap.dst_mac, second->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
-	else
-		memcpy(result->encap.dst_mac, first->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
-	CHOOSE21(encap.src_ip.ipv4_addr, 0);
-	CHOOSE21(encap.dst_ip.ipv4_addr, 0);
-	CHOOSE21(encap.tun.type, 0);
-	if(result->encap.tun.type == first->encap.tun.type){
+		memcpy(first->encap.dst_mac, second->encap.dst_mac, DOCA_ETHER_ADDR_LEN);
+	if(first->encap.src_ip.ipv4_addr==0)	first->encap.src_ip.ipv4_addr=second->encap.src_ip.ipv4_addr;
+	if(first->encap.dst_ip.ipv4_addr==0)	first->encap.dst_ip.ipv4_addr=second->encap.dst_ip.ipv4_addr;
+	
+	if(first->encap.tun.type == 0){
+		first->encap.tun.type=second->encap.tun.type;
 		switch (first->encap.tun.type)
 		{
 		case DOCA_FLOW_TUN_VXLAN:
-			result->encap.tun.vxlan_tun_id=first->encap.tun.vxlan_tun_id;
+			first->encap.tun.vxlan_tun_id=second->encap.tun.vxlan_tun_id;
 			break;
 		case DOCA_FLOW_TUN_GRE:
-			result->encap.tun.gre_key=first->encap.tun.gre_key;
-			result->encap.tun.protocol=first->encap.tun.protocol;
+			first->encap.tun.gre_key=second->encap.tun.gre_key;
+			first->encap.tun.protocol=second->encap.tun.protocol;
 			break;
 		case DOCA_FLOW_TUN_GTPU:
-			result->encap.tun.gtp_teid=first->encap.tun.gtp_teid;
-			break;
-		default:
-			break;
-		}
-	}else{
-		switch (first->encap.tun.type)
-		{
-		case DOCA_FLOW_TUN_VXLAN:
-			result->encap.tun.vxlan_tun_id=second->encap.tun.vxlan_tun_id;
-			break;
-		case DOCA_FLOW_TUN_GRE:
-			result->encap.tun.gre_key=second->encap.tun.gre_key;
-			result->encap.tun.protocol=second->encap.tun.protocol;
-			break;
-		case DOCA_FLOW_TUN_GTPU:
-			result->encap.tun.gtp_teid=second->encap.tun.gtp_teid;
+			first->encap.tun.gtp_teid=second->encap.tun.gtp_teid;
 			break;
 		default:
 			break;
 		}
 	}
-
-
 	CHOOSE21(meta.pkt_meta, 0);
-	return result;
+	if(first->meta.pkt_meta==0)	first->meta.pkt_meta=second->meta.pkt_meta;
 }
 
-struct doca_flow_fwd *
-merge_fwd(struct doca_flow_fwd *first, struct doca_flow_fwd *second)
+void merge_fwd(struct doca_flow_fwd *first, struct doca_flow_fwd *second)
 {
-	struct doca_flow_fwd *result = malloc(sizeof(struct doca_flow_fwd));
 	if (first->type == DOCA_FLOW_FWD_NONE && second->type != DOCA_FLOW_FWD_NONE)
 	{
-		memcpy(result, second, sizeof(struct doca_flow_fwd));
-		return result;
+		memcpy(first, second, sizeof(struct doca_flow_fwd));
+		return;
 	}
-	memcpy(result, first, sizeof(struct doca_flow_fwd));
-	return result;
 }
 
 static void
@@ -571,6 +523,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	attr.ingress = 1;
 	// merge match, actions, fwd
+
 	struct doca_flow_match *mmatch = merge_match(match, pipe->cfg->match);
 
 	struct doca_flow_actions *mactions = merge_action(actions, pipe->cfg->actions);
@@ -879,6 +832,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			error->message = rte_error.message;
 			// rte_exit(EXIT_FAILURE, "error in creating flow");
 			return NULL;
+		}else{
+			return (struct doca_flow_pipe_entry *)flow;
 		}
 		// output_flow(port_id, &attr, pattern, action, &error);
 	}
@@ -887,7 +842,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		DOCA_LOG_ERR("ERROR while validate flow: %d", res);
 		DOCA_LOG_ERR("%s\n", rte_error.message);
 	}
-	return (struct doca_flow_pipe_entry *)flow;
 }
 
 struct doca_flow_pipe_entry *
