@@ -115,13 +115,13 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	strcpy(str1+strlen(str1), str3);
 	DOCA_LOG_INFO("%s", str1);
 
-	struct doca_flow_pipe *pipe = calloc(sizeof(struct doca_flow_pipe));
-	pipe->cfg = calloc(sizeof(struct doca_flow_pipe_cfg));
-	pipe->cfg->port = calloc(sizeof(struct doca_flow_port));
-	pipe->cfg->match = calloc(sizeof(struct doca_flow_match));
-	pipe->cfg->actions = calloc(sizeof(struct doca_flow_actions));
-	pipe->fwd = calloc(sizeof(struct doca_flow_fwd));
-	pipe->fwd_miss = calloc(sizeof(struct doca_flow_fwd));
+	struct doca_flow_pipe *pipe = calloc(1,sizeof(struct doca_flow_pipe));
+	pipe->cfg = calloc(1,sizeof(struct doca_flow_pipe_cfg));
+	pipe->cfg->port = calloc(1,sizeof(struct doca_flow_port));
+	pipe->cfg->match = calloc(1,sizeof(struct doca_flow_match));
+	pipe->cfg->actions = calloc(1,sizeof(struct doca_flow_actions));
+	pipe->fwd = calloc(1,sizeof(struct doca_flow_fwd));
+	pipe->fwd_miss = calloc(1,sizeof(struct doca_flow_fwd));
 
 	pipe->cfg->name = cfg->name;
 	pipe->cfg->type = cfg->type;

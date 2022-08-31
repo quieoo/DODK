@@ -38,7 +38,8 @@
         "streambuf": "c",
         "system_error": "c",
         "tuple": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "cstdlib": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
