@@ -436,7 +436,6 @@ void merge_action(struct doca_flow_actions *first, struct doca_flow_actions *sec
 			break;
 		}
 	}
-	CHOOSE21(meta.pkt_meta, 0);
 	if(first->meta.pkt_meta==0)	first->meta.pkt_meta=second->meta.pkt_meta;
 }
 
