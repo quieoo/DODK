@@ -426,7 +426,7 @@ merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
 	if (memcmp(first->mod_dst_mac, mac0, sizeof(mac0)) == 0)
 		memcpy(result->mod_dst_mac, second->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
 	else
-		memcpy(result->mod_src_mac, first->mod_src_mac, DOCA_ETHER_ADDR_LEN);
+		memcpy(result->mod_dst_mac, first->mod_dst_mac, DOCA_ETHER_ADDR_LEN);
 	CHOOSE21(mod_src_ip.ipv4_addr, 0);
 	CHOOSE21(mod_dst_ip.ipv4_addr, 0);
 	CHOOSE21(mod_src_port, 0);
