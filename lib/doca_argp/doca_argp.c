@@ -29,7 +29,7 @@ void usage(void *config, void *param)
 	for (int i = 0; i < registered; i++)
 	{
 		struct doca_argp_param *p = registered_param[i];
-		printf("	-%s, --%s\n", p->short_fl ag, p->long_flag);
+		printf("	-%s, --%s\n", p->short_flag, p->long_flag);
 		printf("		%s\n", p->description);
 	}
 	printf("\n DPDK Configuration...\n");
