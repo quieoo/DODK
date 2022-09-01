@@ -1,5 +1,5 @@
 libraries=[
-    'common',
+    'doca_common',
     'doca_log',
     'doca_argp',
     'doca_flow'

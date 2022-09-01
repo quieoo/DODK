@@ -11,7 +11,7 @@ deps+=[
     'doca_flow',
 	'doca_log',
 	'doca_argp',
-	'common'
+	'doca_common'
 ]
 includes+=include_directories('../../lib/doca_log')
 includes+=include_directories('../../lib/doca_flow')

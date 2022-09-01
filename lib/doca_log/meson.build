@@ -4,4 +4,4 @@ sources=files(
 headers=files(
     'doca_log.h'
 )
-includes+=include_directories('../common')
+includes+=include_directories('../doca_common')
