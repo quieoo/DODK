@@ -51,6 +51,7 @@ foreach l : libraries
             include_directories: includes,
             link_args: lk_args,
             link_depends: lk_deps,
+            soversion: so_version,
             install: true)
     shared_dep = declare_dependency(link_with: shared_lib,
             include_directories: includes,
