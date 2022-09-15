@@ -131,7 +131,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 			if (unlikely(nb_tx < nb_rx)) {
 				uint16_t buf;
 				for (buf = nb_tx; buf < nb_rx; buf++)
-					rte_pktmbuf_free(bufs[buf]);
+					rte_pktmbuf_free(mbufs[buf]);
 			}
 			
 /*			for (j = 0; j < nb_rx; j++) {
