@@ -120,21 +120,9 @@ simple_fwd_process_pkts(void *process_pkts_params)
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
-			if (unlikely(nb_rx == 0))
-				continue;
 
-			/* Send burst of TX packets, to second port of pair. */
-			const uint16_t nb_tx = rte_eth_tx_burst(port_id ^ 1, queue_id,
-					mbufs, nb_rx);
-
-			/* Free any unsent packets. */
-			if (unlikely(nb_tx < nb_rx)) {
-				uint16_t buf;
-				for (buf = nb_tx; buf < nb_rx; buf++)
-					rte_pktmbuf_free(mbufs[buf]);
-			}
 			
-/*			for (j = 0; j < nb_rx; j++) {
+			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
 			
@@ -145,7 +133,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 			}
 			if (!app_config->age_thread){
 				vnf->vnf_flow_age(port_id, queue_id);
-			}*/
+			}
 			
 		}
 	}
