@@ -14,7 +14,7 @@ def run():
             print(p)
 
         # create dodk flow app
-        arglist=grpc_orchestrator_pb2.Args(program_name='app_simple_fwd_vnf', cmdline='-l 0-3 -n 4 -ll 3',port=444)
+        arglist=grpc_orchestrator_pb2.Args(program_name='app_simple_fwd_vnf', cmdline='-l 0-3 -n 4 -ll 1',port=444)
         #arglist=grpc_orchestrator_pb2.Args(program_name='/home/quieoo/Desktop/hello', cmdline='-h',port=444)
         create_response=stub.Create(arglist)
         if create_response.err_status.is_error:
@@ -23,7 +23,8 @@ def run():
             print(f'gRPC Create: {create_response.uid.uid}')
 
         # sleep and terminate
-        time.sleep(15)
+        time.sleep(10)
+        print('Trying to terminate......')
         uid=grpc_orchestrator_pb2.Uid(uid=create_response.uid.uid)
         terminate_response=stub.Destroy(uid)
         if terminate_response.is_error:
