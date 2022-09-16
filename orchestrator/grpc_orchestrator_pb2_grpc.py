@@ -2,14 +2,14 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import doca_grpc_orchestrator_pb2 as doca__grpc__orchestrator__pb2
+import grpc_orchestrator_pb2 as grpc__orchestrator__pb2
 
 
-class DocaOrchestratorStub(object):
+class OrchestratorStub(object):
     """Host (x86) -> DPU (Arm):
     ========================
-    gRPC server that exposes the DOCA gRPC API to the host
-    for remote boot/shutdown of DOCA gRPC Programs.
+    gRPC server that exposes the gRPC API to the host
+    for remote boot/shutdown of gRPC Programs.
     """
 
     def __init__(self, channel):
@@ -19,27 +19,27 @@ class DocaOrchestratorStub(object):
             channel: A grpc.Channel.
         """
         self.GetProgramList = channel.unary_unary(
-                '/DocaOrchestrator/GetProgramList',
-                request_serializer=doca__grpc__orchestrator__pb2.ProgramListReq.SerializeToString,
-                response_deserializer=doca__grpc__orchestrator__pb2.ProgramList.FromString,
+                '/Orchestrator/GetProgramList',
+                request_serializer=grpc__orchestrator__pb2.ProgramListReq.SerializeToString,
+                response_deserializer=grpc__orchestrator__pb2.ProgramList.FromString,
                 )
         self.Create = channel.unary_unary(
-                '/DocaOrchestrator/Create',
-                request_serializer=doca__grpc__orchestrator__pb2.Args.SerializeToString,
-                response_deserializer=doca__grpc__orchestrator__pb2.RichStatus.FromString,
+                '/Orchestrator/Create',
+                request_serializer=grpc__orchestrator__pb2.Args.SerializeToString,
+                response_deserializer=grpc__orchestrator__pb2.RichStatus.FromString,
                 )
         self.Destroy = channel.unary_unary(
-                '/DocaOrchestrator/Destroy',
-                request_serializer=doca__grpc__orchestrator__pb2.Uid.SerializeToString,
-                response_deserializer=doca__grpc__orchestrator__pb2.Status.FromString,
+                '/Orchestrator/Destroy',
+                request_serializer=grpc__orchestrator__pb2.Uid.SerializeToString,
+                response_deserializer=grpc__orchestrator__pb2.Status.FromString,
                 )
 
 
-class DocaOrchestratorServicer(object):
+class OrchestratorServicer(object):
     """Host (x86) -> DPU (Arm):
     ========================
-    gRPC server that exposes the DOCA gRPC API to the host
-    for remote boot/shutdown of DOCA gRPC Programs.
+    gRPC server that exposes the gRPC API to the host
+    for remote boot/shutdown of gRPC Programs.
     """
 
     def GetProgramList(self, request, context):
@@ -64,35 +64,35 @@ class DocaOrchestratorServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_DocaOrchestratorServicer_to_server(servicer, server):
+def add_OrchestratorServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetProgramList': grpc.unary_unary_rpc_method_handler(
                     servicer.GetProgramList,
-                    request_deserializer=doca__grpc__orchestrator__pb2.ProgramListReq.FromString,
-                    response_serializer=doca__grpc__orchestrator__pb2.ProgramList.SerializeToString,
+                    request_deserializer=grpc__orchestrator__pb2.ProgramListReq.FromString,
+                    response_serializer=grpc__orchestrator__pb2.ProgramList.SerializeToString,
             ),
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
-                    request_deserializer=doca__grpc__orchestrator__pb2.Args.FromString,
-                    response_serializer=doca__grpc__orchestrator__pb2.RichStatus.SerializeToString,
+                    request_deserializer=grpc__orchestrator__pb2.Args.FromString,
+                    response_serializer=grpc__orchestrator__pb2.RichStatus.SerializeToString,
             ),
             'Destroy': grpc.unary_unary_rpc_method_handler(
                     servicer.Destroy,
-                    request_deserializer=doca__grpc__orchestrator__pb2.Uid.FromString,
-                    response_serializer=doca__grpc__orchestrator__pb2.Status.SerializeToString,
+                    request_deserializer=grpc__orchestrator__pb2.Uid.FromString,
+                    response_serializer=grpc__orchestrator__pb2.Status.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'DocaOrchestrator', rpc_method_handlers)
+            'Orchestrator', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class DocaOrchestrator(object):
+class Orchestrator(object):
     """Host (x86) -> DPU (Arm):
     ========================
-    gRPC server that exposes the DOCA gRPC API to the host
-    for remote boot/shutdown of DOCA gRPC Programs.
+    gRPC server that exposes the gRPC API to the host
+    for remote boot/shutdown of gRPC Programs.
     """
 
     @staticmethod
@@ -106,9 +106,9 @@ class DocaOrchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/DocaOrchestrator/GetProgramList',
-            doca__grpc__orchestrator__pb2.ProgramListReq.SerializeToString,
-            doca__grpc__orchestrator__pb2.ProgramList.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Orchestrator/GetProgramList',
+            grpc__orchestrator__pb2.ProgramListReq.SerializeToString,
+            grpc__orchestrator__pb2.ProgramList.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -123,9 +123,9 @@ class DocaOrchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/DocaOrchestrator/Create',
-            doca__grpc__orchestrator__pb2.Args.SerializeToString,
-            doca__grpc__orchestrator__pb2.RichStatus.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Orchestrator/Create',
+            grpc__orchestrator__pb2.Args.SerializeToString,
+            grpc__orchestrator__pb2.RichStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -140,8 +140,8 @@ class DocaOrchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/DocaOrchestrator/Destroy',
-            doca__grpc__orchestrator__pb2.Uid.SerializeToString,
-            doca__grpc__orchestrator__pb2.Status.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Orchestrator/Destroy',
+            grpc__orchestrator__pb2.Uid.SerializeToString,
+            grpc__orchestrator__pb2.Status.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
