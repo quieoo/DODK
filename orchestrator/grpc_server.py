@@ -32,8 +32,9 @@ class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
         return grpc_orchestrator_pb2.ProgramList(program_names=result)
 
     def Create(self, request, context):
-        print(f'Creating: {execute_path} {request.cmdline}')
         execute_path=join(path, request.program_name)
+        print(f'Creating: {execute_path} {request.cmdline}')
+        
         rich_status = grpc_orchestrator_pb2.RichStatus(err_status=grpc_orchestrator_pb2.Status(is_error=True))
 
         if isfile(execute_path) is not True:
