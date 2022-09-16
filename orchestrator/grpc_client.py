@@ -14,7 +14,7 @@ def run():
             print(p)
 
         # create dodk flow app
-        arglist=grpc_orchestrator_pb2.Args(program_name='app_simple_fwd_vnf', cmdline='-l 0-3 -n 4',port=444)
+        arglist=grpc_orchestrator_pb2.Args(program_name='app_simple_fwd_vnf', cmdline='-l 0-3 -n 4 -ll 3',port=444)
         #arglist=grpc_orchestrator_pb2.Args(program_name='/home/quieoo/Desktop/hello', cmdline='-h',port=444)
         create_response=stub.Create(arglist)
         if create_response.err_status.is_error:

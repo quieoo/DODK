@@ -188,7 +188,7 @@ simple_fwd_parse_pkt_format(uint8_t *data, int len, bool l2,
 		fmt->l4_type = IPPROTO_ICMP;
 		break;
 	default:
-		DOCA_LOG_INFO("unsupported l4 %d\n", iphdr->next_proto_id);
+		// DOCA_LOG_INFO("unsupported l4 %d\n", iphdr->next_proto_id);
 		return -1;
 	}
 	return 0;
