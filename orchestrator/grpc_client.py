@@ -6,7 +6,7 @@ import grpc_orchestrator_pb2
 import grpc_orchestrator_pb2_grpc
 
 def run():
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('101.76.218.115:50051') as channel:
         stub=grpc_orchestrator_pb2_grpc.OrchestratorStub(channel)
         plr=grpc_orchestrator_pb2.ProgramListReq()
         pl=stub.GetProgramList(plr)
