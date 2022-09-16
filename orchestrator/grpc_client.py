@@ -23,7 +23,7 @@ def run():
             print(f'gRPC Create: {create_response.uid.uid}')
 
         # sleep and terminate
-        time.sleep(3)
+        time.sleep(15)
         uid=grpc_orchestrator_pb2.Uid(uid=create_response.uid.uid)
         terminate_response=stub.Destroy(uid)
         if terminate_response.is_error:

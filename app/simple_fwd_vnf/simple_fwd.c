@@ -800,8 +800,7 @@ simple_fwd_need_new_ft(struct simple_fwd_pkt_info *pinfo)
 	if ((pinfo->outer.l4_type != DOCA_PROTO_TCP) &&
 		(pinfo->outer.l4_type != DOCA_PROTO_UDP) &&
 		(pinfo->outer.l4_type != DOCA_PROTO_GRE)) {
-		DOCA_LOG_WARN("outer.l4_type %u not supported",
-			pinfo->outer.l4_type);
+		//DOCA_LOG_WARN("outer.l4_type %u not supported",pinfo->outer.l4_type);
 		return false;
 	}
 	return true;
