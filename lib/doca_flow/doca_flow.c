@@ -124,7 +124,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	if (!fwd_miss)
 		sprintf(fwd_miss_str, "%s", "	fwd_miss: NULL");
 	else
-		sprintf(fwd_miss_str, "	fwd_miss: %d", fwd_miss->type);
+		sprintf(fwd_miss_str, "	fwd_miss: %s", fwd_miss->next_pipe->cfg->name);
 	strcpy(create_pipe_str+strlen(create_pipe_str), fwd_str);
 	strcpy(create_pipe_str+strlen(create_pipe_str), fwd_miss_str);
 	DOCA_LOG_INFO("%s", create_pipe_str);
@@ -873,6 +873,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			// rte_exit(EXIT_FAILURE, "error in creating flow");
 			return NULL;
 		}else{
+			DOCA_LOG_INFO("Successfully create and offload a flow\n")
 			return (struct doca_flow_pipe_entry *)flow;
 		}
 		// output_flow(port_id, &attr, pattern, action, &error);
