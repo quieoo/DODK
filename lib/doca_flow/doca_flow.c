@@ -694,13 +694,13 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
 
-	char pattern_str[300]="	pattern:";
+	char pattern_str[300]="	pattern:\n";
 	for (int i = 0; i < p; i++)
 	{
 		char pattern_type_str[30];
-		char pattern_enroll_str[40];
+		char pattern_enroll_str[50];
 		get_pattern_str(pattern[i].type, pattern_type_str);
-		sprintf(pattern_enroll_str, "		%s\n",pattern_type_str);
+		sprintf(pattern_enroll_str, "			%s\n",pattern_type_str);
 		//sprintf(_t, " %d",pattern[i].type);
 		strcpy(pattern_str+strlen(pattern_str), pattern_enroll_str);	
 	}
