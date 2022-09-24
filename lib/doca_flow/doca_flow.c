@@ -117,11 +117,11 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	if (!fwd)
 		sprintf(str2, "%s","	fwd: NULL");
 	else{
-		char fwd_type_str[20];
-		get_fwd_type(fwd->type, fwd_type_str);
-		sprintf(str2, "fwd: %s", fwd_type_str);
+		sprintf(str2, "	fwd: %d", fwd->type);
+		//char fwd_type_str[20];
+		//get_fwd_type(fwd->type, fwd_type_str);
+		//sprintf(str2, " fwd: %s", fwd_type_str);
 	}
-		//sprintf(str2, "	fwd: %d", fwd->type);
 	if (!fwd_miss)
 		sprintf(str3, "%s", "	fwd_miss: NULL");
 	else
