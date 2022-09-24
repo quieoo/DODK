@@ -520,7 +520,7 @@ void get_pattern_str(int id, char *txt){
 	else strcpy(txt, "UNKNOWN");
 }
 
-void get_action_str(int str, char *txt){
+void get_action_str(int id, char *txt){
 	if(id==0) strcpy(txt, "END");
 	else if(id ==28) strcpy(txt, "VXLAN_ENCAP");
 	else if(id ==29) strcpy(txt, "VXLAN_DECAP");
