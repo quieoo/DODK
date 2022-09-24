@@ -395,6 +395,8 @@ simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
 
 	port_cfg = simple_fwd_get_port_cfg(port);
 
+	actions.mod_dst_ip.ipv4_addr = UINT32_MAX;
+
 	/* build match part */
 	match.out_dst_ip.ipv4_addr = UINT32_MAX;
 	match.out_dst_ip.type = DOCA_FLOW_IP4_ADDR;
@@ -402,7 +404,7 @@ simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
 	match.out_dst_port = RTE_BE16(DOCA_VXLAN_DEFAULT_PORT);
 	match.tun.type = DOCA_FLOW_TUN_NONE;
 
-	pipe_cfg.name="NONE-TUNNEL";
+	pipe_cfg.name="PLAIN_FWD";
 	pipe_cfg.type=DOCA_FLOW_PIPE_BASIC;
 	pipe_cfg.port=port;
 	pipe_cfg.is_root=true;
