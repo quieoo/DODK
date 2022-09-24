@@ -513,6 +513,13 @@ add_vxlan_encap(struct rte_flow_action *action,
 }
 
 
+void get_pattern_str(int id, char txt){
+	if(id==9) strcpy(txt, "RTE_FLOW_ITEM_TYPE_ETH");
+	else if(id ==11) strcpy(txt, "RTE_FLOW_ITEM_TYPE_IPV4");
+	else if(id ==14) strcpy(txt, "RTE_FLOW_ITEM_TYPE_UDP");
+	else strcpy(txt, "UNKNOWN");
+}
+
 struct doca_flow_pipe_entry *
 doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 struct doca_flow_pipe *pipe,
@@ -524,7 +531,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
-	DOCA_LOG_INFO("doca_flow_pipe_add_entry, pipe: %s", pipe->cfg->name);
+	DOCA_LOG_INFO("Add Entry to pipe: %s", pipe->cfg->name);
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -687,14 +694,15 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
 
-	char str[50]="	pattern:";
+	char pattern_str[200]="	pattern:";
 	for (int i = 0; i < p; i++)
 	{
-		char _t[5];
-		sprintf(_t, " %d",pattern[i].type);
-		strcpy(str+strlen(str), _t);	
+		char pattern_type_str[20];
+		get_pattern_str(pattern[i].type, pattern_type_str);
+		//sprintf(_t, " %d",pattern[i].type);
+		strcpy(pattern_str+strlen(pattern_str), pattern_type_str);	
 	}
-	DOCA_LOG_INFO("%s", str);
+	DOCA_LOG_INFO("%s", pattern_str);
 	/*convert actions -> action*/
 	// modify packets
 	p = 0;
