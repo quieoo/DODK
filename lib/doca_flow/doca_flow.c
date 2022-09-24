@@ -108,26 +108,26 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd_miss,
 					  struct doca_flow_error *error)
 {
-	char str1[50];
-	sprintf(str1, "Create pipe %s", cfg->name);
-	char str2[20];
-	char str3[20];
+	char create_pipe_str[100];
+	sprintf(create_pipe_str, "Create pipe %s", cfg->name);
+	char fwd_str[30];
+	char fwd_miss_str[20];
 	char fwd_type_str[20];
 
 
 	if (!fwd)
-		sprintf(str2, "%s","	fwd: NULL");
+		sprintf(fwd_str, "%s","	fwd: NULL");
 	else{
 		get_fwd_type(fwd->type, fwd_type_str);
-		sprintf(str2, " fwd: %s", fwd_type_str);
+		sprintf(fwd_str, " fwd: %s", fwd_type_str);
 	}
 	if (!fwd_miss)
-		sprintf(str3, "%s", "	fwd_miss: NULL");
+		sprintf(fwd_miss_str, "%s", "	fwd_miss: NULL");
 	else
-		sprintf(str3, "	fwd_miss: %d", fwd_miss->type);
-	strcpy(str1+strlen(str1), str2);
-	strcpy(str1+strlen(str1), str3);
-	DOCA_LOG_INFO("%s", str1);
+		sprintf(fwd_miss_str, "	fwd_miss: %d", fwd_miss->type);
+	strcpy(create_pipe_str+strlen(create_pipe_str), fwd_str);
+	strcpy(create_pipe_str+strlen(create_pipe_str), fwd_miss_str);
+	DOCA_LOG_INFO("%s", create_pipe_str);
 
 	struct doca_flow_pipe *pipe = calloc(1,sizeof(struct doca_flow_pipe));
 	pipe->cfg = calloc(1,sizeof(struct doca_flow_pipe_cfg));
