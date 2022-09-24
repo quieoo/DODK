@@ -514,9 +514,19 @@ add_vxlan_encap(struct rte_flow_action *action,
 
 
 void get_pattern_str(int id, char *txt){
-	if(id==9) strcpy(txt, "RTE_FLOW_ITEM_TYPE_ETH");
-	else if(id ==11) strcpy(txt, "RTE_FLOW_ITEM_TYPE_IPV4");
-	else if(id ==14) strcpy(txt, "RTE_FLOW_ITEM_TYPE_UDP");
+	if(id==9) strcpy(txt, "ETH");
+	else if(id ==11) strcpy(txt, "IPV4");
+	else if(id ==14) strcpy(txt, "UDP");
+	else strcpy(txt, "UNKNOWN");
+}
+
+void get_action_str(int str, char *txt){
+	if(id==0) strcpy(txt, "END");
+	else if(id ==28) strcpy(txt, "VXLAN_ENCAP");
+	else if(id ==29) strcpy(txt, "VXLAN_DECAP");
+	else if(id ==35) strcpy(txt, "SET_IPV4_DST");
+	else if(id ==39) strcpy(txt, "SET_TP_DST");
+	else if(id ==44) strcpy(txt, "SET_MAC_DST");
 	else strcpy(txt, "UNKNOWN");
 }
 
@@ -822,21 +832,24 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p++].type = RTE_FLOW_ACTION_TYPE_DROP;
 		break;
 	default:
-		DOCA_LOG_INFO("DOCA FWD OTHER TYPE: %d", fwd->type);
+		//DOCA_LOG_INFO("DOCA FWD OTHER TYPE: %d", fwd->type);
 		break;
 	}
 
 	action[p++].type = RTE_FLOW_ACTION_TYPE_END;
 
 	char action_str[200];
-	sprintf(action_str, "%s", "	action");
+	sprintf(action_str, "%s", "	action:\n");
 	for (int i = 0; i < p; i++)
 	{
-		char _t[5];
-		sprintf(_t, " %d",action[i].type);
-		strcpy(action_str+strlen(action_str), _t);	
+		char action_type_str[20];
+		char action_enroll_str[30];
+		get_action_str(action[i].type, action_type_str);
+		sprintf(action_enroll_str, "			%s",action_type_str);
+		strcpy(action_str+strlen(action_str), action_enroll_str);	
 	}
 	DOCA_LOG_INFO("%s", action_str);
+
 
 	// action: 44 35 39 28
 	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
