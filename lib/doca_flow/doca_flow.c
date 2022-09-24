@@ -845,7 +845,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		char action_type_str[20];
 		char action_enroll_str[30];
 		get_action_str(action[i].type, action_type_str);
-		sprintf(action_enroll_str, "			%s",action_type_str);
+		sprintf(action_enroll_str, "			%s\n",action_type_str);
 		strcpy(action_str+strlen(action_str), action_enroll_str);	
 	}
 	DOCA_LOG_INFO("%s", action_str);
