@@ -93,6 +93,15 @@ int doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, ui
 									uint32_t res_array_len, void *bindable_obj,
 									struct doca_flow_error *error) {}
 
+void get_fwd_type(int typeID, char* txt){
+	if (typeID==0) strcpy(txt, "DOCA_FLOW_FWD_NONE");
+	else if (typeID==1) strcpy(txt, "DOCA_FLOW_FWD_RSS");
+	else if (typeID==2) strcpy(txt, "DOCA_FLOW_FWD_PORT");
+	else if (typeID==3) strcpy(txt, "DOCA_FLOW_FWD_PIPE");
+	else if (typeID==4) strcpy(txt, "DOCA_FLOW_FWD_DROP");
+	else strcpy(txt, "UNKNOWN");
+}
+
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd,
@@ -103,10 +112,16 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	sprintf(str1, "Create pipe %s", cfg->name);
 	char str2[20];
 	char str3[20];
+
+
 	if (!fwd)
 		sprintf(str2, "%s","	fwd: NULL");
-	else
-		sprintf(str2, "	fwd: %d", fwd->type);
+	else{
+		char fwd_type_str[20]={0};
+		get_fwd_type(fwd->type, fwd_type_str);
+		sprintf(str2, "fwd: %s", fwd_type_str);
+	}
+		//sprintf(str2, "	fwd: %d", fwd->type);
 	if (!fwd_miss)
 		sprintf(str3, "%s", "	fwd_miss: NULL");
 	else
