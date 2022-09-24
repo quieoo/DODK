@@ -272,7 +272,7 @@ _simple_fwd_ft_find(struct simple_fwd_ft *ft,
 	struct simple_fwd_ft_entry *node;
 
 	idx = key->rss_hash & ft->cfg.mask;
-	DOCA_LOG_DBG("looking for index%d", idx);
+	//DOCA_LOG_DBG("looking for index%d", idx);
 	first = &ft->buckets[idx].head;
 	LIST_FOREACH(node, first, next) {
 		if (simple_fwd_ft_key_equal(&node->key, key)) {
