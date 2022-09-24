@@ -396,6 +396,7 @@ simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
 	port_cfg = simple_fwd_get_port_cfg(port);
 
 	actions.mod_dst_ip.ipv4_addr = UINT32_MAX;
+	actions.encap=true;
 
 	/* build match part */
 	match.out_dst_ip.ipv4_addr = UINT32_MAX;
