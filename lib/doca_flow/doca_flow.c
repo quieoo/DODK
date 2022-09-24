@@ -826,14 +826,15 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	action[p++].type = RTE_FLOW_ACTION_TYPE_END;
 
-	sprintf(str, "%s", "	action");
+	char action_str[200];
+	sprintf(action_str, "%s", "	action");
 	for (int i = 0; i < p; i++)
 	{
 		char _t[5];
 		sprintf(_t, " %d",action[i].type);
-		strcpy(str+strlen(str), _t);	
+		strcpy(str+strlen(action_str), _t);	
 	}
-	DOCA_LOG_INFO("%s", str);
+	DOCA_LOG_INFO("%s", action_str);
 
 	// action: 44 35 39 28
 	//   set_mac_dst, set_ipv4_dst, set_tp_dst, encap, queue
