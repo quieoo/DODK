@@ -513,7 +513,7 @@ add_vxlan_encap(struct rte_flow_action *action,
 }
 
 
-void get_pattern_str(int id, char txt){
+void get_pattern_str(int id, char *txt){
 	if(id==9) strcpy(txt, "RTE_FLOW_ITEM_TYPE_ETH");
 	else if(id ==11) strcpy(txt, "RTE_FLOW_ITEM_TYPE_IPV4");
 	else if(id ==14) strcpy(txt, "RTE_FLOW_ITEM_TYPE_UDP");
