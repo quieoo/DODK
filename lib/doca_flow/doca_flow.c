@@ -768,7 +768,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	if (actions->has_encap)
 	{
-
 		attr.egress = 1;
 		attr.ingress = 0;
 		add_vxlan_encap(action, p++, actions);
