@@ -100,7 +100,7 @@ main_loop(void)
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
 					count++;
-					if(count%1000=0){
+					if(count%1000==0){
 						printf("%d\n",count);
 					}
 					//get_and_print_ip4(m);
