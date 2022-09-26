@@ -30,7 +30,7 @@
 
 static volatile bool force_quit;
 
-static uint16_t port_id;
+static int port_num=4;
 static uint16_t nr_queues = 4;
 static uint8_t selected_queue = 1;
 struct rte_mempool *mbuf_pool;
@@ -78,8 +78,6 @@ void get_and_print_ip4(struct rte_mbuf *m){
 
 }
 
-
-
 /* Main_loop for flow filtering. 8< */
 static int
 main_loop(void)
@@ -95,11 +93,14 @@ main_loop(void)
 	struct rte_ether_addr *mac_addr;
 	int count=0;
 
-	rte_eth_macaddr_get(port_id, &l2fwd_ports_eth_addr[port_id]);
-	printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(&l2fwd_ports_eth_addr[port_id]));
+	for(int port_id=0;port_id<port_num;port_id++){
+		rte_eth_macaddr_get(port_id, &l2fwd_ports_eth_addr[port_id]);
+		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(&l2fwd_ports_eth_addr[port_id]));
+	}
 	/* Reading the packets from all queues. 8< */
 	while (!force_quit) {
-		for (i = 0; i < nr_queues; i++) {
+		for(int port_id=0; port_id < port_num; port_id++){
+			for (i = 0; i < nr_queues; i++) {
 			nb_rx = rte_eth_rx_burst(port_id,
 						i, mbufs, 32);
 			if (nb_rx) {
@@ -109,6 +110,7 @@ main_loop(void)
 					//get_and_print_ip4(m);
 					//get_and_print_eth(m);
 					rte_pktmbuf_free(m);
+					}
 				}
 			}
 		}
@@ -116,12 +118,15 @@ main_loop(void)
 	/* >8 End of reading the packets from all queues. */
 
 	/* closing and releasing resources */
-	rte_flow_flush(port_id, &error);
-	ret = rte_eth_dev_stop(port_id);
-	if (ret < 0)
-		printf("Failed to stop port %u: %s",
-		       port_id, rte_strerror(-ret));
-	rte_eth_dev_close(port_id);
+	for(int port_id=0; port_id++;port_id<port_num){
+		rte_flow_flush(port_id, &error);
+		ret = rte_eth_dev_stop(port_id);
+		if (ret < 0)
+			printf("Failed to stop port %u: %s",
+				port_id, rte_strerror(-ret));
+		rte_eth_dev_close(port_id);
+	}
+
 	return ret;
 }
 /* >8 End of main_loop for flow filtering. */
@@ -130,7 +135,7 @@ main_loop(void)
 #define MAX_REPEAT_TIMES 90  /* 9s (90 * 100ms) in total */
 
 static void
-assert_link_status(void)
+assert_link_status(int port_id)
 {
 	struct rte_eth_link link;
 	uint8_t rep_cnt = MAX_REPEAT_TIMES;
@@ -153,7 +158,7 @@ assert_link_status(void)
 
 /* Port initialization used in flow filtering. 8< */
 static void
-init_port(void)
+init_port(int port_id)
 {
 	int ret;
 	uint16_t i;
@@ -241,7 +246,7 @@ init_port(void)
 	}
 	/* >8 End of starting the port. */
 
-	assert_link_status();
+	assert_link_status(port_id);
 
 	printf(":: initializing port: %d done\n", port_id);
 }
@@ -277,10 +282,8 @@ main(int argc, char **argv)
 	nr_ports = rte_eth_dev_count_avail();
 	if (nr_ports == 0)
 		rte_exit(EXIT_FAILURE, ":: no Ethernet ports found\n");
-	port_id = 0;
-	if (nr_ports != 1) {
-		printf(":: warn: %d ports detected, but we use only one: port %u\n",
-			nr_ports, port_id);
+	if (nr_ports < port_num) {
+		rte_exit(EXIT_FAILURE, ":: %d ports need, but only %d port detected\n", port_num, nr_ports);
 	}
 	/* Allocates a mempool to hold the mbufs. 8< */
 	mbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", 4096, 128, 0,
@@ -291,7 +294,9 @@ main(int argc, char **argv)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
 
 	/* Initializes all the ports using the user defined init_port(). 8< */
-	init_port();
+	for(int i=0;i<port_num;i++){
+		init_port(i);
+	}
 	/* >8 End of Initializing the ports using user defined init_port(). */
 
 	/* Create flow for send packet with. 
