@@ -35,13 +35,6 @@ static uint16_t nr_queues = 4;
 static uint8_t selected_queue = 1;
 struct rte_mempool *mbuf_pool;
 struct rte_flow *flow;
-
-#define SRC_IP ((0<<24) + (0<<16) + (0<<8) + 0) /* src ip = 0.0.0.0 */
-#define DEST_IP ((192<<24) + (168<<16) + (1<<8) + 1) /* dest ip = 192.168.1.1 */
-#define FULL_MASK 0xffffffff /* full mask */
-#define EMPTY_MASK 0x0 /* empty mask */
-
-
 #define RTE_MAX_ETHPORTS 32
 
 
@@ -89,13 +82,13 @@ main_loop(void)
 	uint16_t i;
 	uint16_t j;
 	int ret;
-	static struct rte_ether_addr l2fwd_ports_eth_addr[RTE_MAX_ETHPORTS];
+	static struct rte_ether_addr ports_eth_addr[RTE_MAX_ETHPORTS];
 	struct rte_ether_addr *mac_addr;
 	int count=0;
 
 	for(int port_id=0;port_id<port_num;port_id++){
-		rte_eth_macaddr_get(port_id, &l2fwd_ports_eth_addr[port_id]);
-		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(&l2fwd_ports_eth_addr[port_id]));
+		rte_eth_macaddr_get(port_id, &ports_eth_addr[port_id]);
+		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 	}
 	/* Reading the packets from all queues. 8< */
 	while (!force_quit) {
@@ -106,7 +99,10 @@ main_loop(void)
 			if (nb_rx) {
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
-					printf("%d\n", count++);
+					count++;
+					if(count%1000=0){
+						printf("%d\n",count);
+					}
 					//get_and_print_ip4(m);
 					//get_and_print_eth(m);
 					rte_pktmbuf_free(m);
@@ -298,21 +294,6 @@ main(int argc, char **argv)
 		init_port(i);
 	}
 	/* >8 End of Initializing the ports using user defined init_port(). */
-
-	/* Create flow for send packet with. 
-	flow = generate_ipv4_flow(port_id, selected_queue,
-				SRC_IP, EMPTY_MASK,
-				DEST_IP, FULL_MASK, &error);
-	/* >8 End of create flow and the flow rule. 
-
-	
-	if (!flow) {
-		printf("Flow can't be created %d message: %s\n",
-			error.type,
-			error.message ? error.message : "(no stated reason)");
-		rte_exit(EXIT_FAILURE, "error in creating flow");
-	}
-	/* >8 End of creating flow for send packet with. */
 
 	/* Launching main_loop(). 8< */
 	ret = main_loop();
