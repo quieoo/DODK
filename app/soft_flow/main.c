@@ -276,11 +276,9 @@ main(int argc, char **argv)
 	uint16_t nr_ports;
 	struct rte_flow_error error;
 
-	/* Initialize EAL. 8< */
 	ret = rte_eal_init(argc, argv);
 	if (ret < 0)
 		rte_exit(EXIT_FAILURE, ":: invalid EAL arguments\n");
-	/* >8 End of Initialization of EAL. */
 
 	force_quit = false;
 	signal(SIGINT, signal_handler);
@@ -300,22 +298,17 @@ main(int argc, char **argv)
 				rte_pktmbuf_pool_create("mbuf_pool", 4096, 128, 0,
 					    RTE_MBUF_DEFAULT_BUF_SIZE,
 					    rte_socket_id());
-
-
 	if (mbuf_pool == NULL)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
 
-	//assuming the primary process has initialize port 0-1
+
+	// assuming the primary process has initialize port 0-1
+	// initialize port 2-3
 	for(int i=2;i<port_num;i++){
 		init_port(i);
 	}
-	/* >8 End of Initializing the ports using user defined init_port(). */
 
-	/* Launching main_loop(). 8< */
 	ret = main_loop();
-	/* >8 End of launching main_loop(). */
-
-	/* clean up the EAL */
 	rte_eal_cleanup();
 
 	return ret;
