@@ -162,7 +162,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		struct rte_flow_attr attr;
 		struct rte_flow_item pattern[MAX_PATTERN_NUM];
 		struct rte_flow_action action[MAX_ACTION_NUM];
-		struct rte_flow *flow = NULL;
+		// struct rte_flow *flow = NULL;
 
 		memset(&attr, 0, sizeof(struct rte_flow_attr));
 		memset(pattern, 0, sizeof(pattern));
@@ -192,8 +192,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		int res = flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
 		if (!res)
 		{
-			flow = flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
-			if (!flow)
+			res = flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
+			if (!res)
 			{
 				DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
 							 rte_error.type,
