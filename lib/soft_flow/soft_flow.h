@@ -8,6 +8,10 @@
 #include <rte_net.h>
 #include <rte_flow.h>
 
+struct rte_flow{
+	int type;
+};
+
 
 int
 flow_validate(uint16_t port_id,
@@ -16,7 +20,7 @@ flow_validate(uint16_t port_id,
 		  const struct rte_flow_action actions[],
 		  struct rte_flow_error *error);
 
-int
+struct rte_flow*
 flow_create(uint16_t port_id,
 		const struct rte_flow_attr *attr,
 		const struct rte_flow_item pattern[],
