@@ -38,7 +38,7 @@ static uint8_t selected_queue = 1;
 struct rte_mempool *mbuf_pool;
 struct rte_flow *flow;
 #define RTE_MAX_ETHPORTS 32
-
+static const char *MBUF_POOL="MBUF_POOL";
 
 static inline void
 print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
@@ -292,11 +292,16 @@ main(int argc, char **argv)
 	if (nr_ports < port_num) {
 		rte_exit(EXIT_FAILURE, ":: %d ports need, but only %d port detected\n", port_num, nr_ports);
 	}
-	/* Allocates a mempool to hold the mbufs. 8< */
-	mbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", 4096, 128, 0,
+	
+	enum rte_proc_type_t proc_type = rte_eal_process_type();
+	proc_type = rte_eal_process_type();
+	mbuf_pool= (proc_type==RTE_PROC_SECONDARY) ? 
+				rte_mempool_lookup(MBUF_POOL) :
+				rte_pktmbuf_pool_create("mbuf_pool", 4096, 128, 0,
 					    RTE_MBUF_DEFAULT_BUF_SIZE,
 					    rte_socket_id());
-	/* >8 End of allocating a mempool to hold the mbufs. */
+
+
 	if (mbuf_pool == NULL)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
 
