@@ -119,7 +119,7 @@ main_loop(void)
 			for(int i=0; i<nr_queues; i++){
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
-					pkt_count[port_id]++;
+					pkt_count[port_id]+=nb_rx;
 					if(pkt_count[port_id] % 1000 == 0){
 						clock_t now =clock();
 						printf("port-%d queue-%d: %f s/1000pkts \n", port_id, i,((double)(now - last_time[port_id]))/ 1000);
