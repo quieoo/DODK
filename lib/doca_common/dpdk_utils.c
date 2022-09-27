@@ -180,16 +180,19 @@ dpdk_ports_init(struct application_dpdk_config *app_config)
 	const uint8_t nb_ports = app_config->port_config.nb_ports;
 	const uint32_t total_nb_mbufs = app_config->port_config.nb_queues * nb_ports * NUM_MBUFS;
 	struct rte_mempool *mbuf_pool;
-	printf("before allocate mempool: %d\n", total_nb_mbufs);
+	struct rte_ether_addr ports_eth_addr[RTE_MAX_ETHPORTS];
 	/* Initialize mbufs mempool */
 	mbuf_pool = allocate_mempool(total_nb_mbufs);
-	printf("finish mempool allocalte");
 	ret = rte_flow_dynf_metadata_register();
 	if (ret < 0)
 		APP_EXIT("Metadata register failed");
 	for (port_id = 0; port_id < nb_ports; port_id++)
+	{	
+		rte_eth_macaddr_get(port_id, &ports_eth_addr[port_id]);
+		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 		if (port_init(mbuf_pool, port_id, app_config) != 0)
 			APP_EXIT("Cannot init port %" PRIu8, port_id);
+	}
 	return ret;
 }
 
@@ -239,7 +242,7 @@ void dpdk_init(struct application_dpdk_config *app_dpdk_config)
 
 	/* Check that DPDK enabled the required ports to send/receive on */
 	ret = rte_eth_dev_count_avail();
-	if (app_dpdk_config->port_config.nb_ports > 0 && ret != app_dpdk_config->port_config.nb_ports)
+	if (app_dpdk_config->port_config.nb_ports > 0 && ret < app_dpdk_config->port_config.nb_ports)
 	{
 		APP_EXIT("Application will only function with %u ports, num_of_ports=%d", app_dpdk_config->port_config.nb_ports, ret);
 	}
