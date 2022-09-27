@@ -557,28 +557,43 @@ simple_fwd_init_ports_and_pipes(struct simple_fwd_port_cfg *port_cfg)
 			return -1;
 		}
 		if (simple_fwd_build_control_pipe_entry(pipe))
+		{
+			DOCA_LOG_ERR("failed to add control pipe entry");
 			return -1;
+		}
 		simple_fwd_ins->pipe_control[index] = pipe;
 
 		pipe = simple_fwd_build_gtp_pipe(port);
 		if (pipe == NULL)
+		{
+			DOCA_LOG_ERR("failed to build gtp pipe");
 			return -1;
+		}
 		simple_fwd_ins->pipe_gtp[index] = pipe;
 
 		pipe = simple_fwd_build_gre_pipe(port);
 		if (pipe == NULL)
+		{
+			DOCA_LOG_ERR("failed to build gre pipe");
 			return -1;
+		}
 		simple_fwd_ins->pipe_gre[index] = pipe;
 
 		pipe = simple_fwd_build_vxlan_pipe(port);
 		if (pipe == NULL)
+		{
+			DOCA_LOG_ERR("failed to bulld vxlan pipe");
 			return -1;
+		}
 		simple_fwd_ins->pipe_vxlan[index] = pipe;
 
 		//build a pipe for no tunnel packet
 		pipe= simple_fwd_build_no_tunnel_pipe(port);
 		if(pipe==NULL)
+		{
+			DOCA_LOG_ERR("failed to build no tunnel pipe");
 			return -1;
+		}
 		simple_fwd_ins->pipe_notun[index]=pipe;
 	}
 
