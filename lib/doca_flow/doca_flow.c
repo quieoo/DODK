@@ -10,6 +10,7 @@
 #include <rte_net.h>
 #include <rte_flow.h>
 
+#include <soft_flow.h>
 #define MAX_PATTERN_NUM 10
 #define MAX_ACTION_NUM 10
 DOCA_LOG_REGISTER(DOCA_FLOW);
@@ -188,10 +189,10 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 		struct rte_flow_error rte_error;
 
-		int res = rte_flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
+		int res = flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
 		if (!res)
 		{
-			flow = rte_flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
+			flow = flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
 			if (!flow)
 			{
 				DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
@@ -858,10 +859,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
-	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
+	int res = flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
-		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
+		flow = flow_create(port_id, &attr, pattern, action, &rte_error);
 		if (!flow)
 		{
 			DOCA_LOG_ERR("Flow can't be created %d message: %s",
