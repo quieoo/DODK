@@ -305,8 +305,8 @@ main(int argc, char **argv)
 	if (mbuf_pool == NULL)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
 
-	/* Initializes all the ports using the user defined init_port(). 8< */
-	for(int i=0;i<port_num;i++){
+	//assuming the primary process has initialize port 0-1
+	for(int i=2;i<port_num;i++){
 		init_port(i);
 	}
 	/* >8 End of Initializing the ports using user defined init_port(). */
