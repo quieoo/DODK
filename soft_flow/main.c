@@ -113,14 +113,18 @@ main_loop(void)
 						if(hit_flow(m)){
 							process_flow(m);
 						}else{
-							rte_eth_tx_burst(port_id-2, i, m, nb_rx);
+							count++;
+							if(count%1000==0){
+								printf("%d\n",count);
+							}
+							// rte_eth_tx_burst(port_id-2, i, m, nb_rx);
 						}
 						rte_pktmbuf_free(m);
 					}
 				}
 			}
 		}
-		/*
+		
 		for(int port_id=0; port_id < port_num; port_id++){
 			for (i = 0; i < nr_queues; i++) {
 			nb_rx = rte_eth_rx_burst(port_id,
@@ -138,7 +142,7 @@ main_loop(void)
 					}
 				}
 			}
-		}*/
+		}
 	}
 	/* >8 End of reading the packets from all queues. */
 
