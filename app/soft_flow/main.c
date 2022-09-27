@@ -103,9 +103,9 @@ main_loop(void)
 		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 	}
 
-	int pkt_count[port_num]={0};
-	clock_t last_time[port_num];
-	for(int i=0;i<port_num;i++){
+	int pkt_count[4]={0};
+	clock_t last_time[4];
+	for(int i=0;i<4;i++){
 		last_time[i]=clock();
 	} 
 
@@ -120,9 +120,9 @@ main_loop(void)
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
 					pkt_count[port_id]++;
-					if(pkt_count[port_id] % 1000 = 0){
+					if(pkt_count[port_id] % 1000 == 0){
 						clock_t now =clock();
-						printf("port-%d: %f s/1000pkts \n", port_id, ((double)(now - last_time[port_id]))/ CLK_TCK);
+						printf("port-%d: %f s/1000pkts \n", port_id, ((double)(now - last_time[port_id]))/ 1000);
 						last_time[port_id]=now;
 					}
 
