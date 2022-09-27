@@ -167,7 +167,7 @@ assert_link_status(int port_id)
 static void
 init_port(int port_id)
 {
-	printf("inti port %d\n", port_id)
+	printf("inti port %d\n", port_id);
 	int ret;
 	uint16_t i;
 	/* Ethernet port configured with default settings. 8< */
