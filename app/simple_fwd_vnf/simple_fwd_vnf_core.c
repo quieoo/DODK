@@ -109,6 +109,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 	}
 	DOCA_LOG_INFO("core %u process queue %u start", core_id, params->queues[0]);
 	last_tsc = rte_rdtsc();
+
 	while (!force_quit) {
 		if (core_id == rte_get_main_lcore()) {
 			cur_tsc = rte_rdtsc();                  
@@ -120,10 +121,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
-
-			
 			for (j = 0; j < nb_rx; j++) {
-				printf("port %d receive packet\n", port_id);
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
 			

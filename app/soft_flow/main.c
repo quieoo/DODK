@@ -16,6 +16,8 @@
 #include <getopt.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <time.h>
+
 
 #include <rte_eal.h>
 #include <rte_common.h>
@@ -100,6 +102,13 @@ main_loop(void)
 		rte_eth_macaddr_get(port_id, &ports_eth_addr[port_id]);
 		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 	}
+
+	int pkt_count[port_num]={0};
+	clock_t last_time[port_num];
+	for(int i=0;i<port_num;i++){
+		last_time[i]=clock();
+	} 
+
 	while (!force_quit) {
 		// pair port
 		// receive from p2, if flow hit, sent from p3
@@ -110,12 +119,19 @@ main_loop(void)
 			for(int i=0; i<nr_queues; i++){
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
+					pkt_count[port_id]++;
+					if(pkt_count[port_id] % 1000 = 0){
+						clock_t now =clock();
+						printf("port-%d: %f s/1000pkts \n", port_id, ((double)(now - last_time[port_id]))/ CLK_TCK);
+						last_time[port_id]=now;
+					}
+
 					for(int j=0;j<nb_rx;j++){
 						struct rte_mbuf *m = mbufs[j];
 						if(hit_flow(m)){
 							process_flow(m);
 						}else{
-							printf("redirect packet to %d\n", port_id-2);
+							// printf("redirect packet to %d\n", port_id-2);
 							rte_eth_tx_burst(port_id-2, i, &m, 1);
 						}
 					}
