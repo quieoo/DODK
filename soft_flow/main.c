@@ -119,25 +119,6 @@ main_loop(void)
 				}
 			}
 		}
-		
-		for(int port_id=0; port_id < port_num; port_id++){
-			for (i = 0; i < nr_queues; i++) {
-			nb_rx = rte_eth_rx_burst(port_id,
-						i, mbufs, 32);
-			if (nb_rx) {
-				for (j = 0; j < nb_rx; j++) {
-					struct rte_mbuf *m = mbufs[j];
-					count++;
-					if(count%1000==0){
-						printf("%d\n",count);
-					}
-					//get_and_print_ip4(m);
-					//get_and_print_eth(m);
-					rte_pktmbuf_free(m);
-					}
-				}
-			}
-		}
 	}
 	/* >8 End of reading the packets from all queues. */
 
