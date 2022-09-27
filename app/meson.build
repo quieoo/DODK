@@ -1,10 +1,9 @@
 tests=[
-    'simple_fwd_vnf'
+    'simple_fwd_vnf',
+    'soft_flow'
 ]
 foreach t:tests
     ext_deps = []
-    
-
     includes = [include_directories(t)]
     deps=[]
     link_whole_libs=[]

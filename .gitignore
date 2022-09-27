@@ -2,3 +2,4 @@
 /.vscode/
 orchestrator/__pycache__/
 .vscode/settings.json
+/builddir/

@@ -28,6 +28,8 @@
 #include <rte_flow.h>
 #include <rte_cycles.h>
 
+#include <soft_flow.h>
+
 static volatile bool force_quit;
 
 static int port_num=4;

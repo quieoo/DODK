@@ -40,7 +40,9 @@
         "tuple": "c",
         "typeinfo": "c",
         "cstdlib": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "stdint.h": "c",
+        "soft_flow.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
