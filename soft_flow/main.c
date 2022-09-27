@@ -76,7 +76,7 @@ bool hit_flow(struct rte_mbuf *m){
 }
 
 void process_flow(struct rte_mbuf *m){
-	
+
 }
 
 /* Main_loop for flow filtering. 8< */
@@ -108,15 +108,19 @@ main_loop(void)
 			for(int i=0; i<nr_queues; i++){
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
-					struct rte_mbuf *m = mbufs[j];
-					if(hit_flow(m)){
-						process_flow(m);
-					}else{
-						rte_eth_tx_burst(port_id-2, i, m, nb_rx);
+					for(int j=0;j<nb_rx;j++){
+						struct rte_mbuf *m = mbufs[j];
+						if(hit_flow(m)){
+							process_flow(m);
+						}else{
+							rte_eth_tx_burst(port_id-2, i, m, nb_rx);
+						}
+						rte_pktmbuf_free(m);
 					}
 				}
 			}
 		}
+		/*
 		for(int port_id=0; port_id < port_num; port_id++){
 			for (i = 0; i < nr_queues; i++) {
 			nb_rx = rte_eth_rx_burst(port_id,
@@ -134,7 +138,7 @@ main_loop(void)
 					}
 				}
 			}
-		}
+		}*/
 	}
 	/* >8 End of reading the packets from all queues. */
 
