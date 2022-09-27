@@ -31,7 +31,7 @@
 static volatile bool force_quit;
 
 static int port_num=4;
-static uint16_t nr_queues = 4;
+static uint16_t nr_queues = 1;
 static uint8_t selected_queue = 1;
 struct rte_mempool *mbuf_pool;
 struct rte_flow *flow;
@@ -71,6 +71,14 @@ void get_and_print_ip4(struct rte_mbuf *m){
 
 }
 
+bool hit_flow(struct rte_mbuf *m){
+	return false;
+}
+
+void process_flow(struct rte_mbuf *m){
+	
+}
+
 /* Main_loop for flow filtering. 8< */
 static int
 main_loop(void)
@@ -90,8 +98,25 @@ main_loop(void)
 		rte_eth_macaddr_get(port_id, &ports_eth_addr[port_id]);
 		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 	}
-	/* Reading the packets from all queues. 8< */
 	while (!force_quit) {
+		// pair port
+		// receive from p2, if flow hit, sent from p3
+		//				  , else sent to p0
+		// receive from p3, if flow hit, sent from p32
+		//				  , else sent to p1
+		for(int port_id=2;port_id<4;port_id++){
+			for(int i=0; i<nr_queues; i++){
+				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
+				if(nb_rx){
+					struct rte_mbuf *m = mbufs[j];
+					if(hit_flow(m)){
+						process_flow(m);
+					}else{
+						rte_eth_tx_burst(port_id-2, i, m, nb_rx);
+					}
+				}
+			}
+		}
 		for(int port_id=0; port_id < port_num; port_id++){
 			for (i = 0; i < nr_queues; i++) {
 			nb_rx = rte_eth_rx_burst(port_id,
