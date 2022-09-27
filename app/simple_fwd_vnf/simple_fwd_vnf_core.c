@@ -123,6 +123,7 @@ simple_fwd_process_pkts(void *process_pkts_params)
 
 			
 			for (j = 0; j < nb_rx; j++) {
+				printf("port %d receive packet\n", port_id);
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
 			
