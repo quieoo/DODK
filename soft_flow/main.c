@@ -113,13 +113,8 @@ main_loop(void)
 						if(hit_flow(m)){
 							process_flow(m);
 						}else{
-							count++;
-							if(count%1000==0){
-								printf("%d\n",count);
-							}
-							// rte_eth_tx_burst(port_id-2, i, m, nb_rx);
+							rte_eth_tx_burst(port_id-2, i, &m, 1);
 						}
-						rte_pktmbuf_free(m);
 					}
 				}
 			}
