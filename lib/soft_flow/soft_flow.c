@@ -7,7 +7,7 @@ flow_validate(uint16_t port_id,
 		  const struct rte_flow_action actions[],
 		  struct rte_flow_error *error)
 {
-	return 1;
+	return 0;
 }
 
 int
@@ -17,5 +17,5 @@ flow_create(uint16_t port_id,
 		const struct rte_flow_action actions[],
 		struct rte_flow_error *error)
 {
-    return 1;
+    return 0;
 }

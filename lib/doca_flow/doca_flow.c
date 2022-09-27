@@ -862,8 +862,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	int res = flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
-		flow = flow_create(port_id, &attr, pattern, action, &rte_error);
-		if (!flow)
+		res = flow_create(port_id, &attr, pattern, action, &rte_error);
+		if (!res)
 		{
 			DOCA_LOG_ERR("Flow can't be created %d message: %s",
 				   rte_error.type,
