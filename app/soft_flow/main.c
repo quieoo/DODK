@@ -167,6 +167,7 @@ assert_link_status(int port_id)
 static void
 init_port(int port_id)
 {
+	printf("inti port %d\n", port_id)
 	int ret;
 	uint16_t i;
 	/* Ethernet port configured with default settings. 8< */
@@ -302,7 +303,7 @@ main(int argc, char **argv)
 		rte_exit(EXIT_FAILURE, "Cannot init mbuf pool\n");
 
 
-	// assuming the primary process has initialize port 0-1
+	// assuming the primary process has initialized port 0-1
 	// initialize port 2-3
 	for(int i=2;i<port_num;i++){
 		init_port(i);
