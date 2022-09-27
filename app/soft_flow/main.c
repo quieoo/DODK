@@ -115,6 +115,7 @@ main_loop(void)
 						if(hit_flow(m)){
 							process_flow(m);
 						}else{
+							printf("redirect packet to %d\n", port_id-2);
 							rte_eth_tx_burst(port_id-2, i, &m, 1);
 						}
 					}
