@@ -193,7 +193,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		if (!res)
 		{
 			res = flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
-			if (!res)
+			if (res)
 			{
 				DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
 							 rte_error.type,
@@ -863,7 +863,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	if (!res)
 	{
 		res = flow_create(port_id, &attr, pattern, action, &rte_error);
-		if (!res)
+		if (res)
 		{
 			DOCA_LOG_ERR("Flow can't be created %d message: %s",
 				   rte_error.type,
