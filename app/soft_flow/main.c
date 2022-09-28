@@ -125,6 +125,9 @@ main_loop(void)
 						printf("port-%d queue-%d: %f s/100pkts \n", port_id, i,((double)(now - last_time[port_id]))/CLOCKS_PER_SEC);
 						last_time[port_id]=now;
 					}
+					for(int j=0; j<nb_rx; j++){
+						rte_pktmbuf_free(mbufs[j])
+					}
 					/*
 					for(int j=0;j<nb_rx;j++){
 						struct rte_mbuf *m = mbufs[j];
