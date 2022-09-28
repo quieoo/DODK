@@ -126,7 +126,7 @@ main_loop(void)
 						last_time[port_id]=now;
 					}
 					for(int j=0; j<nb_rx; j++){
-						rte_pktmbuf_free(mbufs[j])
+						rte_pktmbuf_free(mbufs[j]);
 					}
 					/*
 					for(int j=0;j<nb_rx;j++){
