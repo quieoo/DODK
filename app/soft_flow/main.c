@@ -122,7 +122,7 @@ main_loop(void)
 					pkt_count[port_id]+=nb_rx;
 					if(pkt_count[port_id] % 100 == 0){
 						clock_t now =clock();
-						printf("port-%d queue-%d: %f s/100pkts \n", port_id, i,((double)(now - last_time[port_id]))/ 1000);
+						printf("port-%d queue-%d: %f s/100pkts \n", port_id, i,((double)(now - last_time[port_id]))/CLOCKS_PER_SEC);
 						last_time[port_id]=now;
 					}
 					/*
