@@ -108,7 +108,7 @@ main_loop(void)
 	for(int i=0;i<4;i++){
 		last_time[i]=clock();
 	} 
-	int interval=1000;
+	int interval=100;
 
 	while (!force_quit) {
 		// pair port
@@ -257,13 +257,12 @@ init_port(int port_id)
 	}
 	/* >8 End of Configuring RX and TX queues connected to single port. */
 
-	/* Setting the RX port to promiscuous mode. 8< */
-	ret = rte_eth_promiscuous_enable(port_id);
+	/*ret = rte_eth_promiscuous_enable(port_id);
 	if (ret != 0)
 		rte_exit(EXIT_FAILURE,
 			":: promiscuous mode enable failed: err=%s, port=%u\n",
 			rte_strerror(-ret), port_id);
-	/* >8 End of setting the RX port to promiscuous mode. */
+	*/
 
 	/* Starting the port. 8< */
 	ret = rte_eth_dev_start(port_id);
