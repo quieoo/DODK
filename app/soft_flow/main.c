@@ -108,6 +108,7 @@ main_loop(void)
 	for(int i=0;i<4;i++){
 		last_time[i]=clock();
 	} 
+	int interval=1000;
 
 	while (!force_quit) {
 		// pair port
@@ -120,9 +121,9 @@ main_loop(void)
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
 					pkt_count[port_id]+=nb_rx;
-					if(pkt_count[port_id] % 100 == 0){
+					if(pkt_count[port_id] % interval == 0){
 						clock_t now =clock();
-						printf("port-%d queue-%d: %f s/100pkts \n", port_id, i,((double)(now - last_time[port_id]))/CLOCKS_PER_SEC);
+						printf("port-%d queue-%d: %f s/%dpkts \n", port_id, i,((double)(now - last_time[port_id]))/CLOCKS_PER_SEC, interval);
 						last_time[port_id]=now;
 					}
 					for(int j=0; j<nb_rx; j++){
