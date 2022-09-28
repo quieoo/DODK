@@ -257,12 +257,12 @@ init_port(int port_id)
 	}
 	/* >8 End of Configuring RX and TX queues connected to single port. */
 
-	/*ret = rte_eth_promiscuous_enable(port_id);
+	ret = rte_eth_promiscuous_disable(port_id);
 	if (ret != 0)
 		rte_exit(EXIT_FAILURE,
 			":: promiscuous mode enable failed: err=%s, port=%u\n",
 			rte_strerror(-ret), port_id);
-	*/
+	
 
 	/* Starting the port. 8< */
 	ret = rte_eth_dev_start(port_id);
