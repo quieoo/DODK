@@ -115,7 +115,7 @@ main_loop(void)
 		//				  , else sent to p0
 		// receive from p3, if flow hit, sent from p32
 		//				  , else sent to p1
-		for(int port_id=2;port_id<4;port_id++){
+		for(int port_id=0;port_id<4;port_id++){
 			for(int i=0; i<nr_queues; i++){
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
