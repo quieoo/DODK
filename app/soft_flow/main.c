@@ -120,9 +120,9 @@ main_loop(void)
 				nb_rx=rte_eth_rx_burst(port_id, i, mbufs, 32);
 				if(nb_rx){
 					pkt_count[port_id]+=nb_rx;
-					if(pkt_count[port_id] % 1000 == 0){
+					if(pkt_count[port_id] % 100 == 0){
 						clock_t now =clock();
-						printf("port-%d queue-%d: %f s/1000pkts \n", port_id, i,((double)(now - last_time[port_id]))/ 1000);
+						printf("port-%d queue-%d: %f s/100pkts \n", port_id, i,((double)(now - last_time[port_id]))/ 1000);
 						last_time[port_id]=now;
 					}
 					/*
