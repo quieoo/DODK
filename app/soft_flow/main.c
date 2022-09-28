@@ -321,9 +321,14 @@ main(int argc, char **argv)
 
 	// assuming the primary process has initialized port 0-1
 	// initialize port 2-3
-	for(int i=2;i<port_num;i++){
-		init_port(i);
+	if(proc_type==RTE_PROC_SECONDARY){
+		for(int i=2;i<port_num;i++)
+			init_port(i);
+	}else{
+		for(int i=0;i<port_num;i++)
+			init_port(i);
 	}
+
 
 	ret = main_loop();
 	rte_eal_cleanup();
