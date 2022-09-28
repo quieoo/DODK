@@ -125,7 +125,7 @@ main_loop(void)
 						printf("port-%d queue-%d: %f s/1000pkts \n", port_id, i,((double)(now - last_time[port_id]))/ 1000);
 						last_time[port_id]=now;
 					}
-
+					/*
 					for(int j=0;j<nb_rx;j++){
 						struct rte_mbuf *m = mbufs[j];
 						if(hit_flow(m)){
@@ -134,7 +134,7 @@ main_loop(void)
 							// printf("redirect packet to %d\n", port_id-2);
 							rte_eth_tx_burst(port_id-2, i, &m, 1);
 						}
-					}
+					}*/
 				}
 			}
 		}
