@@ -1,3 +1,9 @@
+# Clone all with submodule
+```
+git clone --recurse-submodules https://github.com/quieoo/DODK.git
+
+```
+
 # Prerequisite
 ## Install DPDK
 
@@ -11,7 +17,6 @@ sudo apt install meson
 Build dpdk
 
 ```
-git clone https://github.com/DPDK/dpdk.git
 cd dpdk
 meson build
 cd build

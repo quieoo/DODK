@@ -43,7 +43,16 @@
         "unistd.h": "c",
         "stdint.h": "c",
         "soft_flow.h": "c",
-        "queue": "c"
+        "queue": "c",
+        "rte_flow.h": "c",
+        "rte_ether.h": "c",
+        "rte_ethdev_trace_fp.h": "c",
+        "rte_ethdev_core.h": "c",
+        "rte_telemetry.h": "c",
+        "rte_ethdev_trace.h": "c",
+        "rte_dev_info.h": "c",
+        "rte_trace_point.h": "c",
+        "ethdev_profile.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
