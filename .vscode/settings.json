@@ -42,7 +42,8 @@
         "cstdlib": "c",
         "unistd.h": "c",
         "stdint.h": "c",
-        "soft_flow.h": "c"
+        "soft_flow.h": "c",
+        "queue": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

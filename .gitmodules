@@ -1,3 +1,0 @@
-[submodule "lib/dpdk"]
-	path = lib/dpdk
-	url = https://github.com/quieoo/dpdk.git
