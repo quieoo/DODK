@@ -9,8 +9,8 @@
 #include <rte_mbuf.h>
 #include <rte_net.h>
 #include <rte_flow.h>
-
 #include <soft_flow.h>
+
 #define MAX_PATTERN_NUM 10
 #define MAX_ACTION_NUM 10
 DOCA_LOG_REGISTER(DOCA_FLOW);
@@ -103,6 +103,26 @@ void get_fwd_type(int typeID, char* txt){
 	else strcpy(txt, "UNKNOWN");
 }
 
+
+
+
+void set_all_match(struct doca_flow_match *match){
+	match->out_dst_ip.ipv4_addr=0xffffffff;
+	match->out_src_ip.ipv4_addr=0xffffffff;
+	match->in_dst_ip.ipv4_addr=0xffffffff;
+	match->in_src_ip.ipv4_addr=0xffffffff;
+	
+	match->out_dst_port=0xffff;
+	match->out_src_port=0xffff;
+	match->in_dst_port=0xffff;
+	match->in_src_port=0xffff;
+	
+	memset(match->out_dst_mac,0xff,6);
+	memset(match->out_src_mac,0xff,6);
+	memset(match->in_dst_mac,0xff,6);
+	memset(match->in_src_mac,0xff,6);
+}
+
 struct doca_flow_pipe *
 doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  const struct doca_flow_fwd *fwd,
@@ -159,6 +179,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 	if (fwd_miss)
 	{
+
 		struct rte_flow_attr attr;
 		struct rte_flow_item pattern[MAX_PATTERN_NUM];
 		struct rte_flow_action action[MAX_ACTION_NUM];
@@ -171,8 +192,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		attr.group = pipe->group_id;
 		attr.ingress = 1;
 
-		pattern[0].type = RTE_FLOW_ITEM_TYPE_ETH;
-		pattern[1].type = RTE_FLOW_ITEM_TYPE_END;
+		// pattern[0].type = RTE_FLOW_ITEM_TYPE_ETH;
+		pattern[0].type = RTE_FLOW_ITEM_TYPE_END;
 
 		if (fwd_miss->type == DOCA_FLOW_FWD_DROP)
 		{
@@ -189,10 +210,10 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 		struct rte_flow_error rte_error;
 		struct rte_flow *flow;
-		int res = flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
+		int res = rte_flow_validate(cfg->port->port_id, &attr, pattern, action, &rte_error);
 		if (!res)
 		{
-			flow = flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
+			flow = rte_flow_create(cfg->port->port_id, &attr, pattern, action, &rte_error);
 			if (!flow)
 			{
 				DOCA_LOG_ERR("Flow can't be created %d message: %s\n",
@@ -210,6 +231,8 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		}
 	}
 	pipes[p_pipe++] = pipe;
+	DOCA_LOG_INFO("Successfully create and offload a flow\n");
+
 	return pipe;
 }
 
@@ -362,50 +385,48 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 }
 
 /*
-	merge_match:
-		for all fields in doca_flow_match:
-			if first defines, use first's definition, else use second's definition
+	append pipe_match to entry_match
 */
-void merge_match(struct doca_flow_match *first, struct doca_flow_match *second)
+void merge_match(struct doca_flow_match *entry_match, struct doca_flow_match *pipe_match)
 {
 	// struct doca_flow_match *result = malloc(sizeof(struct doca_flow_match));
-	if (!second)
+	if (!pipe_match)
 	{
 		return;
 	}
-	if (first->flags == 0)
-		first->flags = second->flags;
-	if(first->meta.pkt_meta ==0)
-		first->meta.pkt_meta=second->meta.pkt_meta;
-	if (memcmp(first->out_src_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(first->out_src_mac, second->out_src_mac, DOCA_ETHER_ADDR_LEN);
-	if (memcmp(first->out_dst_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(first->out_dst_mac, second->out_dst_mac, DOCA_ETHER_ADDR_LEN);
+	if (entry_match->flags == 0)
+		entry_match->flags = pipe_match->flags;
+	if(entry_match->meta.pkt_meta ==0)
+		entry_match->meta.pkt_meta=pipe_match->meta.pkt_meta;
+	if (memcmp(entry_match->out_src_mac, mac0, sizeof(mac0)) == 0)
+		memcpy(entry_match->out_src_mac, pipe_match->out_src_mac, DOCA_ETHER_ADDR_LEN);
+	if (memcmp(entry_match->out_dst_mac, mac0, sizeof(mac0)) == 0)
+		memcpy(entry_match->out_dst_mac, pipe_match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 	//	doca_be16_t out_eth_type;
 	// 	doca_be16_t out_vlan_id;
-	if(first->out_eth_type==0)	first->out_eth_type=second->out_eth_type;
-	if(first->out_vlan_id==0)	first->out_vlan_id=second->out_vlan_id;
-	if(first->out_src_ip.ipv4_addr==ip0)	first->out_src_ip.ipv4_addr=second->out_src_ip.ipv4_addr;
-	if(first->out_dst_ip.ipv4_addr==ip0)	first->out_dst_ip.ipv4_addr=second->out_dst_ip.ipv4_addr;
-	if(first->out_l4_type==0)	first->out_l4_type=second->out_l4_type;
-	if(first->out_tcp_flags==0)	first->out_tcp_flags=second->out_tcp_flags;
-	if(first->out_src_port==0)	first->out_src_port=second->out_src_port;
-	if(first->out_dst_port==0)	first->out_dst_port=second->out_dst_port;
-	if(first->tun.type==0)	first->tun.type=second->tun.type;
+	if(entry_match->out_eth_type==0)	entry_match->out_eth_type=pipe_match->out_eth_type;
+	if(entry_match->out_vlan_id==0)	entry_match->out_vlan_id=pipe_match->out_vlan_id;
+	if(entry_match->out_src_ip.ipv4_addr==ip0)	entry_match->out_src_ip.ipv4_addr=pipe_match->out_src_ip.ipv4_addr;
+	if(entry_match->out_dst_ip.ipv4_addr==ip0)	entry_match->out_dst_ip.ipv4_addr=pipe_match->out_dst_ip.ipv4_addr;
+	if(entry_match->out_l4_type==0)	entry_match->out_l4_type=pipe_match->out_l4_type;
+	if(entry_match->out_tcp_flags==0)	entry_match->out_tcp_flags=pipe_match->out_tcp_flags;
+	if(entry_match->out_src_port==0)	entry_match->out_src_port=pipe_match->out_src_port;
+	if(entry_match->out_dst_port==0)	entry_match->out_dst_port=pipe_match->out_dst_port;
+	if(entry_match->tun.type==0)	entry_match->tun.type=pipe_match->tun.type;
 
-	if (memcmp(first->in_src_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(first->in_src_mac, second->in_src_mac, DOCA_ETHER_ADDR_LEN);
-	if (memcmp(first->in_dst_mac, mac0, sizeof(mac0)) == 0)
-		memcpy(first->in_dst_mac, second->in_dst_mac, DOCA_ETHER_ADDR_LEN);
+	if (memcmp(entry_match->in_src_mac, mac0, sizeof(mac0)) == 0)
+		memcpy(entry_match->in_src_mac, pipe_match->in_src_mac, DOCA_ETHER_ADDR_LEN);
+	if (memcmp(entry_match->in_dst_mac, mac0, sizeof(mac0)) == 0)
+		memcpy(entry_match->in_dst_mac, pipe_match->in_dst_mac, DOCA_ETHER_ADDR_LEN);
 
-	if(first->in_eth_type==0)	first->in_eth_type=second->in_eth_type;
-	if(first->in_vlan_id==0)	first->in_vlan_id=second->in_vlan_id;
-	if(first->in_src_ip.ipv4_addr==0)	first->in_src_ip.ipv4_addr=second->in_src_ip.ipv4_addr;
-	if(first->in_dst_ip.ipv4_addr==0)	first->in_dst_ip.ipv4_addr=second->in_dst_ip.ipv4_addr;
-	if(first->in_l4_type==0)	first->in_l4_type=second->in_l4_type;
-	if(first->in_tcp_flags==0)	first->in_tcp_flags=second->in_tcp_flags;
-	if(first->in_src_port==0)	first->in_src_port=second->in_src_port;
-	if(first->in_dst_port==0)	first->in_dst_port=second->in_dst_port;
+	if(entry_match->in_eth_type==0)	entry_match->in_eth_type=pipe_match->in_eth_type;
+	if(entry_match->in_vlan_id==0)	entry_match->in_vlan_id=pipe_match->in_vlan_id;
+	if(entry_match->in_src_ip.ipv4_addr==0)	entry_match->in_src_ip.ipv4_addr=pipe_match->in_src_ip.ipv4_addr;
+	if(entry_match->in_dst_ip.ipv4_addr==0)	entry_match->in_dst_ip.ipv4_addr=pipe_match->in_dst_ip.ipv4_addr;
+	if(entry_match->in_l4_type==0)	entry_match->in_l4_type=pipe_match->in_l4_type;
+	if(entry_match->in_tcp_flags==0)	entry_match->in_tcp_flags=pipe_match->in_tcp_flags;
+	if(entry_match->in_src_port==0)	entry_match->in_src_port=pipe_match->in_src_port;
+	if(entry_match->in_dst_port==0)	entry_match->in_dst_port=pipe_match->in_dst_port;
 }
 
 void merge_action(struct doca_flow_actions *first, struct doca_flow_actions *second)
@@ -518,6 +539,11 @@ void get_pattern_str(int id, char *txt){
 	if(id==9) strcpy(txt, "ETH");
 	else if(id ==11) strcpy(txt, "IPV4");
 	else if(id ==14) strcpy(txt, "UDP");
+	else if(id== RTE_FLOW_ITEM_TYPE_TCP) strcpy(txt, "TCP");
+	else if(id ==RTE_FLOW_ITEM_TYPE_END ) strcpy(txt, "END");
+	else if(id==RTE_FLOW_ITEM_TYPE_VXLAN) strcpy(txt, "VXLAN");
+	else if(id == RTE_FLOW_ITEM_TYPE_GRE) strcpy(txt, "GRE");
+	else if(id==RTE_FLOW_ITEM_TYPE_GTPU) strcpy(txt, "GTPU");
 	else strcpy(txt, "UNKNOWN");
 }
 
@@ -528,6 +554,10 @@ void get_action_str(int id, char *txt){
 	else if(id ==35) strcpy(txt, "SET_IPV4_DST");
 	else if(id ==39) strcpy(txt, "SET_TP_DST");
 	else if(id ==44) strcpy(txt, "SET_MAC_DST");
+	else if(id == RTE_FLOW_ACTION_TYPE_RSS) strcpy(txt, "RSS");
+	else if(id == RTE_FLOW_ACTION_TYPE_PORT_ID) strcpy(txt, "PORT");
+	else if(id == RTE_FLOW_ACTION_TYPE_JUMP) strcpy(txt, "JUMP");
+	else if(id == RTE_FLOW_ACTION_TYPE_DROP) strcpy(txt, "DROP");
 	else strcpy(txt, "UNKNOWN");
 }
 
@@ -555,7 +585,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	attr.ingress = 1;
 	// merge match, actions, fwd
-
 	merge_match(match, pipe->cfg->match);
 	merge_action(actions, pipe->cfg->actions);
 	merge_fwd(fwd, pipe->fwd);
@@ -564,28 +593,30 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		match -> pattern
 	*/
 	int p = 0;
-	pattern[p].type = RTE_FLOW_ITEM_TYPE_ETH;
-
 	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->out_src_mac, mac0, sizeof(mac0))) != 0)
 	{
+		pattern[p].type=RTE_FLOW_ITEM_TYPE_ETH;	
 		struct rte_flow_item_eth out_mac_spec;
 		memset(&out_mac_spec, 0, sizeof(struct rte_flow_item_eth));
 		memcpy(out_mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 		memcpy(out_mac_spec.hdr.src_addr.addr_bytes, match->out_src_mac, DOCA_ETHER_ADDR_LEN);
 		pattern[p].spec = &out_mac_spec;
+		p++;
 	}
-	p++;
 
-	pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 	if (match->out_dst_ip.ipv4_addr != ip0 || match->out_src_ip.ipv4_addr != ip0)
 	{
 		struct rte_flow_item_ipv4 out_ip_spec;
+		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		memset(&out_ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
 		out_ip_spec.hdr.dst_addr = match->out_dst_ip.ipv4_addr;
 		out_ip_spec.hdr.src_addr = match->out_src_ip.ipv4_addr;
 		pattern[p].spec = &out_ip_spec;
+		p++;
+		// printf("create flow match dst-%x src-%x\n", match->out_dst_ip.ipv4_addr, match->out_src_ip.ipv4_addr);
+	}else if(match->out_dst_ip.type == DOCA_FLOW_IP4_ADDR || match->out_src_ip.type == DOCA_FLOW_IP4_ADDR){
+		pattern[p++].type=RTE_FLOW_ITEM_TYPE_IPV4;
 	}
-	p++;
 
 	if (match->out_l4_type == IPPROTO_UDP)
 	{
@@ -599,6 +630,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			pattern[p].spec = &out_udp_spec;
 		}
 		p++;
+		
 	}
 	else if (match->out_l4_type == IPPROTO_TCP)
 	{
@@ -621,8 +653,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		{
 		case DOCA_FLOW_TUN_VXLAN:
 		{
-			if(match->tun.vxlan_tun_id==0) break;
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_VXLAN;
+			if(match->tun.vxlan_tun_id==0) break;
 			struct rte_flow_item_vxlan vxlan_item;
 			// rte_vxlan_gpe_hdr.vx_vni -> rte_flow_item_vxlan.vni
 			// take higher 24 bits
@@ -631,13 +663,13 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			{
 				vxlan_item.vni[i] = pt[3 - i];
 			}
-			pattern[p++].spec = &vxlan_item;
+			pattern[p].spec = &vxlan_item;
 			break;
 		}
 		case DOCA_FLOW_TUN_GRE:
 		{ // gre_key (32bit) -> rte_flow_item_gre.c_rsvd0_ver + rte_flow_item_gre.protocol
-			if(match->tun.gre_key==0) break;
 			pattern[p].type = RTE_FLOW_ITEM_TYPE_GRE;
+			if(match->tun.gre_key==0) break;
 			struct rte_flow_item_gre gre_item;
 			uint16_t *pt = (uint16_t) & (match->tun.gre_key);
 			gre_item.c_rsvd0_ver = pt[0];
@@ -656,8 +688,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		}
 		default:
 			DOCA_LOG_WARN("TUNNEL OTHER TYPE: %d", match->tun.type);
+			p--;
 			break;
 		}
+		p++;
 
 		// inner match
 		if ((memcmp(match->in_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->in_src_mac, mac0, sizeof(mac0))) != 0)
@@ -676,34 +710,39 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			in_ip_spec.hdr.dst_addr = match->in_dst_ip.ipv4_addr;
 			in_ip_spec.hdr.src_addr = match->in_src_ip.ipv4_addr;
 			pattern[p++].spec = &in_ip_spec;
+		}else if(match->in_dst_ip.type==DOCA_FLOW_IP4_ADDR || match->in_src_ip.type==DOCA_FLOW_IP4_ADDR){
+			pattern[p++].type=RTE_FLOW_ITEM_TYPE_IPV4;
 		}
+
 		if (match->in_l4_type == IPPROTO_UDP)
 		{
+			pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
 			if (match->in_dst_port != port0 || match->in_src_port != port0)
 			{
-				pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
 				struct rte_flow_item_udp in_udp_spec;
 				memset(&in_udp_spec, 0, sizeof(struct rte_flow_item_udp));
 				in_udp_spec.hdr.dst_port = match->in_dst_port;
 				in_udp_spec.hdr.src_port = match->in_src_port;
-				pattern[p++].spec = &in_udp_spec;
+				pattern[p].spec = &in_udp_spec;
 			}
+			p++;
 		}
 		else if (match->in_l4_type == IPPROTO_TCP)
 		{
+			pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
 			if (match->in_dst_port != port0 || match->in_src_port != port0)
 			{
-				pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
 				struct rte_flow_item_tcp in_tcp_spec;
 				memset(&in_tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
 				in_tcp_spec.hdr.dst_port = match->in_dst_port;
 				in_tcp_spec.hdr.src_port = match->in_src_port;
-				pattern[p++].spec = &in_tcp_spec;
+				pattern[p].spec = &in_tcp_spec;
 			}
+			p++;
 		}
 	}
 
-	pattern[p].type = RTE_FLOW_ITEM_TYPE_END;
+	pattern[p++].type = RTE_FLOW_ITEM_TYPE_END;
 
 	char pattern_str[300]="	pattern:\n";
 	for (int i = 0; i < p; i++)
@@ -859,10 +898,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	// validate and create entry
 	struct rte_flow_error rte_error;
-	int res = flow_validate(port_id, &attr, pattern, action, &rte_error);
+	int res = rte_flow_validate(port_id, &attr, pattern, action, &rte_error);
 	if (!res)
 	{
-		flow = flow_create(port_id, &attr, pattern, action, &rte_error);
+		flow = rte_flow_create(port_id, &attr, pattern, action, &rte_error);
 		if (!flow)
 		{
 			DOCA_LOG_ERR("Flow can't be created %d message: %s",

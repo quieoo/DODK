@@ -1,8 +1,8 @@
 tests=[
     'simple_fwd_vnf',
-    'soft_flow'
 ]
 foreach t:tests
+    sources=[]
     ext_deps = []
     includes = [include_directories(t)]
     deps=[]

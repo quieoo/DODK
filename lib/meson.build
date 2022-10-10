@@ -2,7 +2,6 @@ libraries=[
     'doca_common',
     'doca_log',
     'doca_argp',
-    'soft_flow',
     'doca_flow'
 ]
 

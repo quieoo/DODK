@@ -52,7 +52,25 @@
         "rte_ethdev_trace.h": "c",
         "rte_dev_info.h": "c",
         "rte_trace_point.h": "c",
-        "ethdev_profile.h": "c"
+        "ethdev_profile.h": "c",
+        "eal_private.h": "c",
+        "rte_eal.h": "c",
+        "stdbool.h": "c",
+        "eal_memcfg.h": "c",
+        "rte_string_fns.h": "c",
+        "rte_common.h": "c",
+        "ctype.h": "c",
+        "rte_eal_memconfig.h": "c",
+        "rte_tailq.h": "c",
+        "rte_mbuf.h": "c",
+        "rte_mbuf_dyn.h": "c",
+        "rte_lru.h": "c",
+        "rte_table_lpm_ipv6.h": "c",
+        "test_table_tables.h": "c",
+        "test_table.h": "c",
+        "rte_lru_x86.h": "c",
+        "rte_table_hash.h": "c",
+        "simple_lru_hash_table.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

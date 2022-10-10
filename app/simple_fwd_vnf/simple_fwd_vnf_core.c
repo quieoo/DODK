@@ -82,6 +82,7 @@ simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_
 	if (simple_fwd_parse_packet(VNF_PKT_L2(mbuf),
 		VNF_PKT_LEN(mbuf), &pinfo))
 		return;
+	
 	pinfo.orig_data = mbuf;
 	pinfo.orig_port_id = mbuf->port;
 	pinfo.pipe_queue = queue_id;
@@ -120,8 +121,15 @@ simple_fwd_process_pkts(void *process_pkts_params)
 		}
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
+			// printf("get rx burst\n");
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
+			if(nb_rx==0)	continue;
+			printf("simple_fwd_vnf incoming packet from port-%d:\n", port_id);
 			for (j = 0; j < nb_rx; j++) {
+				struct rte_ipv4_hdr *ipv4_hdr = rte_pktmbuf_mtod_offset(mbufs[j], struct rte_ipv4_hdr *, 
+					sizeof(struct rte_ether_hdr));
+				printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
+		
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
 			
