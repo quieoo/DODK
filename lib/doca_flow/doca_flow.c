@@ -915,7 +915,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			DOCA_LOG_INFO("Successfully create and offload a flow\n");
 			return (struct doca_flow_pipe_entry *)flow;
 		}
-		// output_flow(port_id, &attr, pattern, action, &error);
+		output_flow(port_id, &attr, pattern, action, &error);
 	}
 	else
 	{
