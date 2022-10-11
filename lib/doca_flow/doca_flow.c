@@ -603,8 +603,11 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		pattern[p].spec = &out_mac_spec;
 		p++;
 
-		print_ether_addr("DOCA_FLOW: out_dst_mac ",match->out_dst_mac);
-		print_ether_addr("DOCA_FLOW: out_src_mac ",match->out_src_mac);
+		print_ether_addr("DOCA_FLOW_match: out_dst_mac ",match->out_dst_mac);
+		print_ether_addr("DOCA_FLOW_match: out_src_mac ",match->out_src_mac);
+		
+		print_ether_addr("DOCA_FLOW_Pattern: out_dst_mac ",out_mac_spec.hdr.dst_addr.addr_bytes);
+		print_ether_addr("DOCA_FLOW_pattern: out_src_mac ",out_mac_spec.hdr.src_addr.addr_bytes);
 		
 	}
 

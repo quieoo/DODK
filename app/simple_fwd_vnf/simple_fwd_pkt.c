@@ -147,14 +147,6 @@ simple_fwd_parse_pkt_format(uint8_t *data, int len, bool l2,
 			return -1;
 		}
 	}
-	printf("SIMPLE_FWD_PARSE_PKT: out_dst_mac %x-%x-%x-%x-%x-%x\n",
-	eth->dst_addr.addr_bytes[0],
-	eth->dst_addr.addr_bytes[1],
-	eth->dst_addr.addr_bytes[2],
-	eth->dst_addr.addr_bytes[3],
-	eth->dst_addr.addr_bytes[4],
-	eth->dst_addr.addr_bytes[5]
-	);
 	
 
 	iphdr = (struct rte_ipv4_hdr *)(data + l3_off);
