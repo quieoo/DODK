@@ -84,7 +84,6 @@ python3 grpc_client.py -a 101.76.213.102 -c app_simple_fwd_vnf -s '-l 0-3 -n 4 -
 
 # TestBed
 
-## Setup
 
 1. Install VirtualBox and Create a VM with repo cloned. 
 2. Build DPDK and DODK as above.
