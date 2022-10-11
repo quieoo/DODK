@@ -62,10 +62,12 @@ lsconfig
 
 Run sample application, for example:
 ```
-./app/simple_fwd_vnf/simple_fwd_vnf -l 0-3 -n 4
+./app/simple_fwd_vnf/simple_fwd_vnf -l 0-3 -n 4 -F
 ```
 
-note: run dpdk application need some extra configrations, such as hugepage, root authority, and dpdk-supported nic
+note: run dpdk application need some extra configrations, such as hugepage, root authority, and dpdk-supported nic.
+
+note: 'F' flag means letting sofe-flow take over the packet processing in DPDK.
 
 
 ## gRPC Orchestrator
@@ -79,3 +81,42 @@ On Client side (HOST), create remote program
 ```
 python3 grpc_client.py -a 101.76.213.102 -c app_simple_fwd_vnf -s '-l 0-3 -n 4 -ll 2'
 ```
+
+# TestBed
+
+## Setup
+
+1. Install VirtualBox and Create a VM with repo cloned. 
+2. Build DPDK and DODK as above.
+3. Clone the VM. One for DPDK packet process, and one for Pktgen to generate packets
+4. Install PktGen
+    ```
+    git clone https://github.com/pktgen/Pktgen-DPDK.git
+    sudo apt-get install libpcap-dev
+    cd Pktgen-DPDK/
+    meson build
+    cd build/
+    ninja
+    ```
+5. Connect 2 VMs with internal network
+    
+    Add 2 adaptor to DPDK_VM, configure it as internal network. The name are "intnet-1", "intnet-2". 
+    Make sure the Adaptor type is "virtio-pci", and "cable connected" is one.
+
+    Add the same 2 adaptor to Pktgen_VM.
+6. Boot up two VM, and bind the added 2 nic to DPDK driver.
+7. Run the DODK app simple_fwd_vnf with soft_flow
+    ```
+    ./app/app_simple_fwd_vnf -l 0-1 -n 4 -F
+    ```
+8. Run the Pktgen to create packets
+    ```
+    ./app/pktgen  -l 0-1 -n 4 -m 1024 --proc-type auto --file-prefix pg2  -- -P -m "1.0"
+
+    ```
+    In Pktgen cmdline, set the dst mac address to the binded nic for DPDK_VM and the packet to send with:
+    ```
+    set 0 dst mac 08:00:27:DA:C3:19
+    set 0 count 10
+    start 0
+    ```
