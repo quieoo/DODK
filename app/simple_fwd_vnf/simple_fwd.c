@@ -645,13 +645,7 @@ simple_fwd_build_entry_match(struct simple_fwd_pkt_info *pinfo,
 	/* set match all fields, pipe will select which field to match */
 	memcpy(match->out_dst_mac, simple_fwd_pinfo_outer_mac_dst(pinfo),
 		DOCA_ETHER_ADDR_LEN);
-	printf("SIMPLE_FWD out_dst_mac %x-%x-%x-%x-%x-%x\n", match->out_dst_mac[0],
-	match->out_dst_mac[1],
-	match->out_dst_mac[2],
-	match->out_dst_mac[3],
-	match->out_dst_mac[4],
-	match->out_dst_mac[5]
-	);
+	
 	memcpy(match->out_src_mac, simple_fwd_pinfo_outer_mac_src(pinfo),
 		DOCA_ETHER_ADDR_LEN);
 	match->out_dst_ip.ipv4_addr = simple_fwd_pinfo_outer_ipv4_dst(pinfo);

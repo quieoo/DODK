@@ -126,6 +126,14 @@ simple_fwd_process_pkts(void *process_pkts_params)
 			if(nb_rx==0)	continue;
 			// printf("simple_fwd_vnf incoming packet from port-%d:\n", port_id);
 			for (j = 0; j < nb_rx; j++) {
+				struct rte_ether_hdr *ethhd=rte_pktmbuf_mtod(mbufs[j], struct rte_ether_hder*);
+				printf("SIMPLE_FWD out_dst_mac %x-%x-%x-%x-%x-%x\n", ethhd->dst_addr.addr_bytes[0],
+					ethhd->dst_addr.addr_bytes[1],
+					ethhd->dst_addr.addr_bytes[2],
+					ethhd->dst_addr.addr_bytes[3],
+					ethhd->dst_addr.addr_bytes[4],
+					ethhd->dst_addr.addr_bytes[5]
+					);
 				struct rte_ipv4_hdr *ipv4_hdr = rte_pktmbuf_mtod_offset(mbufs[j], struct rte_ipv4_hdr *, 
 					sizeof(struct rte_ether_hdr));
 				// printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
