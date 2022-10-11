@@ -33,6 +33,15 @@ DOCA_LOG_REGISTER(SIMPLE_FWD_PKT);
 uint8_t*
 simple_fwd_pinfo_outer_mac_dst(struct simple_fwd_pkt_info *pinfo)
 {
+	struct rte_ether_hdr *eth=pinfo->outer.l2;
+	printf("SIMPLE_FWD_GET: out_dst_mac %x-%x-%x-%x-%x-%x\n",
+	eth->dst_addr.addr_bytes[0],
+	eth->dst_addr.addr_bytes[1],
+	eth->dst_addr.addr_bytes[2],
+	eth->dst_addr.addr_bytes[3],
+	eth->dst_addr.addr_bytes[4],
+	eth->dst_addr.addr_bytes[5]
+	);
 	((struct rte_ether_hdr *)pinfo->outer.l2)->dst_addr.addr_bytes;
 }
 
