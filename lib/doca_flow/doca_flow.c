@@ -592,28 +592,22 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	/*
 		match -> pattern
 	*/
+	struct rte_flow_item_eth out_mac_spec;
+	struct rte_flow_item_ipv4 out_ip_spec;
+
 	int p = 0;
 	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->out_src_mac, mac0, sizeof(mac0))) != 0)
 	{
 		pattern[p].type=RTE_FLOW_ITEM_TYPE_ETH;	
-		struct rte_flow_item_eth out_mac_spec;
 		memset(&out_mac_spec, 0, sizeof(struct rte_flow_item_eth));
 		memcpy(out_mac_spec.hdr.dst_addr.addr_bytes, match->out_dst_mac, DOCA_ETHER_ADDR_LEN);
 		memcpy(out_mac_spec.hdr.src_addr.addr_bytes, match->out_src_mac, DOCA_ETHER_ADDR_LEN);
 		pattern[p].spec = &out_mac_spec;
 		p++;
-
-		print_ether_addr("DOCA_FLOW_match: out_dst_mac ",match->out_dst_mac);
-		print_ether_addr("DOCA_FLOW_match: out_src_mac ",match->out_src_mac);
-		
-		print_ether_addr("DOCA_FLOW_Pattern: out_dst_mac ",out_mac_spec.hdr.dst_addr.addr_bytes);
-		print_ether_addr("DOCA_FLOW_pattern: out_src_mac ",out_mac_spec.hdr.src_addr.addr_bytes);
-		
 	}
 
 	if (match->out_dst_ip.ipv4_addr != ip0 || match->out_src_ip.ipv4_addr != ip0)
 	{
-		struct rte_flow_item_ipv4 out_ip_spec;
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_IPV4;
 		memset(&out_ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
 		out_ip_spec.hdr.dst_addr = match->out_dst_ip.ipv4_addr;
