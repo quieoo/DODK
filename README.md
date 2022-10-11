@@ -10,8 +10,16 @@ git clone --recurse-submodules https://github.com/quieoo/DODK.git
 Prerequistes for DPDK
 ```
 sudo apt install build-essential python3-pyelftools libnuma-dev
-sudo apt install meson
 ```
+
+install the latest meson.build with pip (tested version is 0.61.2, the lower may bring some problem)
+
+```
+sudo apt install python3-pip
+sudo pip3 install meson
+sudo pip3 install ninja
+```
+
 Build dpdk
 
 ```
