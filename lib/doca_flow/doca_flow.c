@@ -594,6 +594,8 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	*/
 	struct rte_flow_item_eth out_mac_spec;
 	struct rte_flow_item_ipv4 out_ip_spec;
+	struct rte_flow_item_udp out_udp_spec;
+	struct rte_flow_item_tcp out_tcp_spec;
 
 	int p = 0;
 	if ((memcmp(match->out_dst_mac, mac0, sizeof(mac0))) != 0 || (memcmp(match->out_src_mac, mac0, sizeof(mac0))) != 0)
@@ -621,10 +623,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 
 	if (match->out_l4_type == IPPROTO_UDP)
 	{
+		out_ip_spec.hdr.next_proto_id=IPPROTO_UDP;
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_UDP;
 		if (match->out_dst_port != port0 || match->out_src_port != port0)
 		{
-			struct rte_flow_item_udp out_udp_spec;
 			memset(&out_udp_spec, 0, sizeof(struct rte_flow_item_udp));
 			out_udp_spec.hdr.dst_port = match->out_dst_port;
 			out_udp_spec.hdr.src_port = match->out_src_port;
@@ -635,10 +637,10 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 	else if (match->out_l4_type == IPPROTO_TCP)
 	{
+		out_ip_spec.hdr.next_proto_id=IPPROTO_TCP;
 		pattern[p].type = RTE_FLOW_ITEM_TYPE_TCP;
 		if (match->out_dst_port != port0 || match->out_src_port != port0)
 		{
-			struct rte_flow_item_tcp out_tcp_spec;
 			memset(&out_tcp_spec, 0, sizeof(struct rte_flow_item_tcp));
 			out_tcp_spec.hdr.dst_port = match->out_dst_port;
 			out_tcp_spec.hdr.src_port = match->out_src_port;
