@@ -616,7 +616,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		out_ip_spec.hdr.src_addr = match->out_src_ip.ipv4_addr;
 		pattern[p].spec = &out_ip_spec;
 		p++;
-		printf("DOCA_FLOW out_dst_ip %x out_src_ip %x\n", match->out_dst_ip.ipv4_addr, match->out_src_ip.ipv4_addr);
+		// printf("DOCA_FLOW out_dst_ip %x out_src_ip %x\n", match->out_dst_ip.ipv4_addr, match->out_src_ip.ipv4_addr);
 	}else if(match->out_dst_ip.type == DOCA_FLOW_IP4_ADDR || match->out_src_ip.type == DOCA_FLOW_IP4_ADDR){
 		pattern[p++].type=RTE_FLOW_ITEM_TYPE_IPV4;
 	}
