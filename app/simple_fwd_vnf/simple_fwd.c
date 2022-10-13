@@ -668,7 +668,8 @@ simple_fwd_build_entry_action(struct simple_fwd_pkt_info *pinfo,
 			      struct doca_flow_actions *action)
 {
 	/* include all modify action cases*/
-	SET_MAC_ADDR(action->mod_dst_mac, 0x0c, 0x42, 0xa1, 0x4b, 0xc5, 0x8c);
+	// 08:00:27:33:D4:50
+	SET_MAC_ADDR(action->mod_dst_mac, 0x08, 0x00, 0x27, 0x33, 0xd4, 0x50);
 	action->mod_dst_ip.ipv4_addr = BE_IPV4_ADDR(18, 18, 18, 18);
 	action->mod_dst_port = RTE_BE16(55555);
 	/* set vxlan encap data, pipe will decide if do encap */
