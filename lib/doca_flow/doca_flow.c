@@ -794,7 +794,6 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		action[p].type = RTE_FLOW_ACTION_TYPE_SET_TP_DST;
 		struct rte_flow_action_set_tp dst_tp;
 		dst_tp.port = actions->mod_dst_port;
-		printf("create mod_dst_port: %d\n", actions->mod_dst_port);
 		action[p++].conf = &dst_tp;
 	}
 	if (actions->mod_src_port != port0)
