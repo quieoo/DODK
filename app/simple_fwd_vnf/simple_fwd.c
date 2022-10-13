@@ -774,6 +774,7 @@ simple_fwd_pipe_add_entry(struct simple_fwd_pkt_info *pinfo,
 	simple_fwd_build_entry_match(pinfo, &match);
 	simple_fwd_build_entry_action(pinfo, &action);
 	simple_fwd_build_entry_monitor(pinfo, &monitor, user_ctx);
+	printf("simple_fwd_vnf mod_dst_port: %d\n", action.mod_dst_port);
 	entry = doca_flow_pipe_add_entry(pinfo->pipe_queue,
 		pipe, &match, &action, &monitor, fwd, 0, NULL, &error);
 	if (!entry)
