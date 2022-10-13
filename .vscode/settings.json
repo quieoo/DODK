@@ -70,7 +70,8 @@
         "test_table.h": "c",
         "rte_lru_x86.h": "c",
         "rte_table_hash.h": "c",
-        "simple_lru_hash_table.h": "c"
+        "simple_lru_hash_table.h": "c",
+        "rte_vxlan.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
