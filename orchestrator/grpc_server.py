@@ -1,19 +1,23 @@
 from ast import IsNot
 from concurrent import futures
-from distutils.util import execute
-from genericpath import isdir, isfile
+from genericpath import  isfile
 import logging
 from operator import is_not
 from pickle import NONE
 from posixpath import join
 import signal
 import subprocess
-import time
-from unittest import result
 import grpc
+from grpc import server
 import grpc_orchestrator_pb2
 import grpc_orchestrator_pb2_grpc
 import os
+import threading
+
+from pyftpdlib.authorizers import DummyAuthorizer
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import FTPServer
+
 
 path='../build/app/'
 LIFETIME_CHECK_NUM_RETRIES          = 3
@@ -22,13 +26,20 @@ LIFETIME_CHECK_SLEEP_PERIOD_SECONDS = 10
 class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
     def GetProgramList(self, request, context):
         result=[]
+        files="-------file list----------\n"
         dirlist=os.listdir(path)
         for i in dirlist:
             Completepath = join(path,i)
             if isfile(Completepath):
-                out_bytes = subprocess.check_output(["./"+Completepath, "-h"])
-                out_text = out_bytes.decode('utf-8')
-                result.append('APP: '+i+out_text)                
+                files+=Completepath+"\n"
+                try:
+                    out_bytes = subprocess.check_output(["./"+Completepath, "-h"])
+                    out_text = out_bytes.decode('utf-8')
+                except BaseException:
+                    print("Catch execure file error: "+Completepath)
+                    continue
+                result.append('APP: '+i+out_text)
+        result.append(files)
         return grpc_orchestrator_pb2.ProgramList(program_names=result)
 
     def Create(self, request, context):
@@ -59,17 +70,33 @@ class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
         return grpc_orchestrator_pb2.Status(is_error=False, error_msg=NONE)
 
 
-        
 
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    grpc_orchestrator_pb2_grpc.add_OrchestratorServicer_to_server(OrchestratorServicer(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    print("gRPC orchetrator waiting for request...")
-    server.wait_for_termination()
+def start_ftp_server():
+    authorizer = DummyAuthorizer()
+    authorizer.add_user('host', '123456', path, perm="elradfmw")
+    handler = FTPHandler
+    handler.authorizer = authorizer
+    handler.passive_ports = range(2000,20033)
+    ftp_server = FTPServer(('0.0.0.0', 21), handler)
+    ftp_server.serve_forever()
+
+
 
 
 if __name__ == '__main__':
-    logging.basicConfig()
-    serve()
+    try:
+        logging.basicConfig()
+        thread_ftp=threading.Thread(target=start_ftp_server,daemon=1)
+        thread_ftp.start()
+
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        grpc_orchestrator_pb2_grpc.add_OrchestratorServicer_to_server(OrchestratorServicer(), server)
+        server.add_insecure_port('[::]:50051')
+        server.start()
+        print("gRPC orchetrator is Ready")
+        server.wait_for_termination()
+    except BaseException as e:
+        if isinstance(e, KeyboardInterrupt):
+            server.stop(grace=0)
+            print("Quit")
+            

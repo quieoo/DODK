@@ -1,10 +1,12 @@
 
+from ast import While
 import logging
 import time
 import grpc
 import grpc_orchestrator_pb2
 import grpc_orchestrator_pb2_grpc
 import sys, getopt
+from ftplib import FTP
 
 
 def print_help():
@@ -12,15 +14,18 @@ def print_help():
     print("     gRPC server address")
     print("-p, --port <port>")
     print("     gRPC server port listen on")
-    print("-c, --create <program_name>")
+    
+
+def cmd_usage():
+    print("create <program_name> --cmd_args <argments>")
     print("     create remote program with args followed in string, return pid of remote program if succesfully")
-    print("     example: python3 grpc_client.py --create app_simple_fwd_vnf --cmd_args '-l 0-3 -n 4 -ll 3' --address 101.76.213.102 --port 50051")
-    print("-s, --cmd_args <argements>")
-    print("     argements for creating remote programs")
-    print("-d, --destroy <pid>")
+    print("     example: create app_simple_fwd_vnf -l 0-1 -n 4 -F -ll 3")
+    print("destroy <pid>")
     print("     destroy remote program with specified pid")
-    print("-l, --list")
+    print("list")
     print("     list remote programs")
+    print("push <file_path>")
+    print("     push local app to remote device")
 
 def create(stub, program, args):
     arglist=grpc_orchestrator_pb2.Args(program_name=program, cmdline=args)
@@ -28,7 +33,7 @@ def create(stub, program, args):
     if create_response.err_status.is_error:
         print(f'Error:{create_response.err_status.error_msg}')
     else:
-        print(f'gRPC Create: {create_response.uid.uid}')
+        print(f'gRPC Create with uid: {create_response.uid.uid}')
 
 def destroy(stub, pid):
     print('Trying to terminate......')
@@ -46,6 +51,11 @@ def get_list(stub):
     for p in pl.program_names:
         print(p)
 
+def push_file(path,ip_addr):
+    ftp = FTP(host=ip_addr, user='host', passwd='123456')
+    ftp.storbinary('STOR '+path, open(path, 'rb'))
+
+
 def main(argv):
     address='localhost'
     port='50051'
@@ -53,7 +63,7 @@ def main(argv):
     program=''
     pid=''
     try:
-        opts, args = getopt.getopt(argv,"ha:pc:d:ls:",["help", "address=", "port", "create=", "destroy=", "list", "cmd_args="])
+        opts, args = getopt.getopt(argv,"ha:p",["help", "address=", "port"])
     except getopt.GetoptError:
         print_help()
         sys.exit(2)
@@ -65,30 +75,33 @@ def main(argv):
             address=arg
         elif opt in ("-p", "--port"):
             port=arg
-        elif opt in ("-c", "--create"):
-            operation=0
-            program=arg
-        elif opt in ("-d", "--destroy"):
-            operation=1
-            pid=arg
-        elif opt in ("-l", "--list"):
-            operation=2
-        elif opt in ("-s", "--cmd_args"):
-            cmd_args=arg
 
-    if operation == -1:
-        sys.exit()
     
     channel=grpc.insecure_channel(address+':'+port)
     stub=grpc_orchestrator_pb2_grpc.OrchestratorStub(channel)
-    if operation == 0:
-        create(stub, program, cmd_args)
-    elif operation == 1:
-        destroy(stub, pid)
-    elif operation == 2:
-        get_list(stub)
-    
-        
-
+    print(">> Connectted with Orchestor server ("+address+":"+port+")")
+    while 1:
+        cmd=input(">> ")
+        if cmd == "quit":
+            break
+        if cmd == "help":
+            cmd_usage()
+        if cmd=="list":
+            get_list(stub)
+        cmds=cmd.split(" ",2)
+        if cmds[0]=="create":
+            program=cmds[1]
+            args=cmds[2]
+            create(stub, program, args)
+        if cmds[0]=="destroy":
+            uid=cmds[1]
+            destroy(stub, uid)
+        if cmds[0]=="push":
+            file_path=cmds[1]
+            push_file(file_path, address)
 if __name__ == "__main__":
-   main(sys.argv[1:])
+    try:
+        main(sys.argv[1:])
+    except BaseException as e:
+        if isinstance(e, KeyboardInterrupt):
+            print("Quit")
