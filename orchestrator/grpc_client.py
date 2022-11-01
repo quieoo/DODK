@@ -27,13 +27,17 @@ def cmd_usage():
     print("push <file_path>")
     print("     push local app to remote device")
 
-def create(stub, program, args):
-    arglist=grpc_orchestrator_pb2.Args(program_name=program, cmdline=args)
-    create_response=stub.Create(arglist)
+def create(stub, cmd):
+    create_response=stub.Create(grpc_orchestrator_pb2.CMD(cmd_str=cmd))
     if create_response.err_status.is_error:
         print(f'Error:{create_response.err_status.error_msg}')
     else:
         print(f'gRPC Create with uid: {create_response.uid.uid}')
+
+def create_attach(stub, cmd):
+    reply=stub.Create_Attach(grpc_orchestrator_pb2.CMD(cmd_str=cmd))
+    for rp in reply:
+        print(rp.str)
 
 def destroy(stub, pid):
     print('Trying to terminate......')
@@ -88,17 +92,15 @@ def main(argv):
             cmd_usage()
         if cmd=="list":
             get_list(stub)
-        cmds=cmd.split(" ",2)
+        cmds=cmd.split(" ",1)
         if cmds[0]=="create":
-            program=cmds[1]
-            args=cmds[2]
-            create(stub, program, args)
+            create(stub, cmds[1])
+        if cmds[0]=="create_attach":
+            create_attach(stub, cmds[1])
         if cmds[0]=="destroy":
-            uid=cmds[1]
-            destroy(stub, uid)
+            destroy(stub, cmds[1])
         if cmds[0]=="push":
-            file_path=cmds[1]
-            push_file(file_path, address)
+            push_file(cmds[1], address)
 if __name__ == "__main__":
     try:
         main(sys.argv[1:])

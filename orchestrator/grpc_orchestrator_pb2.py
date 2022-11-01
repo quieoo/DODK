@@ -14,16 +14,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17grpc_orchestrator.proto\"\x10\n\x0eProgramListReq\"$\n\x0bProgramList\x12\x15\n\rprogram_names\x18\x01 \x03(\t\";\n\x04\x41rgs\x12\x14\n\x0cprogram_name\x18\x01 \x01(\t\x12\x0f\n\x07\x63mdline\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\r\"\x12\n\x03Uid\x12\x0b\n\x03uid\x18\x01 \x01(\t\"-\n\x06Status\x12\x10\n\x08is_error\x18\x01 \x01(\x08\x12\x11\n\terror_msg\x18\x02 \x01(\t\"<\n\nRichStatus\x12\x11\n\x03uid\x18\x01 \x01(\x0b\x32\x04.Uid\x12\x1b\n\nerr_status\x18\x02 \x01(\x0b\x32\x07.Status2w\n\x0cOrchestrator\x12/\n\x0eGetProgramList\x12\x0f.ProgramListReq\x1a\x0c.ProgramList\x12\x1c\n\x06\x43reate\x12\x05.Args\x1a\x0b.RichStatus\x12\x18\n\x07\x44\x65stroy\x12\x04.Uid\x1a\x07.Statusb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17grpc_orchestrator.proto\"\x10\n\x0eProgramListReq\"$\n\x0bProgramList\x12\x15\n\rprogram_names\x18\x01 \x03(\t\"\x16\n\x03\x43MD\x12\x0f\n\x07\x63md_str\x18\x01 \x01(\t\"\x12\n\x03Uid\x12\x0b\n\x03uid\x18\x01 \x01(\t\"-\n\x06Status\x12\x10\n\x08is_error\x18\x01 \x01(\x08\x12\x11\n\terror_msg\x18\x02 \x01(\t\"<\n\nRichStatus\x12\x11\n\x03uid\x18\x01 \x01(\x0b\x32\x04.Uid\x12\x1b\n\nerr_status\x18\x02 \x01(\x0b\x32\x07.Status\"\x14\n\x05Reply\x12\x0b\n\x03str\x18\x01 \x01(\t2\x97\x01\n\x0cOrchestrator\x12/\n\x0eGetProgramList\x12\x0f.ProgramListReq\x1a\x0c.ProgramList\x12\x1b\n\x06\x43reate\x12\x04.CMD\x1a\x0b.RichStatus\x12\x18\n\x07\x44\x65stroy\x12\x04.Uid\x1a\x07.Status\x12\x1f\n\rCreate_Attach\x12\x04.CMD\x1a\x06.Reply0\x01\x62\x06proto3')
 
 
 
 _PROGRAMLISTREQ = DESCRIPTOR.message_types_by_name['ProgramListReq']
 _PROGRAMLIST = DESCRIPTOR.message_types_by_name['ProgramList']
-_ARGS = DESCRIPTOR.message_types_by_name['Args']
+_CMD = DESCRIPTOR.message_types_by_name['CMD']
 _UID = DESCRIPTOR.message_types_by_name['Uid']
 _STATUS = DESCRIPTOR.message_types_by_name['Status']
 _RICHSTATUS = DESCRIPTOR.message_types_by_name['RichStatus']
+_REPLY = DESCRIPTOR.message_types_by_name['Reply']
 ProgramListReq = _reflection.GeneratedProtocolMessageType('ProgramListReq', (_message.Message,), {
   'DESCRIPTOR' : _PROGRAMLISTREQ,
   '__module__' : 'grpc_orchestrator_pb2'
@@ -38,12 +39,12 @@ ProgramList = _reflection.GeneratedProtocolMessageType('ProgramList', (_message.
   })
 _sym_db.RegisterMessage(ProgramList)
 
-Args = _reflection.GeneratedProtocolMessageType('Args', (_message.Message,), {
-  'DESCRIPTOR' : _ARGS,
+CMD = _reflection.GeneratedProtocolMessageType('CMD', (_message.Message,), {
+  'DESCRIPTOR' : _CMD,
   '__module__' : 'grpc_orchestrator_pb2'
-  # @@protoc_insertion_point(class_scope:Args)
+  # @@protoc_insertion_point(class_scope:CMD)
   })
-_sym_db.RegisterMessage(Args)
+_sym_db.RegisterMessage(CMD)
 
 Uid = _reflection.GeneratedProtocolMessageType('Uid', (_message.Message,), {
   'DESCRIPTOR' : _UID,
@@ -66,6 +67,13 @@ RichStatus = _reflection.GeneratedProtocolMessageType('RichStatus', (_message.Me
   })
 _sym_db.RegisterMessage(RichStatus)
 
+Reply = _reflection.GeneratedProtocolMessageType('Reply', (_message.Message,), {
+  'DESCRIPTOR' : _REPLY,
+  '__module__' : 'grpc_orchestrator_pb2'
+  # @@protoc_insertion_point(class_scope:Reply)
+  })
+_sym_db.RegisterMessage(Reply)
+
 _ORCHESTRATOR = DESCRIPTOR.services_by_name['Orchestrator']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
@@ -74,14 +82,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _PROGRAMLISTREQ._serialized_end=43
   _PROGRAMLIST._serialized_start=45
   _PROGRAMLIST._serialized_end=81
-  _ARGS._serialized_start=83
-  _ARGS._serialized_end=142
-  _UID._serialized_start=144
-  _UID._serialized_end=162
-  _STATUS._serialized_start=164
-  _STATUS._serialized_end=209
-  _RICHSTATUS._serialized_start=211
-  _RICHSTATUS._serialized_end=271
-  _ORCHESTRATOR._serialized_start=273
-  _ORCHESTRATOR._serialized_end=392
+  _CMD._serialized_start=83
+  _CMD._serialized_end=105
+  _UID._serialized_start=107
+  _UID._serialized_end=125
+  _STATUS._serialized_start=127
+  _STATUS._serialized_end=172
+  _RICHSTATUS._serialized_start=174
+  _RICHSTATUS._serialized_end=234
+  _REPLY._serialized_start=236
+  _REPLY._serialized_end=256
+  _ORCHESTRATOR._serialized_start=259
+  _ORCHESTRATOR._serialized_end=410
 # @@protoc_insertion_point(module_scope)

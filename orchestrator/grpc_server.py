@@ -5,6 +5,7 @@ import logging
 from operator import is_not
 from pickle import NONE
 from posixpath import join
+import shlex
 import signal
 import subprocess
 import grpc
@@ -23,7 +24,11 @@ path='../build/app/'
 LIFETIME_CHECK_NUM_RETRIES          = 3
 LIFETIME_CHECK_SLEEP_PERIOD_SECONDS = 10
 
+
 class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
+    def __init__(self):
+        self.CurrentProcess={}
+        self.GlobalUid=0 
     def GetProgramList(self, request, context):
         result=[]
         files="-------file list----------\n"
@@ -43,31 +48,48 @@ class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
         return grpc_orchestrator_pb2.ProgramList(program_names=result)
 
     def Create(self, request, context):
-        execute_path=join(path, request.program_name)
-        print(f'Creating: {execute_path} {request.cmdline}')
-        
-        rich_status = grpc_orchestrator_pb2.RichStatus(err_status=grpc_orchestrator_pb2.Status(is_error=True))
+        cmdstr=path+request.cmd_str
+        cmd = shlex.split(cmdstr)
+        cmd=["stdbuf", "-oL"]+cmd
+        print(cmd)
 
-        if isfile(execute_path) is not True:
-            rich_status.err_status.error_msg=f'Unknown program name: {request.program_name}'
-            return rich_status
-        
-        pid=os.fork()
-        if pid==0:
-            request_args = request.cmdline.split(' ')
-            cmd_args  = [execute_path]
-            cmd_args += request_args
-            os.execv(execute_path, cmd_args)
+        p = subprocess.Popen(cmd, shell=False)
+        self.CurrentProcess[self.GlobalUid]=p
+        self.GlobalUid=self.GlobalUid+1
+
+        rich_status=grpc_orchestrator_pb2.RichStatus()
         rich_status.err_status.is_error = False
-        rich_status.uid.uid=str(pid)
-        print('Create successfully')
+        rich_status.uid.uid=str(self.GlobalUid-1)
         return rich_status
     
+    def Create_Attach(self, request, context):
+        cmdstr=path+request.cmd_str
+        cmd = shlex.split(cmdstr)
+        cmd=["stdbuf", "-oL"]+cmd
+        print(cmd)
+
+        p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, encoding='utf8')
+        self.CurrentProcess[self.GlobalUid]=p
+        self.GlobalUid=self.GlobalUid+1
+        while p.poll() is None:
+            line = p.stdout.readline()
+            line = line.strip()
+            if line:
+                print(cmd[2]+">> "+line)
+                #print('Subprogram output: {}'.format(line))
+                result=grpc_orchestrator_pb2.Reply(str=line)
+                yield result
+                
+
     def Destroy(self, request, context):
         print(f'Destory process {request.uid}')
-        program_pid=int(request.uid)
-        os.kill(program_pid, signal.SIGTERM)
+        uid=int(request.uid)
+        self.CurrentProcess[uid].terminate()
+        del self.CurrentProcess[uid]
         return grpc_orchestrator_pb2.Status(is_error=False, error_msg=NONE)
+
+
+
 
 
 

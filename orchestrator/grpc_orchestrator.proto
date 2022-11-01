@@ -23,12 +23,15 @@
 	 rpc GetProgramList (ProgramListReq) returns (ProgramList);
  
 	 /* Invoke a given gRPC-Supported program */
-	 rpc Create (Args) returns (RichStatus);
+	 rpc Create (CMD) returns (RichStatus);
  
 	 /* Destroy a given gRPC-Supported program */
 	 rpc Destroy (Uid) returns (Status);
- }
- 
+
+	 rpc Create_Attach(CMD) returns(stream Reply);
+
+}
+
  /* Here for future compatibility */
  message ProgramListReq {
  }
@@ -37,10 +40,8 @@
 	 repeated string program_names = 1;
  }
  
- message Args {
-	 string program_name = 1;
-	 string cmdline = 2;
-	 uint32 port = 3;
+ message CMD {
+	 string cmd_str=1;
  }
  
  /*
@@ -61,3 +62,6 @@
 	 Status err_status = 2;
  }
  
+ message Reply{
+	string str=1;
+ }

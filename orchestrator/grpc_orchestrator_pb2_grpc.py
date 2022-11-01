@@ -25,13 +25,18 @@ class OrchestratorStub(object):
                 )
         self.Create = channel.unary_unary(
                 '/Orchestrator/Create',
-                request_serializer=grpc__orchestrator__pb2.Args.SerializeToString,
+                request_serializer=grpc__orchestrator__pb2.CMD.SerializeToString,
                 response_deserializer=grpc__orchestrator__pb2.RichStatus.FromString,
                 )
         self.Destroy = channel.unary_unary(
                 '/Orchestrator/Destroy',
                 request_serializer=grpc__orchestrator__pb2.Uid.SerializeToString,
                 response_deserializer=grpc__orchestrator__pb2.Status.FromString,
+                )
+        self.Create_Attach = channel.unary_stream(
+                '/Orchestrator/Create_Attach',
+                request_serializer=grpc__orchestrator__pb2.CMD.SerializeToString,
+                response_deserializer=grpc__orchestrator__pb2.Reply.FromString,
                 )
 
 
@@ -63,6 +68,12 @@ class OrchestratorServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Create_Attach(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_OrchestratorServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -73,13 +84,18 @@ def add_OrchestratorServicer_to_server(servicer, server):
             ),
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
-                    request_deserializer=grpc__orchestrator__pb2.Args.FromString,
+                    request_deserializer=grpc__orchestrator__pb2.CMD.FromString,
                     response_serializer=grpc__orchestrator__pb2.RichStatus.SerializeToString,
             ),
             'Destroy': grpc.unary_unary_rpc_method_handler(
                     servicer.Destroy,
                     request_deserializer=grpc__orchestrator__pb2.Uid.FromString,
                     response_serializer=grpc__orchestrator__pb2.Status.SerializeToString,
+            ),
+            'Create_Attach': grpc.unary_stream_rpc_method_handler(
+                    servicer.Create_Attach,
+                    request_deserializer=grpc__orchestrator__pb2.CMD.FromString,
+                    response_serializer=grpc__orchestrator__pb2.Reply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -124,7 +140,7 @@ class Orchestrator(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Orchestrator/Create',
-            grpc__orchestrator__pb2.Args.SerializeToString,
+            grpc__orchestrator__pb2.CMD.SerializeToString,
             grpc__orchestrator__pb2.RichStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -143,5 +159,22 @@ class Orchestrator(object):
         return grpc.experimental.unary_unary(request, target, '/Orchestrator/Destroy',
             grpc__orchestrator__pb2.Uid.SerializeToString,
             grpc__orchestrator__pb2.Status.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Create_Attach(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/Orchestrator/Create_Attach',
+            grpc__orchestrator__pb2.CMD.SerializeToString,
+            grpc__orchestrator__pb2.Reply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
