@@ -11,6 +11,30 @@ Simply speaking, it to abstract a 'server' and a 'client' from original applicat
 
 ### How to do
 * Prerequisite: get grpc on c++/python installed  
+  Install grpc env on c++
+  ```
+  sudo snap install cmake --classic
+  sudo apt install -y build-essential autoconf libtool pkg-config
+  git clone --recurse-submodules -b v1.50.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+  cd grpc
+  mkdir -p cmake/build
+  pushd cmake/build
+  cmake -DgRPC_INSTALL=ON \
+      -DgRPC_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
+      ../..
+  make
+  make install
+  ```
+  install grpc env with python
+  ```
+  sudo python -m pip install grpcio
+  sudo python -m pip install grpcio-tools
+  ```
+  Some libs for grpc app build:
+  ```
+  sudo apt install libssl-dev
+  ```
 
 * Copy the original app under 'app' directory, and update array of iterated subdirs in app/meson.build  
 
