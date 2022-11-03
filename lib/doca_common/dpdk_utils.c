@@ -103,6 +103,7 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 				 port, strerror(-ret));
 
 	port_conf.txmode.offloads &= dev_info.tx_offload_capa;
+	app_config->port_config.nb_queues=1;
 	printf(":: initializing port: %d, nb_queues: %d\n", port, app_config->port_config.nb_queues);
 	ret = rte_eth_dev_configure(port,
 								app_config->port_config.nb_queues, app_config->port_config.nb_queues, &port_conf);
