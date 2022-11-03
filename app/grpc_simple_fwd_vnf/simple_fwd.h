@@ -52,6 +52,7 @@ struct simple_fwd_pipe_entry {
 
 struct app_vnf*
 simple_fwd_get_vnf(void);
+int manully_add_entry(struct doca_flow_match* match, struct doca_flow_actions* action, struct doca_flow_fwd* fwd, struct doca_flow_error *error);
 
 
 #ifdef __cplusplus

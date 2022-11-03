@@ -1,5 +1,6 @@
 tests=[
     'simple_fwd_vnf',
+    'grpc_simple_fwd_vnf'
 ]
 foreach t:tests
     sources=[]
@@ -23,6 +24,9 @@ foreach t:tests
 
     if not build
         message('Skipping example "' + t + '"')
+        continue
+    endif
+    if sources.length() == 0
         continue
     endif
     executable('app_'+t, sources,

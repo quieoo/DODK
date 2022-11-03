@@ -925,6 +925,9 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	{
 		DOCA_LOG_ERR("ERROR while validate flow: %d", res);
 		DOCA_LOG_ERR("%s\n", rte_error.message);
+		error->type=rte_error.type;
+		error->message=rte_error.message;
+		return NULL;
 	}
 }
 

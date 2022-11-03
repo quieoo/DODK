@@ -1,0 +1,15 @@
+syntax="proto3";
+
+package simple_flow_offload;
+
+service SimpleFlowOffload{
+    rpc CreateFlow(FlowRule)returns(Reply){}
+}
+
+message FlowRule{
+    string match=1;
+    string action=2;
+    string fwd=3;
+}
+
+message Reply{}
