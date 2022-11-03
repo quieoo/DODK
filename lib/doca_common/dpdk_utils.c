@@ -252,8 +252,7 @@ void dpdk_init(struct application_dpdk_config *app_dpdk_config)
 	ret = rte_lcore_count();
 	if (app_dpdk_config->port_config.nb_queues > 0 && ret < app_dpdk_config->port_config.nb_queues)
 		APP_EXIT("At least %d cores are needed for the application to run, available_cores=%d", app_dpdk_config->port_config.nb_queues, ret);
-	else
-		app_dpdk_config->port_config.nb_queues = ret;
+
 
 	if (app_dpdk_config->reserve_main_thread)
 		app_dpdk_config->port_config.nb_queues -= 1;
