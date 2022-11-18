@@ -19,22 +19,22 @@ class OrchestratorStub(object):
             channel: A grpc.Channel.
         """
         self.GetProgramList = channel.unary_unary(
-                '/Orchestrator/GetProgramList',
+                '/orchestaror.Orchestrator/GetProgramList',
                 request_serializer=grpc__orchestrator__pb2.ProgramListReq.SerializeToString,
                 response_deserializer=grpc__orchestrator__pb2.ProgramList.FromString,
                 )
         self.Create = channel.unary_unary(
-                '/Orchestrator/Create',
+                '/orchestaror.Orchestrator/Create',
                 request_serializer=grpc__orchestrator__pb2.CMD.SerializeToString,
                 response_deserializer=grpc__orchestrator__pb2.RichStatus.FromString,
                 )
         self.Destroy = channel.unary_unary(
-                '/Orchestrator/Destroy',
+                '/orchestaror.Orchestrator/Destroy',
                 request_serializer=grpc__orchestrator__pb2.Uid.SerializeToString,
                 response_deserializer=grpc__orchestrator__pb2.Status.FromString,
                 )
         self.Create_Attach = channel.unary_stream(
-                '/Orchestrator/Create_Attach',
+                '/orchestaror.Orchestrator/Create_Attach',
                 request_serializer=grpc__orchestrator__pb2.CMD.SerializeToString,
                 response_deserializer=grpc__orchestrator__pb2.Reply.FromString,
                 )
@@ -99,7 +99,7 @@ def add_OrchestratorServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'Orchestrator', rpc_method_handlers)
+            'orchestaror.Orchestrator', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -122,7 +122,7 @@ class Orchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Orchestrator/GetProgramList',
+        return grpc.experimental.unary_unary(request, target, '/orchestaror.Orchestrator/GetProgramList',
             grpc__orchestrator__pb2.ProgramListReq.SerializeToString,
             grpc__orchestrator__pb2.ProgramList.FromString,
             options, channel_credentials,
@@ -139,7 +139,7 @@ class Orchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Orchestrator/Create',
+        return grpc.experimental.unary_unary(request, target, '/orchestaror.Orchestrator/Create',
             grpc__orchestrator__pb2.CMD.SerializeToString,
             grpc__orchestrator__pb2.RichStatus.FromString,
             options, channel_credentials,
@@ -156,7 +156,7 @@ class Orchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Orchestrator/Destroy',
+        return grpc.experimental.unary_unary(request, target, '/orchestaror.Orchestrator/Destroy',
             grpc__orchestrator__pb2.Uid.SerializeToString,
             grpc__orchestrator__pb2.Status.FromString,
             options, channel_credentials,
@@ -173,7 +173,7 @@ class Orchestrator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/Orchestrator/Create_Attach',
+        return grpc.experimental.unary_stream(request, target, '/orchestaror.Orchestrator/Create_Attach',
             grpc__orchestrator__pb2.CMD.SerializeToString,
             grpc__orchestrator__pb2.Reply.FromString,
             options, channel_credentials,

@@ -31,6 +31,7 @@ class FlowCreator{
     private:
         unique_ptr<SimpleFlowOffload::Stub> stub_;
     public:
+        FlowCreator(){}
         FlowCreator(shared_ptr<Channel> channel):stub_(SimpleFlowOffload::NewStub(channel)) {}
 
         string CreateFlow(string match, string action, string fwd){
@@ -60,6 +61,7 @@ std::vector<std::string> s_split(const std::string& in, const std::string& delim
             std::sregex_token_iterator()
     };
 }
+
 
 int main(){
     string address;

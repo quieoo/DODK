@@ -101,7 +101,16 @@
         "thread": "cpp",
         "bitset": "cpp",
         "regex": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "dpdk_utils.h": "c",
+        "firewall_core.h": "c",
+        "grpcpp.h": "c",
+        "iterator": "cpp",
+        "doca_flow_grpc_client.h": "c",
+        "rte_cycles.h": "c",
+        "types.h": "c",
+        "*.inc": "cpp",
+        "doca_error.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

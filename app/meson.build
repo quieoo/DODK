@@ -1,10 +1,12 @@
 tests=[
     'simple_fwd_vnf',
-    'grpc_simple_fwd_vnf'
+    'grpc_simple_fwd_vnf',
+    'firewall'
 ]
 foreach t:tests
     sources=[]
     ext_deps = []
+    ext_deps+=dependency('json-c')
     includes = [include_directories(t)]
     deps=[]
     link_whole_libs=[]

@@ -21,6 +21,7 @@ from pyftpdlib.servers import FTPServer
 
 
 path='../build/app/'
+grpc_flow_path='../build/lib/doca_flow/flow_grpc_server'
 LIFETIME_CHECK_NUM_RETRIES          = 3
 LIFETIME_CHECK_SLEEP_PERIOD_SECONDS = 10
 
@@ -36,24 +37,27 @@ class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
         for i in dirlist:
             Completepath = join(path,i)
             if isfile(Completepath):
-                files+=Completepath+"\n"
-                try:
-                    out_bytes = subprocess.check_output(["./"+Completepath, "-h"])
-                    out_text = out_bytes.decode('utf-8')
-                except BaseException:
-                    print("Catch execure file error: "+Completepath)
-                    continue
-                result.append('APP: '+i+out_text)
+                files+=i+"\n"          
+                #try:
+                 #   out_bytes = subprocess.check_output(["./"+Completepath, "-h"])
+                 #   out_text = out_bytes.decode('utf-8')
+                #except BaseException:
+                 #   print("Catch execure file error: "+Completepath)
+                  #  continue
+                #result.append('APP: '+i+out_text)
+        files+='flow_grpc_server\n'
         result.append(files)
         return grpc_orchestrator_pb2.ProgramList(program_names=result)
 
     def Create(self, request, context):
-        cmdstr=path+request.cmd_str
-        cmd = shlex.split(cmdstr)
-        cmd=["stdbuf", "-oL"]+cmd
-        print(cmd)
-
-        p = subprocess.Popen(cmd, shell=False)
+        cmds=shlex.split(request.cmd_str)
+        print(cmds)
+        if cmds[0]=='flow_grpc_server':
+            cmds[0]=grpc_flow_path
+        else:
+            cmds[0]=path+cmds[0]
+        cmds=["stdbuf", "-oL"]+cmds
+        p = subprocess.Popen(cmds, shell=False)
         self.CurrentProcess[self.GlobalUid]=p
         self.GlobalUid=self.GlobalUid+1
 
@@ -63,23 +67,28 @@ class OrchestratorServicer(grpc_orchestrator_pb2_grpc.OrchestratorServicer):
         return rich_status
     
     def Create_Attach(self, request, context):
-        cmdstr=path+request.cmd_str
-        cmd = shlex.split(cmdstr)
-        cmd=["stdbuf", "-oL"]+cmd
-        print(cmd)
+        cmds=shlex.split(request.cmd_str)
+        print(cmds)
+        if cmds[0]=='flow_grpc_server':
+            cmds[0]=grpc_flow_path
+        else:
+            cmds[0]=path+cmds[0]
+        cmds=["stdbuf", "-oL"]+cmds
 
-        p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, encoding='utf8')
+        p = subprocess.Popen(cmds, shell=False, stdout=subprocess.PIPE, encoding='utf8')
         self.CurrentProcess[self.GlobalUid]=p
         self.GlobalUid=self.GlobalUid+1
+
+        yield grpc_orchestrator_pb2.Reply(str='attach to process with uid: '+str(self.GlobalUid-1))
         while p.poll() is None:
             line = p.stdout.readline()
             line = line.strip()
             if line:
-                print(cmd[2]+">> "+line)
+                print(cmds[2]+">> "+line)
                 #print('Subprogram output: {}'.format(line))
                 result=grpc_orchestrator_pb2.Reply(str=line)
                 yield result
-                
+     
 
     def Destroy(self, request, context):
         print(f'Destory process {request.uid}')

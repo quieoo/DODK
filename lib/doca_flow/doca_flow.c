@@ -37,6 +37,7 @@ typedef struct doca_flow_pipe
 	uint32_t group_id;
 	struct doca_flow_fwd *fwd;
 	struct doca_flow_fwd *fwd_miss;
+	uint64_t pipe_id;
 };
 struct doca_flow_pipe *pipes[MAX_PIPE_NUM];
 static int p_pipe = 0;
@@ -61,7 +62,7 @@ void doca_flow_destroy(void)
 	for (int i = 0; i < p_pipe; i++)
 	{
 		struct doca_flow_pipe *p = pipes[i];
-		DOCA_LOG_INFO("	%s", p->cfg->name);
+		DOCA_LOG_INFO("	%d", p->pipe_id);
 		free(p->cfg->port);
 		free(p->cfg->match);
 		free(p->cfg->actions);
@@ -145,7 +146,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	if (!fwd_miss)
 		sprintf(fwd_miss_str, "%s", "	fwd_miss: NULL");
 	else
-		sprintf(fwd_miss_str, "	fwd_miss: %s", fwd_miss->next_pipe->cfg->name);
+		sprintf(fwd_miss_str, "	fwd_miss: %d", fwd_miss->next_pipe->pipe_id);
 	strcpy(create_pipe_str+strlen(create_pipe_str), fwd_str);
 	strcpy(create_pipe_str+strlen(create_pipe_str), fwd_miss_str);
 	DOCA_LOG_INFO("%s", create_pipe_str);
@@ -158,7 +159,9 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	pipe->fwd = calloc(1,sizeof(struct doca_flow_fwd));
 	pipe->fwd_miss = calloc(1,sizeof(struct doca_flow_fwd));
 
-	pipe->cfg->name = cfg->name;
+	//pipe->cfg->name = cfg->name;
+	//strcpy(pipe->cfg->name, cfg->name);
+	
 	pipe->cfg->type = cfg->type;
 	if (cfg->port)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
@@ -179,7 +182,6 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 
 	if (fwd_miss)
 	{
-
 		struct rte_flow_attr attr;
 		struct rte_flow_item pattern[MAX_PATTERN_NUM];
 		struct rte_flow_action action[MAX_ACTION_NUM];
@@ -226,12 +228,13 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 		}
 		else
 		{
-			DOCA_LOG_ERR("ERROR while validate flow: %d\n", res);
+			DOCA_LOG_ERR("ERROR while validate flow: %d", res);
 			DOCA_LOG_ERR("%s\n", rte_error.message);
 		}
 	}
+	pipe->pipe_id=p_pipe;
 	pipes[p_pipe++] = pipe;
-	DOCA_LOG_INFO("Successfully create and offload a flow\n");
+	// DOCA_LOG_INFO("Successfully create and offload a flow");
 
 	return pipe;
 }
@@ -572,7 +575,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 						 void *usr_ctx,
 						 struct doca_flow_error *error)
 {
-	DOCA_LOG_INFO("Add Entry to pipe: %s", pipe->cfg->name);
+	DOCA_LOG_INFO("Add Entry to pipe: %d", pipe->pipe_id);
 	// dpdk need structures
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
@@ -649,6 +652,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		p++;
 	}
 	// tunnel
+	/*
 	if (match->tun.type)
 	{
 
@@ -744,7 +748,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 			p++;
 		}
 	}
-
+	*/
 	pattern[p++].type = RTE_FLOW_ITEM_TYPE_END;
 
 	char pattern_str[300]="	pattern:\n";
@@ -805,6 +809,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 	}
 
 	// do vxlan encap/decap
+	/*
 	if (actions->decap)
 	{
 		action[p++].type = RTE_FLOW_ACTION_TYPE_VXLAN_DECAP;
@@ -814,7 +819,7 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
 		attr.egress = 1;
 		attr.ingress = 0;
 		add_vxlan_encap(action, p++, actions);
-	}
+	}*/
 
 	// forward actions
 	switch (fwd->type)
@@ -971,7 +976,13 @@ int doca_flow_handle_aging(struct doca_flow_port *port, uint16_t queue,
 }
 int doca_flow_entries_process(struct doca_flow_port *port,
 							  uint16_t pipe_queue, uint64_t timeout,
-							  uint32_t max_processed_entries) {}
+							  uint32_t max_processed_entries) 
+{
+	return max_processed_entries;
+}
 
 enum doca_flow_entry_status
-doca_flow_entry_get_status(struct doca_flow_pipe_entry *entry) {}
+doca_flow_entry_get_status(struct doca_flow_pipe_entry *entry) 
+{
+	return DOCA_FLOW_ENTRY_STATUS_SUCCESS;
+}

@@ -1,0 +1,116 @@
+syntax="proto3";
+
+package flow_grpc;
+
+service FlowGRPC{
+    rpc EnvInitialize(DPDKConfig)returns(Response);
+    rpc GRPCInitialize(GRPCConfig)returns(Response);
+    rpc PortStart(FlowPortConfig)returns(Response);
+    rpc PortPair(PortPairRequest)returns(Response);
+    rpc CreatePipe(CreatePipeRequest)returns(Response);
+    rpc AddEntry(AddEntryRequest)returns(Response);
+    rpc PortPipesDump(PortDumpRequest)returns(Response);
+    rpc Query(QueryRequest)returns(Response);
+    rpc FlushPort(PortFlushRequest)returns(Response);
+    rpc RmEntry(RmEntryRequest)returns(Response);
+    rpc DestroyPipe(DestroyPipeRequest)returns(Response);
+    rpc EnvDestroy(EnvDestroyRequest)returns(Response);
+}  
+
+message Response{
+    uint64 pipe_id=1;
+}
+
+message Error{
+    int32 error_type=1;
+    string error_msg=2;
+}
+
+message DPDKConfig{
+    APPPortConfig app_port_config=1;
+    bool reserve_main_thread=2;
+}
+message APPPortConfig{
+    int32 nb_ports=1;
+    int32 nb_queues=2;
+    int32 nb_hairpin_q=3;
+}
+
+message GRPCConfig{
+
+}
+
+message FlowPortConfig{
+    uint32 port_id=1;
+    int32 port_type=2;
+}
+
+message PortPairRequest{
+    uint32 port_id1=1;
+    uint32 port_id2=2;
+}
+
+message PipeConfig{
+    string name=1;
+    int32 type=2;
+    uint32 port_id=3;
+    bool is_root=4;
+    Match match=5;
+    Action action=6;
+    uint32 nb_flows=7;
+}
+
+message Match{
+    string match_rule=1;
+}
+
+message Action{
+    string action_rule=1;
+}
+
+message FWD{
+    string fwd_rule=1;
+}
+
+message CreatePipeRequest{
+    PipeConfig pipe_config=1;
+    FWD fwd=2;
+    FWD fwd_miss=3;
+}
+
+message AddEntryRequest{
+    uint32 pipe_queue=1;
+    uint64 pipe_id=2;
+    Match match=3;
+    Action action=4;
+    FWD fwd=5;
+    uint32 flags=6;
+}
+
+message PortDumpRequest{
+    uint32 port_id=1;
+    string result=2;
+}
+
+message QueryRequest{
+    uint64 entry_id=1;
+    uint64 total_bytes=2;
+    uint64 total_pkts=3;
+}
+
+message PortFlushRequest{
+    uint32 port_id=1;
+}
+
+message RmEntryRequest{
+    uint32 pipe_queue=1;
+    uint64 entry_id=2;
+}
+
+message DestroyPipeRequest{
+    uint32 port_id=1;
+    uint64 pipe_id=2;
+}
+message EnvDestroyRequest{
+
+}
