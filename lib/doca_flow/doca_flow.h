@@ -44,31 +44,31 @@ struct doca_flow_pipe_entry;
  * @brief doca flow error type define
  */
 enum doca_flow_error_type {
-	DOCA_ERROR_UNKNOWN,
+	DOCA_FLOW_ERROR_UNKNOWN,
 	/**< Unknown error */
-	DOCA_ERROR_UNSUPPORTED,
+	DOCA_FLOW_ERROR_UNSUPPORTED,
 	/**< Operation unsupported */
-	DOCA_ERROR_INVALID_PARAM,
+	DOCA_FLOW_ERROR_INVALID_PARAM,
 	/**< Invalid parameter */
-	DOCA_ERROR_PIPE_BUILD_ITEM,
+	DOCA_FLOW_ERROR_PIPE_BUILD_ITEM,
 	/**< Build pipe match items error */
-	DOCA_ERROR_PIPE_MODIFY_ITEM,
+	DOCA_FLOW_ERROR_PIPE_MODIFY_ITEM,
 	/**< Modify pipe match items error */
-	DOCA_ERROR_PIPE_BUILD_ACTION,
+	DOCA_FLOW_ERROR_PIPE_BUILD_ACTION,
 	/**< Build pipe actions error */
-	DOCA_ERROR_PIPE_MODIFY_ACTION,
+	DOCA_FLOW_ERROR_PIPE_MODIFY_ACTION,
 	/**< Modify pipe actions error */
-	DOCA_ERROR_PIPE_BUILD_FWD,
+	DOCA_FLOW_ERROR_PIPE_BUILD_FWD,
 	/**< Build pipe fwd error */
-	DOCA_ERROR_FLOW_CREATE,
+	DOCA_FLOW_ERROR_FLOW_CREATE,
 	/**< Flow creation error */
-	DOCA_ERROR_FLOW_DESTROY,
+	DOCA_FLOW_ERROR_FLOW_DESTROY,
 	/**< Flow destroy error */
-	DOCA_ERROR_OOM,
+	DOCA_FLOW_ERROR_OOM,
 	/**< Out of memory */
-	DOCA_ERROR_PORT,
+	DOCA_FLOW_ERROR_PORT,
 	/**< Port error */
-	DOCA_ERROR_VERIFY_CONFIG
+	DOCA_FLOW_ERROR_VERIFY_CONFIG,
 	/**< Verification error */
 };
 
@@ -90,6 +90,10 @@ enum doca_flow_shared_resource_type {
 	/**< Shared meter type */
 	DOCA_FLOW_SHARED_RESOURCE_COUNT,
 	/**< Shared counter type */
+	DOCA_FLOW_SHARED_RESOURCE_RSS,
+	/**< Shared rss type */
+	DOCA_FLOW_SHARED_RESOURCE_NISP,
+	/**< Shared NISP action type */
 	DOCA_FLOW_SHARED_RESOURCE_MAX,
 	/**< Shared max supported types */
 };
@@ -144,6 +148,13 @@ typedef void (*doca_flow_entry_process_cb)(struct doca_flow_pipe_entry *entry,
 	enum doca_flow_entry_op op, void *user_ctx);
 
 /**
+ * @brief doca flow shared resource unbind callback
+ */
+typedef void (*doca_flow_shared_resource_unbind_cb)(enum doca_flow_shared_resource_type,
+						    uint32_t shared_resource_id,
+						    void *bindable_obj);
+
+/**
  * @brief doca flow global configuration
  */
 struct doca_flow_cfg {
@@ -160,6 +171,8 @@ struct doca_flow_cfg {
 	uint32_t queue_depth;
 	/**< Number of pre-configured queue_size, default to 128 */
 	doca_flow_entry_process_cb cb;
+	/**< callback for entry create/destroy */
+	doca_flow_shared_resource_unbind_cb unbind_cb;
 	/**< callback for entry create/destroy */
 };
 
@@ -180,6 +193,10 @@ enum doca_flow_pipe_type {
 	/**< Flow pipe */
 	DOCA_FLOW_PIPE_CONTROL,
 	/**< Control pipe */
+	DOCA_FLOW_PIPE_LPM,
+	/**< longest prefix match (LPM) pipe */
+	DOCA_FLOW_PIPE_ORDERED_LIST,
+	/**< Ordered list pipe */
 };
 
 /**
@@ -197,9 +214,19 @@ struct doca_flow_port_cfg {
 };
 
 /**
+ * @brief Mapping to doca flow switch port
+ */
+#define DOCA_FLOW_SWITCH doca_flow_port_switch_get()
+
+/**
  * Max meta data size in bytes.
  */
 #define DOCA_FLOW_META_MAX 20
+
+/**
+ * External meta data size in bytes.
+ */
+#define DOCA_FLOW_META_EXT 12
 
 /**
  * @brief doca flow meta data
@@ -211,9 +238,20 @@ struct doca_flow_port_cfg {
  * Struct must be aligned to 32 bits.
  * No initial value for Meta data, must match after setting value.
  */
-struct __attribute__((__packed__)) doca_flow_meta {
-	uint32_t pkt_meta; /**< Shared with applicaiton via packet. */
+struct doca_flow_meta {
+	union {
+		uint32_t pkt_meta; /**< Shared with application via packet. */
+		struct {
+			uint32_t lag_port :2; /**< Bits of LAG member port. */
+			uint32_t type :2; /**< 0: traffic 1: SYN 2: RST 3: FIN. */
+			uint32_t zone :28; /**< Zone ID for CT processing. */
+		} ct;
+	};
 	uint32_t u32[DOCA_FLOW_META_MAX / 4 - 1]; /**< Programmable user data. */
+	uint32_t port_meta; /**< Programmable source vport. */
+	uint32_t mark; /**< Mark id. */
+	uint8_t nisp_syndrome; /**< NISP decrypt/authentication syndrome. */
+	uint8_t align[3]; /**< Structure alignment. */
 };
 
 /**
@@ -238,25 +276,10 @@ enum doca_flow_match_tcp_flags {
 	/**< match tcp packet with Urg flag */
 };
 
-/**
- * @brief doca flow meter resource configuration
- */
-struct doca_flow_resource_meter_cfg {
-	uint64_t cir;
-	/**< Committed Information Rate (bytes/second). */
-	uint64_t cbs;
-	/**< Committed Burst Size (bytes). */
-};
 
 
-/**
- * @brief doca flow shared resource configuration
- */
-struct doca_flow_shared_resource_cfg {
-	union {
-		struct doca_flow_resource_meter_cfg meter_cfg;
-	};
-};
+
+
 
 /**
  * @brief doca flow matcher information
@@ -294,7 +317,7 @@ struct doca_flow_match {
 	/**< inner destination mac address */
 	doca_be16_t in_eth_type;
 	/**< inner Ethernet layer type */
-	doca_be16_t in_vlan_id;
+	doca_be16_t in_vlan_tci;
 	/**< inner vlan id */
 	struct doca_flow_ip_addr in_src_ip;
 	/**< inner source ip address if tunnel is used */
@@ -318,6 +341,8 @@ struct doca_flow_encap_action {
 	/**< source mac address */
 	uint8_t dst_mac[DOCA_ETHER_ADDR_LEN];
 	/**< destination mac address */
+	doca_be16_t vlan_tci;
+	/**< vlan tci */
 	struct doca_flow_ip_addr src_ip;
 	/**< source ip address */
 	struct doca_flow_ip_addr dst_ip;
@@ -330,9 +355,14 @@ struct doca_flow_encap_action {
  * @brief doca flow actions information
  */
 struct doca_flow_actions {
+	uint8_t action_idx;
+	/**< index according to place provided on creation */
 	uint32_t flags;
 	/**< action flags */
 	bool decap;
+	/**< when true, will do decap */
+	struct doca_flow_meta meta;
+	/**< modify meta data, pipe action as mask */
 	/**< when true, will do decap */
 	uint8_t mod_src_mac[DOCA_ETHER_ADDR_LEN];
 	/**< modify source mac address */
@@ -352,8 +382,8 @@ struct doca_flow_actions {
 	/**< when true, will do encap */
 	struct doca_flow_encap_action encap;
 	/**< encap data information */
-	struct doca_flow_meta meta;
-	/**< modify meta data, pipe action as mask */
+	uint32_t shared_nisp_id;
+	/**< NISP shared action id */
 };
 
 /**
@@ -368,8 +398,10 @@ enum doca_flow_fwd_type {
 	/**< Forwards packets to one port */
 	DOCA_FLOW_FWD_PIPE,
 	/**< Forwards packets to another pipe */
-	DOCA_FLOW_FWD_DROP
+	DOCA_FLOW_FWD_DROP,
 	/**< Drops packets */
+	DOCA_FLOW_FWD_ORDERED_LIST_PIPE,
+	/**< Forwards packet to a specific entry in an ordered list pipe. */
 };
 
 /**
@@ -412,6 +444,88 @@ struct doca_flow_fwd {
 			/**< next pipe pointer */
 		};
 		/**< next pipe configuration information */
+		struct {
+			/** Ordered list pipe to select an entry from. */
+			struct doca_flow_pipe *pipe;
+			/** Index of the ordered list pipe entry. */
+			uint32_t idx;
+		} ordered_list_pipe;
+		/**< next ordered list pipe configuration */
+	};
+};
+
+
+/**
+ * @brief doca flow rss resource configuration
+ */
+struct doca_flow_resource_rss_cfg {
+	uint32_t flags;
+	/**< rss offload types */
+	uint16_t *queues_array;
+	/**< rss queues array */
+	int nr_queues;
+	/**< number of queues */
+};
+/**
+ * @brief doca flow meter resource configuration
+ */
+struct doca_flow_resource_meter_cfg {
+	uint64_t cir;
+	/**< Committed Information Rate (bytes/second). */
+	uint64_t cbs;
+	/**< Committed Burst Size (bytes). */
+};
+/**
+ * @brief doca flow NISP reformat operation type
+ */
+enum doca_flow_nisp_reformat_type {
+	DOCA_FLOW_NISP_REFORMAT_NONE = 0,
+	/**< no encap and decap operation performed by NISP action */
+	DOCA_FLOW_NISP_REFORMAT_ENCAP,
+	/**< do NISP encap - remove L2 header and prepend with NISP tunnel */
+	DOCA_FLOW_NISP_REFORMAT_DECAP,
+	/**< do NISP decap - remove NISP tunnel header and prepend with L2 */
+};
+
+/**
+ * @brief doca flow NISP crypto operation type
+ */
+enum doca_flow_nisp_crypto_type {
+	DOCA_FLOW_NISP_CRYPTO_NONE = 0,
+	/**< no crypto operation performed by NISP action */
+	DOCA_FLOW_NISP_CRYPTO_ENCRYPT,
+	/**< do NISP packet encrypt */
+	DOCA_FLOW_NISP_CRYPTO_DECRYPT,
+	/**< do NISP packet decrypt */
+};
+/**
+ * @brief doca flow NISP resource configuration
+ */
+struct doca_flow_resource_nisp_cfg {
+	enum doca_flow_nisp_reformat_type reformat_type;
+	/**< packet reformat action */
+	enum doca_flow_nisp_crypto_type crypto_type;
+	/**< crypto action */
+	uint16_t reformat_data_sz;
+	/**< reformat header length in bytes */
+	uint8_t reformat_data[DOCA_FLOW_NISP_REFORMAT_LEN_MAX];
+	/**< reformat header buffer */
+	uint16_t key_sz;
+	/**< NISP key size in bytes */
+	uint8_t key[DOCA_FLOW_NISP_KEY_LEN_MAX];
+	/**< NISP key buffer */
+	struct doca_flow_fwd fwd;
+	/**< NISP action continuation */
+};
+
+/**
+ * @brief doca flow shared resource configuration
+ */
+struct doca_flow_shared_resource_cfg {
+	union {
+		struct doca_flow_resource_meter_cfg meter_cfg;
+		struct doca_flow_resource_rss_cfg rss_cfg;
+		struct doca_flow_resource_nisp_cfg nisp_cfg;
 	};
 };
 
@@ -442,6 +556,10 @@ struct doca_flow_monitor {
 		/**< Committed Burst Size (bytes). */
 	};
 	/**< meter action configuration */
+	uint32_t shared_meter_id;
+	/**< shared meter id */
+	uint32_t shared_counter_id;
+	/**< shared counter id */
 	uint32_t aging;
 	/**< aging time in seconds.*/
 	uint64_t user_data;
@@ -474,8 +592,8 @@ struct doca_flow_action_field {
 struct doca_flow_action_desc {
 	enum doca_flow_action_type type; /**< type */
 	union {
-		union { /* Mask of modification. */
-			struct doca_flow_meta meta;
+		union { /* Mask value of modify action type CONST and SET, host order for meta, BE otherwise. */
+			uint32_t u32;
 			uint64_t u64;
 			uint8_t u8[16];
 		} mask;
@@ -485,11 +603,20 @@ struct doca_flow_action_desc {
 			uint32_t width; /* Bit width to copy */
 		} copy;
 		struct {
-			uint64_t val; /* Value to add */
-			struct doca_flow_action_field dst; /* Bit offset of target. */
+			struct doca_flow_action_field dst; /* destination info. */
+			uint32_t width; /* Bit width to add */
 		} add;
 	};
 };
+
+/**
+ * @brief Metadata action description per field
+ */
+struct doca_flow_action_descs_meta {
+	struct doca_flow_action_desc pkt_meta; /**< action description of pkt_meta. */
+	struct doca_flow_action_desc u32[DOCA_FLOW_META_MAX / 4 - 1]; /**< action description of meta. */
+};
+
 
 /**
  * @brief packet action descriptions
@@ -510,24 +637,83 @@ struct doca_flow_action_descs_packet {
  * @brief action descriptions
  */
 struct doca_flow_action_descs {
-	struct doca_flow_action_desc meta;           /**< action description of meta data. */
-	struct doca_flow_action_descs_packet outer;  /**< action descriptions of outer packet. */
+	struct doca_flow_action_descs_meta meta;     /**< action description of meta data. */
+	struct doca_flow_action_desc src_mac;        /**< action description of source MAC. */
+	struct doca_flow_action_desc dst_mac;        /**< action description of destination MAC. */
+	struct doca_flow_action_desc eth_type;       /**< action description of ether type. */
+	struct doca_flow_action_desc vlan_id;        /**< action description of VLAN ID. */
+	struct doca_flow_action_desc src_ip;         /**< action description of source IP. */
+	struct doca_flow_action_desc dst_ip;         /**< action description of destination IP. */
+	struct doca_flow_action_desc ttl;            /**< action description of IPv4 TTL. */
+	struct doca_flow_action_desc src_port;       /**< action description of source L4 port. */
+	struct doca_flow_action_desc dst_port;       /**< action description of destination L4 port. */
 	struct doca_flow_action_desc tunnel;         /**< action description of tunnel. */
-	struct doca_flow_action_descs_packet inner;  /**< action descriptions of outer packet. */
 };
+
+
+/** Type of an ordered list element. */
+enum doca_flow_ordered_list_element_type {
+	/**
+	 * Ordered list element is struct doca_flow_actions,
+	 * the next element is struct doca_flow_action_descs
+	 * associated with the current element.
+	 */
+	DOCA_FLOW_ORDERED_LIST_ELEMENT_ACTIONS,
+	/**
+	 * Ordered list element is struct doca_flow_action_descs.
+	 * If the previous element type is ACTIONS, the current element is associated with it.
+	 * Otherwise the current element is ordered w.r.t. the previous one.
+	 */
+	DOCA_FLOW_ORDERED_LIST_ELEMENT_ACTION_DESCS,
+	/**
+	 * Ordered list element is struct doca_flow_monitor.
+	 */
+	DOCA_FLOW_ORDERED_LIST_ELEMENT_MONITOR,
+};
+
+/** Ordered list configuration. */
+struct doca_flow_ordered_list {
+	/**
+	 * List index among the lists of the pipe.
+	 * At pipe creation, it must match the list position in the array of lists.
+	 * At entry insertion, it determines which list to use.
+	 */
+	uint32_t idx;
+	/** Number of elements in the list. */
+	uint32_t size;
+	/** An array of DOCA flow structure pointers, depending on types. */
+	const void **elements;
+	/** Types of DOCA Flow structures each of the elements is pointing to. */
+	enum doca_flow_ordered_list_element_type *types;
+};
+
+/**
+ * @brief pipe attributes
+ */
+struct doca_flow_pipe_attr {
+	const char *name;
+	/**< name for the pipeline */
+	enum doca_flow_pipe_type type;
+	/**< type of pipe. enum doca_flow_pipe_type */
+	bool is_root;
+	/**< pipeline is root or not. If true it means the pipe is a root pipe executed on packet arrival. */
+	uint32_t nb_flows;
+	/**< maximum number of flow rules, default is 8k if not set */
+	uint8_t nb_actions;
+	/**< maximum number of doca flow action array, default is 1 if not set */
+	uint8_t nb_ordered_lists;
+	/**< number of ordered lists in the array, default 0, mutually exclusive with nb_actions */
+};
+
 
 /**
  * @brief pipeline configuration
  */
 struct doca_flow_pipe_cfg {
-	const char *name;
-	/**< name for the pipeline */
-	enum doca_flow_pipe_type type;
+	struct doca_flow_pipe_attr attr;
 	/**< type of pipe. enum doca_flow_pipe_type */
 	struct doca_flow_port *port;
 	/**< port for the pipeline */
-	bool is_root;
-	/**< pipeline is root or not */
 	struct doca_flow_match *match;
 	/**< matcher for the pipeline */
 	struct doca_flow_match *match_mask;
@@ -538,8 +724,8 @@ struct doca_flow_pipe_cfg {
 	/**< action descriptions */
 	struct doca_flow_monitor *monitor;
 	/**< monitor for the pipeline */
-	uint32_t nb_flows;
-	/**< Maximum number of flow rules, default is 8k if not set */
+	struct doca_flow_ordered_list **ordered_lists;
+	/**< array of ordered list types */
 };
 
 /**
@@ -550,6 +736,15 @@ struct doca_flow_query {
 	/**< total bytes hit this flow */
 	uint64_t total_pkts;
 	/**< total packets hit this flow */
+};
+
+/**
+ * @brief flow shared resources query result
+ */
+struct doca_flow_shared_resource_result {
+	union {
+		struct doca_flow_query counter;
+	};
 };
 
 /**
@@ -707,6 +902,32 @@ doca_flow_shared_resources_bind(enum doca_flow_shared_resource_type type, uint32
 				struct doca_flow_error *error);
 
 /**
+ * @brief Extract information about shared counter
+ *
+ * Query an array of shared objects of a specific type.
+ *
+ * @param type
+ * Shared object type.
+ * @param res_array
+ * Array of shared objects IDs to query.
+ * @param query_results_array
+ * Data array retrieved by the query.
+ * @param array_len
+ * Number of objects and their query results in their arrays (same number).
+ * @param error
+ * Output error, set doca_flow_error for details.
+ * @return
+ * 0 on success, negative on failure.
+ */
+int
+doca_flow_shared_resources_query(enum doca_flow_shared_resource_type type,
+				 uint32_t *res_array,
+				 struct doca_flow_shared_resource_result *query_results_array,
+				 uint32_t array_len,
+				 struct doca_flow_error *error);
+
+
+/**
  * @brief Create one new pipe.
  *
  * Create new pipeline to match and offload specific packets, the pipe
@@ -805,6 +1026,12 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
  * Pointer to match, indicate specific packet match information.
  * @param match_mask
  * Pointer to match mask information.
+ * @param actions
+ * Pointer to modify actions, indicate specific modify information.
+ * @param action_descs
+ * action descriptions
+ * @param monitor
+ * Pointer to monitor actions.
  * @param fwd
  * Pointer to fwd actions.
  * @param error
@@ -812,14 +1039,59 @@ doca_flow_pipe_add_entry(uint16_t pipe_queue,
  * @return
  * Pipe entry handler on success, NULL otherwise and error is set.
  */
+__DOCA_EXPERIMENTAL
 struct doca_flow_pipe_entry*
-doca_flow_control_pipe_add_entry(uint16_t pipe_queue,
-			uint8_t priority,
+doca_flow_pipe_control_add_entry(uint16_t pipe_queue,
+			uint32_t priority,
 			struct doca_flow_pipe *pipe,
 			const struct doca_flow_match *match,
 			const struct doca_flow_match *match_mask,
+			const struct doca_flow_actions *actions,
+			const struct doca_flow_action_descs *action_descs,
+			const struct doca_flow_monitor *monitor,
 			const struct doca_flow_fwd *fwd,
 			struct doca_flow_error *error);
+
+/**
+ * @brief Add one new entry to a lpm pipe.
+ *
+ * This API will populate the lpm entries
+ *
+ * @param pipe_queue
+ * Queue identifier.
+ * @param pipe
+ * Pointer to pipe.
+ * @param match
+ * Pointer to match, indicate specific packet match information.
+ * @param match_mask
+ * Pointer to match mask information.
+ * @param actions
+ * Pointer to modify actions, indicate specific modify information.
+ * @param monitor
+ * Pointer to monitor actions.
+ * @param fwd
+ * Pointer to fwd actions.
+ * @param flag
+ * Flow entry will be pushed to hw immediately or not. enum doca_flow_flags_type.
+ * @param usr_ctx
+ * Pointer to user context.
+ * @param error
+ * Output error, set doca_flow_error for details.
+ * @return
+ * Pipe entry handler on success, NULL otherwise and error is set.
+ */
+__DOCA_EXPERIMENTAL
+struct doca_flow_pipe_entry*
+doca_flow_pipe_lpm_add_entry(uint16_t pipe_queue,
+			 struct doca_flow_pipe *pipe,
+			 const struct doca_flow_match *match,
+			 const struct doca_flow_match *match_mask,
+			 const struct doca_flow_actions *actions,
+			 const struct doca_flow_monitor *monitor,
+			 const struct doca_flow_fwd *fwd,
+			 const enum doca_flow_flags_type flag,
+			 void *usr_ctx,
+			 struct doca_flow_error *error);
 
 /**
  * @brief Free one pipe entry.
@@ -853,8 +1125,7 @@ doca_flow_pipe_rm_entry(uint16_t pipe_queue, void *usr_ctx,
  * Pointer to pipe.
  */
 void
-doca_flow_destroy_pipe(uint16_t port_id,
-		       struct doca_flow_pipe *pipe);
+doca_flow_destroy_pipe(struct doca_flow_pipe *pipe);
 
 /**
  * @brief Flush pipes of one port
@@ -865,7 +1136,7 @@ doca_flow_destroy_pipe(uint16_t port_id,
  * Port id of the port.
  */
 void
-doca_flow_port_pipes_flush(uint16_t port_id);
+doca_flow_port_pipes_flush(struct doca_flow_port *port);
 
 /**
  * @brief Destroy a doca port.
@@ -876,7 +1147,7 @@ doca_flow_port_pipes_flush(uint16_t port_id);
  * Port id of the port.
  */
 void
-doca_flow_destroy_port(uint16_t port_id);
+doca_flow_destroy_port(struct doca_flow_port *port);
 
 /**
  * @brief Dump pipe of one port
@@ -889,8 +1160,19 @@ doca_flow_destroy_port(uint16_t port_id);
  * The output file of the pipe information.
  */
 void
-doca_flow_port_pipes_dump(uint16_t port_id, FILE *f);
+doca_flow_port_pipes_dump(struct doca_flow_port *port, FILE *f);
 
+/**
+ * @brief Dump pipe information
+ *
+ * @param pipe
+ * Pointer to doca flow pipe.
+ * @param f
+ * The output file of the pipe information.
+ */
+ __DOCA_EXPERIMENTAL
+void
+doca_flow_pipe_dump(struct doca_flow_pipe *pipe, FILE *f);
 /**
  * @brief Extract information about specific entry
  *
@@ -975,6 +1257,47 @@ doca_flow_entries_process(struct doca_flow_port *port,
  */
 enum doca_flow_entry_status
 doca_flow_entry_get_status(struct doca_flow_pipe_entry *entry);
+
+struct doca_flow_port *
+doca_flow_port_switch_get(void);
+
+
+
+/**
+ * Add an entry to the ordered list pipe.
+ *
+ * @param pipe_queue
+ * Queue identifier.
+ * @param pipe
+ * Pipe handle.
+ * @param idx
+ * Unique entry index. It is the user's responsibility to ensure uniqueness.
+ * @param ordered_list
+ * Ordered list with pointers to struct doca_flow_actions and struct doca_flow_monitor
+ * at the same indices as they were at the pipe creation time.
+ * If the configuration contained an element of struct doca_flow_action_descs,
+ * the corresponding array element is ignored and can be NULL.
+ * @param fwd
+ * Entry forward configuration.
+ * @param flags
+ * Entry insertion flags.
+ * @param user_ctx
+ * Opaque context for the completion callback.
+ * @param[out] error
+ * Receives immediate error info.
+ * @return struct doca_flow_pipe_entry *
+ * The entry inserted.
+ */
+struct doca_flow_pipe_entry *
+doca_flow_pipe_ordered_list_add_entry(uint16_t pipe_queue,
+		struct doca_flow_pipe *pipe,
+		uint32_t idx,
+		const struct doca_flow_ordered_list *ordered_list,
+		const struct doca_flow_fwd *fwd,
+		enum doca_flow_flags_type flags,
+		void *user_ctx,
+		struct doca_flow_error *error);
+
 
 #ifdef __cplusplus
 } /* extern "C" */

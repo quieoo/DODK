@@ -209,8 +209,8 @@ simple_fwd_build_port_fwd_miss(struct simple_fwd_port_cfg *port_cfg,
 	pipe_cfg.port = port;
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
-	pipe_cfg.name = "NEXT_PIPE";
-	pipe_cfg.type = DOCA_FLOW_PIPE_BASIC;
+	pipe_cfg.attr.name = "NEXT_PIPE";
+	pipe_cfg.attr.type = DOCA_FLOW_PIPE_BASIC;
 
 	/* build fwd config */
 	n_queues = DEF_RSS_QUEUE;
@@ -371,10 +371,10 @@ simple_fwd_build_vxlan_pipe(struct doca_flow_port *port)
 	fwd = simple_fwd_get_fwd(port_cfg);
 	fwd_miss = simple_fwd_get_fwd_miss(port_cfg);
 	/* create pipe */
-	pipe_cfg.name = "VXLAN_FWD";
-	pipe_cfg.type = DOCA_FLOW_PIPE_BASIC;
+	pipe_cfg.attr.name = "VXLAN_FWD";
+	pipe_cfg.attr.type = DOCA_FLOW_PIPE_BASIC;
 	pipe_cfg.port = port;
-	pipe_cfg.is_root = true;
+	pipe_cfg.attr.is_root = true;
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
 	pipe_cfg.monitor = &monitor;
@@ -408,10 +408,10 @@ simple_fwd_build_no_tunnel_pipe(struct doca_flow_port *port){
 	match.out_dst_port = RTE_BE16(DOCA_VXLAN_DEFAULT_PORT);
 	match.tun.type = DOCA_FLOW_TUN_NONE;
 
-	pipe_cfg.name="PLAIN_FWD";
-	pipe_cfg.type=DOCA_FLOW_PIPE_BASIC;
+	pipe_cfg.attr.name="PLAIN_FWD";
+	pipe_cfg.attr.type=DOCA_FLOW_PIPE_BASIC;
 	pipe_cfg.port=port;
-	pipe_cfg.is_root=true;
+	pipe_cfg.attr.is_root=true;
 	pipe_cfg.match=&match;
 	pipe_cfg.actions=&actions;
 	pipe_cfg.monitor=&monitor;
@@ -461,10 +461,10 @@ simple_fwd_build_gre_pipe(struct doca_flow_port *port)
 		actions.encap.tun.vxlan_tun_id = BUILD_VNI(0xcdab12);
 	}
 	/* create pipe */
-	pipe_cfg.name = "GRE_FWD";
-	pipe_cfg.type = DOCA_FLOW_PIPE_BASIC;
+	pipe_cfg.attr.name = "GRE_FWD";
+	pipe_cfg.attr.type = DOCA_FLOW_PIPE_BASIC;
 	pipe_cfg.port = port;
-	pipe_cfg.is_root = true;
+	pipe_cfg.attr.is_root = true;
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
 
@@ -499,10 +499,10 @@ simple_fwd_build_gtp_pipe(struct doca_flow_port *port)
 	actions.mod_dst_ip.ipv4_addr = 0xffffffff;
 
 	/* create pipe */
-	pipe_cfg.name = "GTP_FWD";
-	pipe_cfg.type = DOCA_FLOW_PIPE_BASIC;
+	pipe_cfg.attr.name = "GTP_FWD";
+	pipe_cfg.attr.type = DOCA_FLOW_PIPE_BASIC;
 	pipe_cfg.port = port;
-	pipe_cfg.is_root = true;
+	pipe_cfg.attr.is_root = true;
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
 

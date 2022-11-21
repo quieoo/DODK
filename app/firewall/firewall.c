@@ -522,8 +522,8 @@ parse_match_field(char *field_name, char *value, void *struct_ptr)
 	else if (strcmp(field_name, "in_eth_type") == 0)
 		match->in_eth_type = (uint16_t)strtol(value, NULL, HEXADECIMAL_BASE);
 
-	else if (strcmp(field_name, "in_vlan_id") == 0)
-		match->in_vlan_id = (uint16_t)strtol(value, NULL, 0);
+	else if (strcmp(field_name, "in_vlan_tci") == 0)
+		match->in_vlan_tci = (uint16_t)strtol(value, NULL, 0);
 
 	else if (strcmp(field_name, "in_src_ip_type") == 0)
 		match->in_src_ip.type = parse_ip_type(value);
@@ -625,13 +625,13 @@ parse_create_pipe_params(char *params_str, struct doca_flow_grpc_pipe_cfg *clien
 			client_cfg->port_id = atoi(param_str_value);
 			has_port_id = true;
 		} else if (strncmp(params_str, "name=", NAME_STR_LEN) == 0) {
-			if (client_cfg->cfg->name == NULL) {
-				client_cfg->cfg->name = (char *)malloc(MAX_FIELD_INPUT_LEN);
+			if (client_cfg->cfg->attr.name == NULL) {
+				client_cfg->cfg->attr.name = (char *)malloc(MAX_FIELD_INPUT_LEN);
 				params_str += NAME_STR_LEN;
 				strlcpy(ptr, params_str, MAX_CMDLINE_INPUT_LEN);
 				param_str_value = strtok(ptr, ",");
 				params_str += strlen(param_str_value);
-				strlcpy((char *)client_cfg->cfg->name, param_str_value, MAX_FIELD_INPUT_LEN);
+				strlcpy((char *)client_cfg->cfg->attr.name, param_str_value, MAX_FIELD_INPUT_LEN);
 			} else
 				DOCA_LOG_WARN("Name field is already initialized");
 		} else if (strncmp(params_str, "root_enable=", ROOT_ENABLE_STR_LEN) == 0) {
@@ -641,7 +641,7 @@ parse_create_pipe_params(char *params_str, struct doca_flow_grpc_pipe_cfg *clien
 				goto error;
 			}
 			if (take_action)
-				client_cfg->cfg->is_root = true;
+				client_cfg->cfg->attr.is_root = true;
 			take_action = false;
 		} else if (strncmp(params_str, "monitor=", MONITOR_STR_LEN) == 0) {
 			value = parse_bool_params_input(&params_str, MONITOR_STR_LEN, &take_action);
@@ -677,7 +677,7 @@ parse_create_pipe_params(char *params_str, struct doca_flow_grpc_pipe_cfg *clien
 			params_str += TYPE_STR_LEN;
 			strlcpy(ptr, params_str, MAX_FIELD_INPUT_LEN);
 			type_str = strtok(ptr, ",");
-			client_cfg->cfg->type = parse_pipe_type(type_str);
+			client_cfg->cfg->attr.type = parse_pipe_type(type_str);
 			params_str += strlen(type_str);
 		}
 		tmp_char = params_str[0];
@@ -690,8 +690,8 @@ parse_create_pipe_params(char *params_str, struct doca_flow_grpc_pipe_cfg *clien
 	}
 	return 0;
 error:
-	if (client_cfg->cfg->name != NULL)
-		free((void *)client_cfg->cfg->name);
+	if (client_cfg->cfg->attr.name != NULL)
+		free((void *)client_cfg->cfg->attr.name);
 	return -1;
 }
 

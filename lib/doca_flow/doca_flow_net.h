@@ -29,11 +29,43 @@ typedef uint64_t doca_be64_t; /**< 64-bit big-endian value. */
 #define DOCA_PROTO_GRE (47) /**< Cisco GRE tunnels (rfc 1701,1702). */
 #define DOCA_GTPU_PORT (2152) /**< gtpu upd port id. */
 #define DOCA_VXLAN_DEFAULT_PORT (4789) /**< default vxlan port id. */
+#define DOCA_NISP_DEFAULT_PORT (1000) /**< default nisp/audp port id. */
 
 /* Ethernet frame types */
 #define DOCA_ETHER_TYPE_IPV4 (0x0800) /**< IPv4 Protocol. */
 #define DOCA_ETHER_TYPE_IPV6 (0x86DD) /**< IPv6 Protocol. */
 #define DOCA_ETHER_TYPE_TEB  (0x6558) /**< Transparent Ethernet Bridging. */
+
+/** AUDP header maximal length in dwords */
+#define DOCA_FLOW_AUDP_DWORD 6
+/** AUDP header maximal length in bytes */
+#define DOCA_FLOW_AUDP_HEADER_LEN (DOCA_FLOW_AUDP_DWORD * sizeof(doca_be32_t))
+
+/** NISP header maximal length in dwords */
+#define DOCA_FLOW_NISP_DWORD 10
+/** NISP header maximal length in bytes */
+#define DOCA_FLOW_NISP_HEADER_LEN (DOCA_FLOW_NISP_DWORD * sizeof(doca_be32_t))
+
+/** NISP key maximal length in bytes */
+#define DOCA_FLOW_NISP_KEY_LEN_MAX 32
+
+
+/**
+ * NISP tunnel header may consist of:
+ *  - Ethernet addresses
+ *  - Ethernet type
+ *  - optional VLAN and 802.1Q headers
+ *  - IPv4 (with full options) or IPv6 (w/o options)
+ *  - UDP header
+ *  - NISP header
+ */
+#define DOCA_FLOW_NISP_REFORMAT_LEN_MAX	\
+	(DOCA_ETHER_ADDR_LEN * 2 +	\
+	 sizeof(doca_be16_t) +		\
+	 sizeof(doca_be16_t) * 2 * 2 +	\
+	 sizeof(doca_be32_t) * 15 +	\
+	 sizeof(doca_be32_t) * 2 +	\
+	 DOCA_FLOW_NISP_HEADER_LEN)
 
 /**
  * @brief doca flow ip address type
@@ -73,6 +105,10 @@ enum doca_flow_tun_type {
 	/**< tunnel is gtpu type */
 	DOCA_FLOW_TUN_GRE,
 	/**< tunnel is gre type */
+	DOCA_FLOW_TUN_NISP,
+	/**< tunnel is nisp type */
+	DOCA_FLOW_TUN_AUDP,
+	/**< tunnel is nisp type */
 };
 
 /**
@@ -88,10 +124,12 @@ struct doca_flow_tun {
 		};
 		/**< vxlan information if tunnel is vxlan */
 		struct {
-			doca_be32_t gre_key;
-			/**< gre key */
+			doca_be16_t key_present:1;
+			/**< gre key is present*/
 			doca_be16_t protocol;
 			/**< next protocol */
+			doca_be32_t gre_key;
+			/**< gre key */
 		};
 		/**< gre information if tunnel is gre */
 		struct {
@@ -99,6 +137,16 @@ struct doca_flow_tun {
 			/**< gtp teid */
 		};
 		/**< gtp information if tunnel is gtp */
+		struct {
+			doca_be32_t nisp_hdr[DOCA_FLOW_NISP_DWORD];
+			/**< Opaque nisp tunnel header */
+		};
+		/**< nisp information if tunnel is nisp*/
+		struct {
+			doca_be32_t audp_hdr[DOCA_FLOW_AUDP_DWORD];
+			/**< Opaque audp tunnel header */
+		};
+		/**< audp information if tunnel is audp */
 	};
 };
 

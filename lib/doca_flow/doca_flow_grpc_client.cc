@@ -200,8 +200,8 @@ class FlowGrpcClient{
             int i=0;
             CreatePipeRequest cp;
 
-            cp.mutable_pipe_config()->set_name(string(cfg->cfg->name));
-            cp.mutable_pipe_config()->set_is_root(cfg->cfg->is_root);
+            cp.mutable_pipe_config()->set_name(string(cfg->cfg->attr.name));
+            cp.mutable_pipe_config()->set_is_root(cfg->cfg->attr.is_root);
             cp.mutable_pipe_config()->mutable_match()->set_match_rule(match_to_str(cfg->cfg->match));
             cp.mutable_pipe_config()->mutable_action()->set_action_rule(action_to_str(cfg->cfg->actions));
             cp.mutable_fwd()->set_fwd_rule(fwd_to_str(fwd));

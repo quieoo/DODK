@@ -1,6 +1,5 @@
 tests=[
     'simple_fwd_vnf',
-    'grpc_simple_fwd_vnf',
     'firewall'
 ]
 foreach t:tests

@@ -301,7 +301,7 @@ build_hairpin_pipe(uint16_t port_id)
 	memset(&fwd, 0, sizeof(fwd));
 	memset(&pipe_cfg, 0, sizeof(pipe_cfg));
 
-	pipe_cfg.name = "HAIRPIN_PIPE";
+	pipe_cfg.attr.name = "HAIRPIN_PIPE";
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
 	client_cfg.cfg = &pipe_cfg;
@@ -342,10 +342,10 @@ build_drop_pipe(uint16_t port_id, uint64_t next_pipe_id, uint8_t protocol_type)
 	memset(&fwd, 0, sizeof(fwd));
 	memset(&pipe_cfg, 0, sizeof(pipe_cfg));
 
-	pipe_cfg.name = "DROP_PIPE";
+	pipe_cfg.attr.name = "DROP_PIPE";
 	pipe_cfg.match = &match;
 	pipe_cfg.actions = &actions;
-	pipe_cfg.is_root = true;
+	pipe_cfg.attr.is_root = true;
 	client_cfg.cfg = &pipe_cfg;
 	client_cfg.port_id = port_id;
 

@@ -190,8 +190,8 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		free(g_config);
 	}
 
-	void doca_argp_usage(void) {}
+void doca_argp_usage(void) {}
 
-	void doca_argp_register_version_callback(callback_func callback) {}
+void doca_argp_register_version_callback(callback_func callback) {}
 
-	void doca_argp_register_validation_callback(callback_func callback) {}
+void doca_argp_register_validation_callback(callback_func callback) {}

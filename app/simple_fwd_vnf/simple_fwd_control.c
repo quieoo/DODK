@@ -117,8 +117,8 @@ simple_fwd_build_control_pipe(struct doca_flow_port *port)
 	struct doca_flow_error error = {0};
 
 	/* create pipe */
-	pipe_cfg.name = "CONTROL_PIPE";
-	pipe_cfg.type = DOCA_FLOW_PIPE_CONTROL;
+	pipe_cfg.attr.name = "CONTROL_PIPE";
+	pipe_cfg.attr.type = DOCA_FLOW_PIPE_CONTROL;
 	pipe_cfg.port = port;
 	return doca_flow_create_pipe(&pipe_cfg, NULL, NULL,  &error);
 }

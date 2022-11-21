@@ -131,7 +131,7 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 					  struct doca_flow_error *error)
 {
 	char create_pipe_str[100];
-	sprintf(create_pipe_str, "Create pipe %s", cfg->name);
+	sprintf(create_pipe_str, "Create pipe %s", cfg->attr.name);
 	char fwd_str[30];
 	char fwd_miss_str[20];
 	char fwd_type_str[20];
@@ -162,20 +162,20 @@ doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
 	//pipe->cfg->name = cfg->name;
 	//strcpy(pipe->cfg->name, cfg->name);
 	
-	pipe->cfg->type = cfg->type;
+	pipe->cfg->attr.type = cfg->attr.type;
 	if (cfg->port)
 		memcpy(pipe->cfg->port, cfg->port, sizeof(struct doca_flow_port));
-	pipe->cfg->is_root = cfg->is_root;
+	pipe->cfg->attr.is_root = cfg->attr.is_root;
 	if (cfg->match)
 		memcpy(pipe->cfg->match, cfg->match, sizeof(struct doca_flow_match));
 	if (cfg->actions)
 		memcpy(pipe->cfg->actions, cfg->actions, sizeof(struct doca_flow_actions));
-	pipe->cfg->nb_flows = cfg->nb_flows;
+	pipe->cfg->attr.nb_flows = cfg->attr.nb_flows;
 	if (fwd)
 		memcpy(pipe->fwd, fwd, sizeof(struct doca_flow_fwd));
 	if (fwd_miss)
 		memcpy(pipe->fwd_miss, fwd_miss, sizeof(struct doca_flow_fwd));
-	if (!(cfg->is_root))
+	if (!(cfg->attr.is_root))
 		pipe->group_id = ++GROUP;
 	else
 		pipe->group_id = 0;
@@ -423,7 +423,7 @@ void merge_match(struct doca_flow_match *entry_match, struct doca_flow_match *pi
 		memcpy(entry_match->in_dst_mac, pipe_match->in_dst_mac, DOCA_ETHER_ADDR_LEN);
 
 	if(entry_match->in_eth_type==0)	entry_match->in_eth_type=pipe_match->in_eth_type;
-	if(entry_match->in_vlan_id==0)	entry_match->in_vlan_id=pipe_match->in_vlan_id;
+	if(entry_match->in_vlan_tci==0)	entry_match->in_vlan_tci=pipe_match->in_vlan_tci;
 	if(entry_match->in_src_ip.ipv4_addr==0)	entry_match->in_src_ip.ipv4_addr=pipe_match->in_src_ip.ipv4_addr;
 	if(entry_match->in_dst_ip.ipv4_addr==0)	entry_match->in_dst_ip.ipv4_addr=pipe_match->in_dst_ip.ipv4_addr;
 	if(entry_match->in_l4_type==0)	entry_match->in_l4_type=pipe_match->in_l4_type;
@@ -953,17 +953,17 @@ doca_flow_control_pipe_add_entry(uint16_t pipe_queue,
 int doca_flow_pipe_rm_entry(uint16_t pipe_queue, void *usr_ctx,
 							struct doca_flow_pipe_entry *entry) {}
 
-void doca_flow_destroy_pipe(uint16_t port_id,
-							struct doca_flow_pipe *pipe) {}
+void doca_flow_destroy_pipe(struct doca_flow_pipe *pipe) {}
 
-void doca_flow_port_pipes_flush(uint16_t port_id) {}
+void doca_flow_port_pipes_flush(struct doca_flow_port *port) {}
 
-void doca_flow_destroy_port(uint16_t port_id)
+void doca_flow_destroy_port(struct doca_flow_port *port)
 {
-	DOCA_LOG_INFO("DESTROY PORT: %d", port_id);
+	free(port);
+	DOCA_LOG_INFO("DESTROY PORT: %d", port->port_id);
 }
 
-void doca_flow_port_pipes_dump(uint16_t port_id, FILE *f) {}
+void doca_flow_port_pipes_dump(struct doca_flow_port *port, FILE *f) {}
 
 int doca_flow_query(struct doca_flow_pipe_entry *entry,
 					struct doca_flow_query *query_stats) {}

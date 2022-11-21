@@ -155,6 +155,7 @@ class FlowGRPCImpl final:public FlowGRPC::Service{
     char **argv;
     struct rte_mempool *mbuf_pool;
     int pid=-1;
+    struct doca_flow_port *ports[2];
 };
 
 Status FlowGRPCImpl::EnvInitialize(ServerContext *context, const DPDKConfig *dpdk_config, Response *rep)
@@ -300,6 +301,11 @@ Status FlowGRPCImpl::PortStart(ServerContext *context, const FlowPortConfig *por
     }
 	printf("ports[%u], MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port, RTE_ETHER_ADDR_BYTES(&addr));
 
+    struct doca_flow_port_cfg port_cfg = {0};
+    port_cfg.port_id = port;
+    struct doca_flow_error err;
+    ports[port]=doca_flow_port_start(&port_cfg, &err);
+    
     return Status::OK;
 }
 
@@ -322,7 +328,8 @@ Status FlowGRPCImpl::EnvDestroy(ServerContext *context, const EnvDestroyRequest 
         force_quit=true;
     }
     for(int port=0; port<app_dpdk_config.port_config.nb_ports; port++)
-        doca_flow_destroy_port(port);
+        doca_flow_destroy_port(ports[port]);
+    
     // doca_flow_destroy();
 
     // rte_eal_cleanup();
@@ -351,8 +358,8 @@ Status FlowGRPCImpl::CreatePipe(ServerContext *context, const CreatePipeRequest 
     str_to_action(&action, pipe_config->pipe_config().action().action_rule());
     pipe_cfg.match=&match;
     pipe_cfg.actions=&action;
-    pipe_cfg.name=pipe_config->pipe_config().name().c_str();
-    pipe_cfg.is_root=pipe_config->pipe_config().is_root();
+    pipe_cfg.attr.name=pipe_config->pipe_config().name().c_str();
+    pipe_cfg.attr.is_root=pipe_config->pipe_config().is_root();
 
     if(str_to_fwd(&fwd, pipe_config->fwd().fwd_rule())==0)
         fwd_p=&fwd;
