@@ -311,7 +311,7 @@ build_hairpin_pipe(uint16_t port_id)
 	fwd.port_id = port_id ^ 1;
 	client_fwd.fwd = &fwd;
 
-	response = doca_flow_grpc_create_pipe(&client_cfg, &client_fwd, NULL);
+	response = doca_flow_grpc_pipe_create(&client_cfg, &client_fwd, NULL);
 	if (!response.success)
 		APP_EXIT("failed to create pipe: %s", response.error.message);
 
@@ -363,7 +363,7 @@ build_drop_pipe(uint16_t port_id, uint64_t next_pipe_id, uint8_t protocol_type)
 	client_miss_fwd.fwd = &miss_fwd;
 	client_miss_fwd.next_pipe_id = next_pipe_id;
 
-	response = doca_flow_grpc_create_pipe(&client_cfg, &client_fwd, &client_miss_fwd);
+	response = doca_flow_grpc_pipe_create(&client_cfg, &client_fwd, &client_miss_fwd);
 	if (!response.success)
 		APP_EXIT("failed to create pipe: %s", response.error.message);
 

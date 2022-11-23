@@ -296,7 +296,7 @@ struct doca_flow_grpc_response doca_flow_grpc_port_pair(uint16_t port_id, uint16
 
 
 
-struct doca_flow_grpc_response doca_flow_grpc_create_pipe(struct doca_flow_grpc_pipe_cfg *cfg,
+struct doca_flow_grpc_response doca_flow_grpc_pipe_create(struct doca_flow_grpc_pipe_cfg *cfg,
 		struct doca_flow_grpc_fwd *fwd, struct doca_flow_grpc_fwd *fwd_miss){
     
     struct doca_flow_grpc_response rep;
@@ -362,7 +362,7 @@ struct doca_flow_grpc_response doca_flow_grpc_pipe_rm_entry(uint16_t pipe_queue,
 
 
 
-struct doca_flow_grpc_response doca_flow_grpc_destroy_pipe(uint16_t port_id, uint64_t pipe_id){
+struct doca_flow_grpc_response doca_flow_grpc_pipe_destroy(uint64_t pipe_id){
     struct doca_flow_grpc_response rep;
     
     //...

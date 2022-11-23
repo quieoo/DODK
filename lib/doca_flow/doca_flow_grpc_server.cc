@@ -328,7 +328,7 @@ Status FlowGRPCImpl::EnvDestroy(ServerContext *context, const EnvDestroyRequest 
         force_quit=true;
     }
     for(int port=0; port<app_dpdk_config.port_config.nb_ports; port++)
-        doca_flow_destroy_port(ports[port]);
+        doca_flow_port_destroy(ports[port]);
     
     // doca_flow_destroy();
 
@@ -366,7 +366,7 @@ Status FlowGRPCImpl::CreatePipe(ServerContext *context, const CreatePipeRequest 
     if(str_to_fwd(&fwd_miss, pipe_config->fwd_miss().fwd_rule())==0)
         fwd_miss_p=&fwd_miss;
 
-    pipe=doca_flow_create_pipe(&pipe_cfg,fwd_p, fwd_miss_p, &err);
+    pipe=doca_flow_pipe_create(&pipe_cfg,fwd_p, fwd_miss_p, &err);
     pipe_list[pipe_index++]=pipe;
     if(pipe){
         rep->set_pipe_id(pipe->pipe_id);

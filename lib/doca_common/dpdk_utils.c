@@ -1,6 +1,7 @@
 #include "dpdk_utils.h"
 #include <rte_ethdev.h>
 #include "utils.h"
+#include "doca_error.h"
 
 #define RSS_KEY_LEN 40
 
@@ -227,16 +228,34 @@ bind_hairpin_queues(uint16_t port_id)
 	return ret;
 }
 
-static void
+/*
+ * bind hairpin queues to all ports
+ *
+ * @nb_ports [in]: number of ports
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 enable_hairpin_queues(uint8_t nb_ports)
 {
-	uint8_t port_id;
+	uint16_t port_id;
+	uint16_t n = 0;
+	doca_error_t result;
 
-	for (port_id = 0; port_id < nb_ports; port_id++)
-		if (bind_hairpin_queues(port_id) != 0)
-			APP_EXIT("Hairpin bind failed on port=%u", port_id);
+	for (port_id = 0; port_id < RTE_MAX_ETHPORTS; port_id++) {
+		if (!rte_eth_dev_is_valid_port(port_id))
+			/* the device ID  might not be contiguous */
+			continue;
+		result = bind_hairpin_queues(port_id);
+		if (result != DOCA_SUCCESS) {
+			DOCA_LOG_ERR("Hairpin bind failed on port=%u", port_id);
+			disable_hairpin_queues(port_id);
+			return result;
+		}
+		if (++n >= nb_ports)
+			break;
+	}
+	return DOCA_SUCCESS;
 }
-
 void dpdk_init(struct application_dpdk_config *app_dpdk_config)
 {
 	int ret = 0;
@@ -276,4 +295,75 @@ void dpdk_fini(struct application_dpdk_config *app_dpdk_config)
 }
 void print_header_info(const struct rte_mbuf *packet, const bool l2, const bool l3, const bool l4)
 {
+}
+
+
+doca_error_t
+dpdk_queues_and_ports_init(struct application_dpdk_config *app_dpdk_config)
+{
+	doca_error_t result;
+	int ret = 0;
+
+	/* Check that DPDK enabled the required ports to send/receive on */
+	ret = rte_eth_dev_count_avail();
+	if (app_dpdk_config->port_config.nb_ports > 0 && ret < app_dpdk_config->port_config.nb_ports) {
+		DOCA_LOG_ERR("Application will only function with %u ports, num_of_ports=%d",
+			 app_dpdk_config->port_config.nb_ports, ret);
+		return DOCA_ERROR_DRIVER;
+	}
+
+	/* Check for available logical cores */
+	ret = rte_lcore_count();
+	if (app_dpdk_config->port_config.nb_queues > 0 && ret < app_dpdk_config->port_config.nb_queues) {
+		DOCA_LOG_ERR("At least %u cores are needed for the application to run, available_cores=%d",
+			 app_dpdk_config->port_config.nb_queues, ret);
+		return DOCA_ERROR_DRIVER;
+	}
+	app_dpdk_config->port_config.nb_queues = ret;
+
+	if (app_dpdk_config->reserve_main_thread)
+		app_dpdk_config->port_config.nb_queues -= 1;
+#ifdef GPU_SUPPORT
+	/* Enable GPU device and initialization the resources */
+	if (app_dpdk_config->pipe.gpu_support) {
+		DOCA_LOG_DBG("Enabling GPU support");
+		gpu_init(&app_dpdk_config->pipe);
+	}
+#endif
+
+	result = dpdk_ports_init(app_dpdk_config);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Ports allocation failed");
+		goto gpu_cleanup;
+	}
+
+	/* Enable hairpin queues */
+	if (app_dpdk_config->port_config.nb_hairpin_q > 0) {
+		result = enable_hairpin_queues(app_dpdk_config->port_config.nb_ports);
+		if (result != DOCA_SUCCESS)
+			goto ports_cleanup;
+	}
+
+	if (app_dpdk_config->sft_config.enable) {
+		result = dpdk_sft_init(app_dpdk_config);
+		if (result != DOCA_SUCCESS)
+			goto hairpin_queues_cleanup;
+	}
+
+	return DOCA_SUCCESS;
+
+hairpin_queues_cleanup:
+	disable_hairpin_queues(RTE_MAX_ETHPORTS);
+ports_cleanup:
+	dpdk_ports_fini(app_dpdk_config, RTE_MAX_ETHPORTS);
+#ifdef GPU_SUPPORT
+	if (app_dpdk_config->pipe.gpu_support)
+		dpdk_gpu_unmap(app_dpdk_config);
+#endif
+gpu_cleanup:
+#ifdef GPU_SUPPORT
+	if (app_dpdk_config->pipe.gpu_support)
+		gpu_fini(&(app_dpdk_config->pipe));
+#endif
+	return result;
 }

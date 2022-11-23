@@ -1,12 +1,13 @@
 tests=[
-    'simple_fwd_vnf',
-    'firewall'
+    'nat'
 ]
 foreach t:tests
     sources=[]
     ext_deps = []
     ext_deps+=dependency('json-c')
+    ext_deps+=dependency('libbsd')
     includes = [include_directories(t)]
+    includes += include_directories('common')
     deps=[]
     link_whole_libs=[]
     ldflags=[]

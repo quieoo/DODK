@@ -110,7 +110,10 @@
         "rte_cycles.h": "c",
         "types.h": "c",
         "*.inc": "cpp",
-        "doca_error.h": "c"
+        "doca_error.h": "c",
+        "nat_core.h": "c",
+        "flow_parser.h": "c",
+        "doca_flow_net.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

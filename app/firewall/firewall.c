@@ -466,8 +466,8 @@ parse_match_field(char *field_name, char *value, void *struct_ptr)
 	else if (strcmp(field_name, "out_eth_type") == 0)
 		match->out_eth_type = (uint16_t)strtol(value, NULL, HEXADECIMAL_BASE);
 
-	else if (strcmp(field_name, "out_vlan_id") == 0)
-		match->out_vlan_id = (uint16_t)strtol(value, NULL, 0);
+	else if (strcmp(field_name, "out_vlan_tci") == 0)
+		match->out_vlan_tci = (uint16_t)strtol(value, NULL, 0);
 
 	else if (strcmp(field_name, "out_src_ip_type") == 0)
 		match->out_src_ip.type = parse_ip_type(value);
@@ -951,7 +951,7 @@ cmd_create_pipe_parsed(void *parsed_result, __rte_unused struct cmdline *cl,
 	if (fwd_miss_action)
 		tmp_client_fwd_miss = &client_fwd_miss;
 
-	response = doca_flow_grpc_create_pipe(&client_cfg, tmp_client_fwd, tmp_client_fwd_miss);
+	response = doca_flow_grpc_pipe_create(&client_cfg, tmp_client_fwd, tmp_client_fwd_miss);
 	if (!response.success)
 		DOCA_LOG_ERR("failed to create pipe: %s", response.error.message);
 	else
@@ -1105,7 +1105,7 @@ cmd_destroy_pipe_parsed(void *parsed_result, __rte_unused struct cmdline *cl,
 	if (ret < 0)
 		return;
 
-	response = doca_flow_grpc_destroy_pipe(port_id, pipe_id);
+	response = doca_flow_grpc_pipe_destroy( pipe_id);
 	if (!response.success)
 		DOCA_LOG_ERR("failed to destroy pipe: %s", response.error.message);
 }

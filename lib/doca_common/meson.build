@@ -1,10 +1,9 @@
 sources=files(
-    'dpdk_utils.c',
-    'utils.c'
+    'utils.c',
+    'doca_error.c'
 )
 headers=files(
     'doca_compat.h',
-    'dpdk_utils.h',
     'offload_rules.h',
     'utils.h'
 )

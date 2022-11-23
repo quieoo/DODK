@@ -9,24 +9,69 @@
 struct doca_argp_param *registered_param[MAX_PARAM_NUM];
 int registered = 0;
 void *config;
-struct doca_argp_program_general_config *g_config;
-struct doca_argp_program_type_config *t_config;
+// struct doca_argp_program_general_config *g_config;
+// struct doca_argp_program_type_config *t_config;
 
-void doca_argp_init(const char *program_name, struct doca_argp_program_type_config *type_config, void *program_config)
+
+typedef struct doca_argp_param {
+	char *short_flag;				/**< Flag long name */
+	char *long_flag;				/**< Flag short name */
+	char *arguments;				/**< Flag expected arguments */
+	char *description;				/**< Flag description */
+	callback_func callback;				/**< Flag program callback */
+	enum doca_argp_type arg_type;			/**< Flag argument type */
+	bool is_mandatory;				/**< Is flag mandatory for the program */
+	bool is_cli_only;				/**< Is flag supported only in cli mode */
+};
+
+dpdk_callback eal_init;
+
+doca_error_t doca_argp_init(const char *program_name, void *program_config)
 {
 	config = program_config;
-	t_config=type_config;
+	// t_config=type_config;
+
+	return DOCA_SUCCESS;
+}
+void doca_argp_set_dpdk_program(dpdk_callback callback){
+	eal_init=callback;
 }
 
-void doca_argp_register_param(struct doca_argp_param *input_param)
+doca_error_t doca_argp_param_create(struct doca_argp_param **param){
+	*param=malloc(sizeof(struct doca_argp_param));
+	return DOCA_SUCCESS;
+}
+void doca_argp_param_set_short_name(struct doca_argp_param *param, const char *name){
+	param->short_flag=name;
+}
+
+void doca_argp_param_set_long_name(struct doca_argp_param *param, const char *name){
+	param->long_flag=name;
+}
+
+void doca_argp_param_set_arguments(struct doca_argp_param *param, const char *arguments){
+	param->arguments= arguments;
+}
+
+void doca_argp_param_set_description(struct doca_argp_param *param, const char *description){
+	param->description= description;
+}
+
+void doca_argp_param_set_callback(struct doca_argp_param *param, callback_func callback){
+	param->callback=callback;
+}
+
+void doca_argp_param_set_type(struct doca_argp_param *param, enum doca_argp_type type){
+	param->arg_type=type;
+}
+
+doca_error_t doca_argp_register_param(struct doca_argp_param *input_param)
 {
-	struct doca_argp_param *p = malloc(sizeof(struct doca_argp_param));
-	memcpy(p, input_param, sizeof(struct doca_argp_param));
-
-	registered_param[registered++] = p;
+	registered_param[registered++]=input_param;
+	return DOCA_SUCCESS;
 }
 
-void usage(void *config, void *param)
+void usage(void *param, void *config)
 {
 	printf("\nDOCA Registered Configuration:\n");
 	for (int i = 0; i < registered; i++)
@@ -40,18 +85,20 @@ void usage(void *config, void *param)
 }
 
 static void
-set_log_level_callback(void *config, void *param)
+set_log_level_callback(void *param, void *config)
 {
 	int level = *(int *)param;
 	doca_log_global_level_set(level);
 }
 
+/*
 static void set_grpc_address(void *config, char *param){
 	int l=0;
 	for(char* i=param;*i!=NULL; i++){
 		g_config->grpc_address[l++]=*i;
 	}
 }
+*/
 
 /*
 	DOCA_ARGP_TYPE_INT
@@ -69,20 +116,21 @@ void call_function(struct doca_argp_param *opt, char *param)
 			i++;
 		}
 
-		opt->callback(config, &sum);
+		opt->callback(&sum, config);
 	}
 	else if (opt->arg_type == DOCA_ARGP_TYPE_STRING)
 	{
 
-		opt->callback(config, param);
+		opt->callback(param,config);
 	}
 }
 
-void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_config **general_config)
+doca_error_t doca_argp_start(int argc, char **argv)
 {
+	/*
 	*general_config=malloc(sizeof(struct doca_argp_program_general_config));
 	memset(*general_config, 0, sizeof(struct doca_argp_program_general_config));
-	g_config=*general_config;
+	g_config=*general_config;*/
 
 /*
 	int rett = rte_eal_init(argc, argv);
@@ -91,30 +139,25 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 	return;
 */
 	// add a global args of log_level
-	struct doca_argp_param log_level = {
-		.short_flag = "ll",
-		.long_flag = "log-level",
-		.arguments = "<level>",
-		.description = "Set the log level, 0-CRIT, 1-ERROR, 2-WARNING, 3-INFO, 4-DEBUG",
-		.callback = set_log_level_callback,
-		.arg_type = DOCA_ARGP_TYPE_INT,
-		.is_mandatory = false,
-		.is_cli_only = false};
+	struct doca_argp_param *log, *help;
+	doca_argp_param_create(&log);
+	doca_argp_param_set_short_name(log, "ll");
+	doca_argp_param_set_long_name(log, "log-level");
+	doca_argp_param_set_arguments(log, "<level>");
+	doca_argp_param_set_description(log, "Set the log level, 0-CRIT, 1-ERROR, 2-WARNING, 3-INFO, 4-DEBUG");
+	doca_argp_param_set_callback(log, set_log_level_callback);
+	doca_argp_param_set_type(log, DOCA_ARGP_TYPE_INT);
+	doca_argp_register_param(log);
 
-	doca_argp_register_param(&log_level);
-	struct doca_argp_param help = {
-		.short_flag = "h",
-		.long_flag = "help",
-		.arguments = "<none>",
-		.description = "print usage",
-		.callback = usage,
-		.arg_type = DOCA_ARGP_TYPE_BOOLEAN,
-		.is_mandatory = false,
-		.is_cli_only = false};
-
-	doca_argp_register_param(&help);
-
-
+	doca_argp_param_create(&help);
+	doca_argp_param_set_short_name(help, "h");
+	doca_argp_param_set_long_name(help, "help");
+	doca_argp_param_set_arguments(help, "<none>");
+	doca_argp_param_set_description(help, "print usage");
+	doca_argp_param_set_callback(help, usage);
+	doca_argp_param_set_type(help, DOCA_ARGP_TYPE_BOOLEAN);
+	doca_argp_register_param(help);
+ /*
 	if(t_config->is_grpc){
 		struct doca_argp_param grpc = {
 		.short_flag = "g",
@@ -126,7 +169,7 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 		.is_mandatory = false,
 		.is_cli_only = false};
 		doca_argp_register_param(&grpc);
-	}
+	}*/ 
 
 
 	// parse doca registered args
@@ -171,27 +214,34 @@ void doca_argp_start(int argc, char **argv, struct doca_argp_program_general_con
 			i++;
 		}
 	}
+	/*
 	if(t_config->is_grpc){
 		return;
-	}
-	int ret = rte_eal_init(argc, argv);
+	}*/
+	int ret = eal_init(argc, argv);
 	if(ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
+	
+	return DOCA_SUCCESS;
 
 }
 
-	void doca_argp_destroy(void)
+doca_error_t doca_argp_destroy(void)
+{
+	for (int i = 0; i < registered; i++)
 	{
-		for (int i = 0; i < registered; i++)
-		{
-			free(registered_param[i]);
-		}
-		
-		free(g_config);
+		free(registered_param[i]);
 	}
+	
+	// free(g_config);
+}
 
 void doca_argp_usage(void) {}
 
-void doca_argp_register_version_callback(callback_func callback) {}
+doca_error_t doca_argp_register_version_callback(callback_func callback) {
+	return DOCA_SUCCESS;
+}
 
-void doca_argp_register_validation_callback(callback_func callback) {}
+doca_error_t doca_argp_register_validation_callback(validation_callback callback) {
+	return DOCA_SUCCESS;
+}

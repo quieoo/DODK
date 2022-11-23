@@ -295,7 +295,7 @@ struct doca_flow_match {
 	/**< outer destination mac address */
 	doca_be16_t out_eth_type;
 	/**< outer Ethernet layer type */
-	doca_be16_t out_vlan_id;
+	doca_be16_t out_vlan_tci;
 	/**< outer vlan id */
 	struct doca_flow_ip_addr out_src_ip;
 	/**< outer source ip address */
@@ -376,7 +376,7 @@ struct doca_flow_actions {
 	/**< modify layer 4 source port */
 	doca_be16_t mod_dst_port;
 	/**< modify layer 4 destination port */
-	bool dec_ttl;
+	uint8_t ttl;
 	/**< decrease TTL value */
 	bool has_encap;
 	/**< when true, will do encap */
@@ -957,7 +957,7 @@ doca_flow_shared_resources_query(enum doca_flow_shared_resource_type type,
  * Pipe handler on success, NULL otherwise and error is set.
  */
 struct doca_flow_pipe *
-doca_flow_create_pipe(const struct doca_flow_pipe_cfg *cfg,
+doca_flow_pipe_create(const struct doca_flow_pipe_cfg *cfg,
 		const struct doca_flow_fwd *fwd,
 		const struct doca_flow_fwd *fwd_miss,
 		struct doca_flow_error *error);
@@ -1147,7 +1147,7 @@ doca_flow_port_pipes_flush(struct doca_flow_port *port);
  * Port id of the port.
  */
 void
-doca_flow_destroy_port(struct doca_flow_port *port);
+doca_flow_port_destroy(struct doca_flow_port *port);
 
 /**
  * @brief Dump pipe of one port
@@ -1299,6 +1299,8 @@ doca_flow_pipe_ordered_list_add_entry(uint16_t pipe_queue,
 		struct doca_flow_error *error);
 
 
+enum doca_flow_entry_status
+doca_flow_pipe_entry_get_status(struct doca_flow_pipe_entry *entry);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

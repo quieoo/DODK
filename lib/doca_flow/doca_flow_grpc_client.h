@@ -231,7 +231,7 @@ struct doca_flow_grpc_response doca_flow_grpc_shared_resources_bind(enum doca_fl
  * doca_flow_grpc_response.
  */
 __DOCA_EXPERIMENTAL
-struct doca_flow_grpc_response doca_flow_grpc_create_pipe(struct doca_flow_grpc_pipe_cfg *cfg,
+struct doca_flow_grpc_response doca_flow_grpc_pipe_create(struct doca_flow_grpc_pipe_cfg *cfg,
 		struct doca_flow_grpc_fwd *fwd, struct doca_flow_grpc_fwd *fwd_miss);
 
 /**
@@ -283,6 +283,35 @@ struct doca_flow_grpc_response doca_flow_grpc_control_pipe_add_entry(uint16_t pi
 		struct doca_flow_match *match_mask, struct doca_flow_grpc_fwd *client_fwd);
 
 /**
+ * @brief RPC call for doca_flow_pipe_lpm_add_entry().
+ *
+ * @param pipe_queue
+ * Queue identifier.
+ * @param pipe_id
+ * Pipe ID.
+ * @param match
+ * Pointer to match, indicate specific packet match information.
+ * @param match_mask
+ * Pointer to match mask information.
+ * @param actions
+ * Pointer to modify actions, indicate specific modify information.
+ * @param monitor
+ * Pointer to monitor actions.
+ * @param client_fwd
+ * Pointer to fwd actions.
+ * @param flag
+ * Flow entry will be pushed to hw immediately or not. enum doca_flow_flags_type.
+ * @return
+ * doca_flow_grpc_response.
+ */
+__DOCA_EXPERIMENTAL
+struct doca_flow_grpc_response
+doca_flow_grpc_pipe_lpm_add_entry(uint16_t pipe_queue, uint64_t pipe_id, const struct doca_flow_match *match,
+		const struct doca_flow_match *match_mask, const struct doca_flow_actions *actions,
+		const struct doca_flow_monitor *monitor, const struct doca_flow_grpc_fwd *client_fwd,
+		const enum doca_flow_flags_type flag);
+
+/**
  * @brief RPC call for doca_flow_control_pipe_add_entry().
  *
  * @param pipe_queue
@@ -330,7 +359,7 @@ struct doca_flow_grpc_response doca_flow_grpc_port_pipes_dump(uint16_t port_id, 
  * doca_flow_grpc_response.
  */
 __DOCA_EXPERIMENTAL
-struct doca_flow_grpc_response doca_flow_grpc_destroy_pipe(uint16_t port_id, uint64_t pipe_id);
+struct doca_flow_grpc_response doca_flow_grpc_pipe_destroy(uint64_t pipe_id);
 
 /**
  * @brief RPC call for doca_flow_destroy_port().
@@ -341,7 +370,7 @@ struct doca_flow_grpc_response doca_flow_grpc_destroy_pipe(uint16_t port_id, uin
  * doca_flow_grpc_response.
  */
 __DOCA_EXPERIMENTAL
-struct doca_flow_grpc_response doca_flow_grpc_destroy_port(uint16_t port_id);
+struct doca_flow_grpc_response doca_flow_grpc_port_destroy(uint16_t port_id);
 
 /**
  * @brief RPC call for doca_flow_query().
@@ -358,7 +387,7 @@ struct doca_flow_grpc_response doca_flow_grpc_query(uint64_t entry_id, struct do
 
 
 /**
- * @brief RPC call for doca_flow_grpc_handle_aging().
+ * @brief RPC call for doca_flow_grpc_aging_handle().
  *
  * @param port_id
  * Port id to handle aging
@@ -374,7 +403,7 @@ struct doca_flow_grpc_response doca_flow_grpc_query(uint64_t entry_id, struct do
  * doca_flow_grpc_response.
  */
 __DOCA_EXPERIMENTAL
-struct doca_flow_grpc_response doca_flow_grpc_handle_aging(uint16_t port_id, uint16_t queue,
+struct doca_flow_grpc_response doca_flow_grpc_aging_handle(uint16_t port_id, uint16_t queue,
 		uint64_t quota, uint64_t *entries_id, int len);
 
 /**
@@ -406,7 +435,19 @@ struct doca_flow_grpc_response doca_flow_grpc_entries_process(uint16_t port_id,	
  * doca_flow_grpc_response
  */
 __DOCA_EXPERIMENTAL
-struct doca_flow_grpc_response doca_flow_grpc_entry_get_status(uint64_t entry_id);
+struct doca_flow_grpc_response doca_flow_grpc_pipe_entry_get_status(uint64_t entry_id);
+
+
+/**
+ * @brief RPC call for doca_flow_port_switch_get()
+ *
+ * @return
+ * doca_flow_grpc_response
+ *
+ */
+__DOCA_EXPERIMENTAL
+struct doca_flow_grpc_response doca_flow_grpc_port_switch_get(void);
+
 
 /**
  * @brief RPC call for doca_flow_destroy().
