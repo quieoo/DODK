@@ -1,5 +1,6 @@
 tests=[
-    'nat'
+    'nat',
+    'switch'
 ]
 foreach t:tests
     sources=[]

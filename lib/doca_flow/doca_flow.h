@@ -1301,6 +1301,19 @@ doca_flow_pipe_ordered_list_add_entry(uint16_t pipe_queue,
 
 enum doca_flow_entry_status
 doca_flow_pipe_entry_get_status(struct doca_flow_pipe_entry *entry);
+
+/**
+ * @brief Destroy one pipe
+ *
+ * Destroy the pipe, and the pipe entries that match this pipe.
+ *
+ * @param pipe
+ * Pointer to pipe.
+ */
+__DOCA_EXPERIMENTAL
+void
+doca_flow_pipe_destroy(struct doca_flow_pipe *pipe);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

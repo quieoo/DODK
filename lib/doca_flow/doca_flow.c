@@ -42,7 +42,7 @@ typedef struct doca_flow_pipe
 struct doca_flow_pipe *pipes[MAX_PIPE_NUM];
 static int p_pipe = 0;
 static int GROUP = 0;
-struct doca_flow_port doca_flow_ports[10];
+struct doca_flow_port *doca_flow_ports[10];
 
 struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
@@ -53,7 +53,7 @@ doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 	struct doca_flow_port *port = malloc(sizeof(struct doca_flow_port));
 	port->port_id = id;
 
-	doca_flow_ports[id] = *port;
+	doca_flow_ports[id] = port;
 	return port;
 }
 void doca_flow_destroy(void)
@@ -1015,4 +1015,30 @@ enum doca_flow_entry_status
 doca_flow_pipe_entry_get_status(struct doca_flow_pipe_entry *entry) 
 {
 	return DOCA_FLOW_ENTRY_STATUS_SUCCESS;
+}
+
+struct doca_flow_port *
+doca_flow_port_switch_get(void){
+	if(doca_flow_ports[0])
+		return doca_flow_ports[0];
+	return NULL;
+}
+
+void
+doca_flow_pipe_destroy(struct doca_flow_pipe *pipe){
+	if(!pipe)
+		return;	
+	if(pipe->cfg->port)
+		free(pipe->cfg->port);
+	if(pipe->cfg->match)
+		free(pipe->cfg->match);
+	if(pipe->cfg->actions)
+		free(pipe->cfg->actions);
+	if(pipe->fwd)
+		free(pipe->fwd);
+	if(pipe->fwd_miss)
+		free(pipe->fwd_miss);
+	if(pipe->cfg)
+		free(pipe->cfg);
+	free(pipe);
 }

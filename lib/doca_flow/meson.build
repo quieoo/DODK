@@ -13,6 +13,7 @@ headers=files(
 )
 includes+=include_directories('../doca_common')
 includes+=include_directories('../doca_log')
+includes += include_directories('../../app/common')
 
 deps+=[
     'doca_log',

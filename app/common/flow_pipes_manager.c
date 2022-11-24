@@ -15,9 +15,9 @@
 #include <rte_hash.h>
 #include <rte_jhash.h>
 #include <rte_malloc.h>
+#include <inttypes.h>
 
 #include <doca_log.h>
-#include <doca_error.h>
 
 #include "flow_pipes_manager.h"
 

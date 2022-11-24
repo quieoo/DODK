@@ -15,6 +15,7 @@
 #define COMMON_FLOW_PIPES_MANAGER_H_
 
 #include <doca_flow.h>
+#include <doca_error.h>
 
 struct pipe_info {
 	struct doca_flow_pipe *pipe;		 /* DOCA Flow pipe pointer */

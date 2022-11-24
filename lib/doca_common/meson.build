@@ -1,9 +1,8 @@
 sources=files(
     'utils.c',
-    'doca_error.c'
+    'doca_error.c',
 )
 headers=files(
     'doca_compat.h',
-    'offload_rules.h',
     'utils.h'
 )
