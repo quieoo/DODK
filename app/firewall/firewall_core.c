@@ -12,7 +12,6 @@
  */
 
 #include <bsd/string.h>
-
 #include <json-c/json.h>
 #include <rte_byteorder.h>
 #include <rte_ethdev.h>
@@ -20,207 +19,344 @@
 #include <doca_argp.h>
 #include <doca_log.h>
 
-#include <utils.h>
-
 #include "firewall_core.h"
 
 DOCA_LOG_REGISTER(FIREWALL_CORE);
 
-#define BE_IPV4_ADDR(a, b, c, d) (RTE_BE32((a << 24) + (b << 16) + (c << 8) + d))
+#define MAX_PORT_STR 128	/* maximum port string length */
+#define PROTOCOL_LEN 4		/* protocol string length */
+#define NB_ACTIONS_ARR 1	/* default number of actions in pipe */
 
-#define FIREWALL_MAX_FLOWS 8096
-#define MAX_PORT_STR 128
-#define MAX_IP_ADDRESS 16
-#define PROTOCOL_LEN 4
-
-static void
-interactive_callback(void *config, void *param)
+/*
+ * ARGP Callback - Handle running mode parameter
+ *
+ * @param [in]: Input parameter
+ * @config [in/out]: Program configuration context
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
+firewall_mode_callback(void *param, void *config)
 {
 	struct firewall_cfg *firewall_cfg = (struct firewall_cfg *)config;
+	const char *mode = (char *)param;
 
-	firewall_cfg->interactive_mode = *(bool *) param;
+	if (strcmp(mode, "static") == 0)
+		firewall_cfg->mode = FIREWALL_MODE_STATIC;
+	else if (strcmp(mode, "interactive") == 0)
+		firewall_cfg->mode = FIREWALL_MODE_INTERACTIVE;
+	else {
+		DOCA_LOG_ERR("Illegal running mode = [%s]", mode);
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+
+	return DOCA_SUCCESS;
 }
 
-static void
-static_callback(void *config, void *param)
+/*
+ * ARGP Callback - Handle rules file parameter
+ *
+ * @param [in]: Input parameter
+ * @config [in/out]: Program configuration context
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
+firewall_rules_callback(void *param, void *config)
 {
 	struct firewall_cfg *firewall_cfg = (struct firewall_cfg *)config;
+	const char *json_path = (char *)param;
 
-	firewall_cfg->static_mode = *(bool *) param;
-}
-
-static void
-firewall_rules_callback(void *config, void *param)
-{
-	struct firewall_cfg *firewall_cfg = (struct firewall_cfg *)config;
-	char *json_path = (char *)param;
-
-	if (strnlen(json_path, MAX_FILE_NAME) == MAX_FILE_NAME)
-		APP_EXIT("JSON file name is too long - MAX=%d", MAX_FILE_NAME - 1);
-	if (access(json_path, F_OK) == -1)
-		APP_EXIT("JSON file was not found %s", json_path);
+	if (strnlen(json_path, MAX_FILE_NAME) == MAX_FILE_NAME) {
+		DOCA_LOG_ERR("JSON file name is too long - MAX=%d", MAX_FILE_NAME - 1);
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+	if (access(json_path, F_OK) == -1) {
+		DOCA_LOG_ERR("JSON file was not found %s", json_path);
+		return DOCA_ERROR_NOT_FOUND;
+	}
 	strlcpy(firewall_cfg->json_path, json_path, MAX_FILE_NAME);
 	firewall_cfg->has_json = true;
+	return DOCA_SUCCESS;
 }
 
-static void
-firewall_args_validation_callback(void *config, void *param)
+/*
+ * ARGP validation Callback - check if there is an input file in static mode
+ *
+ * @config [in]: Program configuration context
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
+firewall_args_validation_callback(void *config)
 {
 	struct firewall_cfg *firewall_cfg = (struct firewall_cfg *) config;
 
-	if (!firewall_cfg->interactive_mode && !firewall_cfg->static_mode) {
-		DOCA_LOG_ERR("Missing firewall mode type");
-		doca_argp_usage();
-	}
-
-	if (firewall_cfg->interactive_mode && firewall_cfg->static_mode) {
-		DOCA_LOG_ERR("need to use only one firewall mode: interactive/static");
-		doca_argp_usage();
-	}
-
-	if (firewall_cfg->static_mode && !firewall_cfg->has_json) {
+	if (firewall_cfg->mode == FIREWALL_MODE_STATIC && !firewall_cfg->has_json) {
 		DOCA_LOG_ERR("Missing rules file path for static mode");
-		doca_argp_usage();
+		return DOCA_ERROR_INVALID_VALUE;
 	}
+	return DOCA_SUCCESS;
 }
 
-void
+doca_error_t
 register_firewall_params()
 {
-	struct doca_argp_param interactive_param = {
-		.short_flag = "i",
-		.long_flag = "interactive",
-		.arguments = NULL,
-		.description = "Run application with interactive mode",
-		.callback = interactive_callback,
-		.arg_type = DOCA_ARGP_TYPE_BOOLEAN,
-		.is_mandatory = false,
-		.is_cli_only = false
-	};
+	doca_error_t result;
+	struct doca_argp_param *mode_param,  *rules_param;
 
-	struct doca_argp_param static_param = {
-		.short_flag = "s",
-		.long_flag = "static",
-		.arguments = NULL,
-		.description = "Run application with static mode",
-		.callback = static_callback,
-		.arg_type = DOCA_ARGP_TYPE_BOOLEAN,
-		.is_mandatory = false,
-		.is_cli_only = false
-	};
+	/* Create and register firewall running mode param */
+	result = doca_argp_param_create(&mode_param);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to create ARGP param: %s", doca_get_error_string(result));
+		return result;
+	}
+	doca_argp_param_set_short_name(mode_param, "m");
+	doca_argp_param_set_long_name(mode_param, "mode");
+	doca_argp_param_set_description(mode_param, "Set running mode {static, interactive}");
+	doca_argp_param_set_callback(mode_param, firewall_mode_callback);
+	doca_argp_param_set_type(mode_param, DOCA_ARGP_TYPE_STRING);
+	doca_argp_param_set_mandatory(mode_param);
+	result = doca_argp_register_param(mode_param);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to register program param: %s", doca_get_error_string(result));
+		return result;
+	}
 
-	struct doca_argp_param rules_param = {
-		.short_flag = "r",
-		.long_flag = "firewall-rules",
-		.arguments = "<path>",
-		.description = "Path to the JSON file with 5-tuple rules when running with static mode",
-		.callback = firewall_rules_callback,
-		.arg_type = DOCA_ARGP_TYPE_STRING,
-		.is_mandatory = false,
-		.is_cli_only = false};
+	/* Create and register regex pci address param */
+	result = doca_argp_param_create(&rules_param);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to create ARGP param: %s", doca_get_error_string(result));
+		return result;
+	}
+	doca_argp_param_set_short_name(rules_param, "r");
+	doca_argp_param_set_long_name(rules_param, "firewall-rules");
+	doca_argp_param_set_arguments(rules_param, "<path>");
+	doca_argp_param_set_description(rules_param, "Path to the JSON file with 5-tuple rules when running with static mode");
+	doca_argp_param_set_callback(rules_param, firewall_rules_callback);
+	doca_argp_param_set_type(rules_param, DOCA_ARGP_TYPE_STRING);
+	result = doca_argp_register_param(rules_param);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to register program param: %s", doca_get_error_string(result));
+		return result;
+	}
 
-	doca_argp_register_param(&interactive_param);
-	doca_argp_register_param(&static_param);
-	doca_argp_register_param(&rules_param);
-	doca_argp_register_version_callback(sdk_version_callback);
-	doca_argp_register_validation_callback(firewall_args_validation_callback);
+	/* Register version callback for DOCA SDK & RUNTIME */
+	result = doca_argp_register_version_callback(sdk_version_callback);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to register version callback: %s", doca_get_error_string(result));
+		return result;
+	}
+
+	/* Register application callback */
+	result = doca_argp_register_validation_callback(firewall_args_validation_callback);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to register program validation callback: %s", doca_get_error_string(result));
+		return result;
+	}
+
+	return DOCA_SUCCESS;
 }
 
-static void
+/*
+ * Parse protocol type from json object rule
+ *
+ * @cur_rule [in]: json object of the current rule to parse
+ * @rule [out]: struct of 5 tuple rule to update
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 create_protocol(struct json_object *cur_rule, struct rule_match *rule)
 {
+	doca_error_t result;
 	struct json_object *protocol;
 	const char *protocol_str;
 
-	if (!json_object_object_get_ex(cur_rule, "protocol", &protocol))
+	if (!json_object_object_get_ex(cur_rule, "protocol", &protocol)) {
 		DOCA_LOG_ERR("Missing protocol type");
-	if (json_object_get_type(protocol) != json_type_string)
-		DOCA_LOG_ERR("Expecting a string value for \"protocol-ip\"");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+	if (json_object_get_type(protocol) != json_type_string) {
+		DOCA_LOG_ERR("Expecting a string value for \"protocol\"");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
 
 	protocol_str = json_object_get_string(protocol);
-	rule->protocol = parse_protocol_string(protocol_str);
+	result = parse_protocol_string(protocol_str, &rule->protocol);
+	if (result != DOCA_SUCCESS)
+		return result;
+	return DOCA_SUCCESS;
 }
 
-static void
+/*
+ * Parse source IP from json object rule
+ *
+ * @cur_rule [in]: json object of the current rule to parse
+ * @rule [out]: struct of 5 tuple rule to update
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 create_src_ip(struct json_object *cur_rule, struct rule_match *rule)
 {
+	doca_error_t result;
 	struct json_object *src_ip;
 
-	if (!json_object_object_get_ex(cur_rule, "src-ip", &src_ip))
-		APP_EXIT("Missing src-ip");
-	if (json_object_get_type(src_ip) != json_type_string)
+	if (!json_object_object_get_ex(cur_rule, "src-ip", &src_ip)) {
+		DOCA_LOG_ERR("Missing src-ip");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+	if (json_object_get_type(src_ip) != json_type_string) {
 		DOCA_LOG_ERR("Expecting a string value for \"src-ip\"");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
 
-	rule->src_ip = parse_ipv4_str(json_object_get_string(src_ip));
+	result = parse_ipv4_str(json_object_get_string(src_ip), &rule->src_ip);
+	if (result != DOCA_SUCCESS)
+		return result;
+	return DOCA_SUCCESS;
 }
 
-static void
+/*
+ * Parse destination IP from json object rule
+ *
+ * @cur_rule [in]: json object of the current rule to parse
+ * @rule [out]: struct of 5 tuple rule to update
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 create_dst_ip(struct json_object *cur_rule, struct rule_match *rule)
 {
+	doca_error_t result;
 	struct json_object *dst_ip;
 
-	if (!json_object_object_get_ex(cur_rule, "dst-ip", &dst_ip))
-		APP_EXIT("Missing dst-ip");
-	if (json_object_get_type(dst_ip) != json_type_string)
+	if (!json_object_object_get_ex(cur_rule, "dst-ip", &dst_ip)) {
+		DOCA_LOG_ERR("Missing dst-ip");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+	if (json_object_get_type(dst_ip) != json_type_string) {
 		DOCA_LOG_ERR("Expecting a string value for \"dst-ip\"");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
 
-	rule->dst_ip = parse_ipv4_str(json_object_get_string(dst_ip));
+	result = parse_ipv4_str(json_object_get_string(dst_ip), &rule->dst_ip);
+	if (result != DOCA_SUCCESS)
+		return result;
+	return DOCA_SUCCESS;
 }
 
-static void
+/*
+ * Parse source port from json object rule
+ *
+ * @cur_rule [in]: json object of the current rule to parse
+ * @rule [out]: struct of 5 tuple rule to update
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 create_src_port(struct json_object *cur_rule, struct rule_match *rule)
 {
 	struct json_object *src_port;
 
-	if (!json_object_object_get_ex(cur_rule, "src-port", &src_port))
-		APP_EXIT("Missing src-port");
-	if (json_object_get_type(src_port) != json_type_int)
+	if (!json_object_object_get_ex(cur_rule, "src-port", &src_port)) {
+		DOCA_LOG_ERR("Missing src-port");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+	if (json_object_get_type(src_port) != json_type_int) {
 		DOCA_LOG_ERR("Expecting a int value for \"src-port\"");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
 
 	rule->src_port = json_object_get_int(src_port);
+	return DOCA_SUCCESS;
 }
 
-static void
+/*
+ * Parse destination port from json object rule
+ *
+ * @cur_rule [in]: json object of the current rule to parse
+ * @rule [out]: struct of 5 tuple rule to update
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 create_dst_port(struct json_object *cur_rule, struct rule_match *rule)
 {
 	struct json_object *dst_port;
 
-	if (!json_object_object_get_ex(cur_rule, "dst-port", &dst_port))
-		APP_EXIT("Missing dst-port");
-	if (json_object_get_type(dst_port) != json_type_int)
+	if (!json_object_object_get_ex(cur_rule, "dst-port", &dst_port)) {
+		DOCA_LOG_ERR("Missing dst-port");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
+	if (json_object_get_type(dst_port) != json_type_int) {
 		DOCA_LOG_ERR("Expecting a int value for \"dst-port\"");
+		return DOCA_ERROR_INVALID_VALUE;
+	}
 
 	rule->dst_port = json_object_get_int(dst_port);
+	return DOCA_SUCCESS;
 }
 
-static struct rule_match *
-create_drop_rules(struct json_object *rules, int *n_rules)
+/*
+ * Parse json object of the rules and set it in rule_match array
+ *
+ * @rules [in]: json object of the rules to parse
+ * @n_rules [out]: number of parsed rules
+ * @drop_rules [out]: parsed rules in array
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
+create_drop_rules(struct json_object *rules, int *n_rules, struct rule_match **drop_rules)
 {
 	int i;
+	doca_error_t result;
 	struct json_object *cur_rule;
 	struct rule_match *rules_arr = NULL;
 	*n_rules = json_object_array_length(rules);
 
-	DOCA_LOG_DBG("num of rules in input file: %d", *n_rules);
+	DOCA_DLOG_DBG("Num of rules in input file: %d", *n_rules);
 
 	rules_arr = (struct rule_match *)calloc(*n_rules, sizeof(struct rule_match));
 	if (rules_arr == NULL) {
 		DOCA_LOG_ERR("calloc() function failed");
-		return NULL;
+		return DOCA_ERROR_NO_MEMORY;
 	}
 
 	for (i = 0; i < *n_rules; i++) {
 		cur_rule = json_object_array_get_idx(rules, i);
-		create_protocol(cur_rule, &rules_arr[i]);
-		create_src_ip(cur_rule, &rules_arr[i]);
-		create_dst_ip(cur_rule, &rules_arr[i]);
-		create_src_port(cur_rule, &rules_arr[i]);
-		create_dst_port(cur_rule, &rules_arr[i]);
+		result = create_protocol(cur_rule, &rules_arr[i]);
+		if (result != DOCA_SUCCESS) {
+			free(rules_arr);
+			return result;
+		}
+		result = create_src_ip(cur_rule, &rules_arr[i]);
+		if (result != DOCA_SUCCESS) {
+			free(rules_arr);
+			return result;
+		}
+		result = create_dst_ip(cur_rule, &rules_arr[i]);
+		if (result != DOCA_SUCCESS) {
+			free(rules_arr);
+			return result;
+		}
+		result = create_src_port(cur_rule, &rules_arr[i]);
+		if (result != DOCA_SUCCESS) {
+			free(rules_arr);
+			return result;
+		}
+		result = create_dst_port(cur_rule, &rules_arr[i]);
+		if (result != DOCA_SUCCESS) {
+			free(rules_arr);
+			return result;
+		}
 	}
-	return rules_arr;
+	*drop_rules = rules_arr;
+	return DOCA_SUCCESS;
 }
 
-static int
+/*
+ * Check the input file size and allocate a buffer to read it
+ *
+ * @fp [in]: file pointer to the input rules file
+ * @file_length [out]: total bytes in file
+ * @json_data [out]: allocated buffer
+ * @return: DOCA_SUCCESS on success and DOCA_ERROR otherwise
+ */
+static doca_error_t
 allocate_json_buffer_dynamic(FILE *fp, size_t *file_length, char **json_data)
 {
 	ssize_t buf_len = 0;
@@ -230,14 +366,14 @@ allocate_json_buffer_dynamic(FILE *fp, size_t *file_length, char **json_data)
 		buf_len = ftell(fp);
 		if (buf_len < 0) {
 			DOCA_LOG_ERR("ftell() function failed");
-			return -1;
+			return DOCA_ERROR_IO_FAILED;
 		}
 
 		/* dynamic allocation */
-		*json_data = (char *)calloc((buf_len + 1), sizeof(char));
+		*json_data = (char *)malloc(buf_len + 1);
 		if (*json_data == NULL) {
-			DOCA_LOG_ERR("calloc() function failed");
-			return -1;
+			DOCA_LOG_ERR("malloc() function failed");
+			return DOCA_ERROR_NO_MEMORY;
 		}
 
 		/* return file counter to the beginning */
@@ -245,56 +381,72 @@ allocate_json_buffer_dynamic(FILE *fp, size_t *file_length, char **json_data)
 			free(*json_data);
 			*json_data = NULL;
 			DOCA_LOG_ERR("fseek() function failed");
-			return -1;
+			return DOCA_ERROR_IO_FAILED;
 		}
 	}
 	*file_length = buf_len;
-	return 0;
+	return DOCA_SUCCESS;
 }
 
-struct rule_match *
-init_drop_rules(char *file_path, int *n_rules)
+doca_error_t
+init_drop_rules(char *file_path, int *n_rules, struct rule_match **drop_rules)
 {
 	FILE *json_fp;
 	size_t file_length;
 	char *json_data = NULL;
 	struct json_object *parsed_json;
 	struct json_object *rules;
-	int res;
+	doca_error_t result;
 
 	json_fp = fopen(file_path, "r");
-	if (json_fp == NULL)
-		APP_EXIT("JSON file open failed");
-
-	res = allocate_json_buffer_dynamic(json_fp, &file_length, &json_data);
-	if (res < 0) {
-		fclose(json_fp);
-		APP_EXIT("Failed to allocate data buffer for the json file");
+	if (json_fp == NULL) {
+		DOCA_LOG_ERR("JSON file open failed");
+		return DOCA_ERROR_IO_FAILED;
 	}
 
-	if (fread(json_data, file_length, 1, json_fp) < file_length)
-		DOCA_LOG_DBG("EOF reached");
+	result = allocate_json_buffer_dynamic(json_fp, &file_length, &json_data);
+	if (result != DOCA_SUCCESS) {
+		fclose(json_fp);
+		DOCA_LOG_ERR("Failed to allocate data buffer for the json file");
+		return result;
+	}
+
+	if (fread(json_data, file_length, 1, json_fp) == 0) {
+		fclose(json_fp);
+		free(json_data);
+		DOCA_LOG_ERR("Error reading JSON file");
+		return DOCA_ERROR_IO_FAILED;
+	}
 	fclose(json_fp);
 
 	parsed_json = json_tokener_parse(json_data);
-	if (!json_object_object_get_ex(parsed_json, "rules", &rules))
+	if (!json_object_object_get_ex(parsed_json, "rules", &rules)) {
 		DOCA_LOG_ERR("missing \"rules\" parameter");
+		free(json_data);
+		return DOCA_ERROR_INVALID_VALUE;
+	}
 
 	free(json_data);
-	return create_drop_rules(rules, n_rules);
+	return create_drop_rules(rules, n_rules, drop_rules);
 }
 
-static uint64_t
-build_hairpin_pipe(uint16_t port_id)
+/*
+ * Build hairpin pipe that matches all traffic and add an entry to it
+ *
+ * @port_id [in]: port ID of the pipe
+ * @pipe_id [out]: created pipe ID
+ * @return: 0 on success and negative value otherwise
+ */
+static int
+build_hairpin_pipe(uint16_t port_id, uint64_t *pipe_id)
 {
 	struct doca_flow_match match;
 	struct doca_flow_fwd fwd;
 	struct doca_flow_grpc_fwd client_fwd;
-	struct doca_flow_actions actions;
+	struct doca_flow_actions actions, *actions_arr[NB_ACTIONS_ARR];
 	struct doca_flow_pipe_cfg pipe_cfg = {0};
 	struct doca_flow_grpc_pipe_cfg client_cfg;
 	struct doca_flow_grpc_response response;
-	uint64_t pipe_id;
 
 	memset(&match, 0, sizeof(match));
 	memset(&actions, 0, sizeof(actions));
@@ -303,7 +455,9 @@ build_hairpin_pipe(uint16_t port_id)
 
 	pipe_cfg.attr.name = "HAIRPIN_PIPE";
 	pipe_cfg.match = &match;
-	pipe_cfg.actions = &actions;
+	actions_arr[0] = &actions;
+	pipe_cfg.actions = actions_arr;
+	pipe_cfg.attr.nb_actions = NB_ACTIONS_ARR;
 	client_cfg.cfg = &pipe_cfg;
 	client_cfg.port_id = port_id;
 
@@ -312,27 +466,42 @@ build_hairpin_pipe(uint16_t port_id)
 	client_fwd.fwd = &fwd;
 
 	response = doca_flow_grpc_pipe_create(&client_cfg, &client_fwd, NULL);
-	if (!response.success)
-		APP_EXIT("failed to create pipe: %s", response.error.message);
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to create pipe: %s", response.error.message);
+		return -1;
+	}
 
-	pipe_id = response.pipe_id;
-	response = doca_flow_grpc_pipe_add_entry(0, pipe_id, &match, &actions,
+	*pipe_id = response.pipe_id;
+
+	response = doca_flow_grpc_pipe_add_entry(0, *pipe_id, &match, &actions,
 						   NULL, &client_fwd, DOCA_FLOW_NO_WAIT);
-	if (!response.success)
-		APP_EXIT("failed to add entry: %s", response.error.message);
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to add entry: %s", response.error.message);
+		return -1;
+	}
 
-	return pipe_id;
+	return 0;
 }
 
-static uint64_t
-build_drop_pipe(uint16_t port_id, uint64_t next_pipe_id, uint8_t protocol_type)
+/*
+ * Build pipe with 5 tuple match (UDP/TCP according to protocol pipe parameter) and drop action.
+ * Packets that will not match the rules will get forwarded to hairpin pipe.
+ *
+ * @port_id [in]: port ID of the pipe
+ * @next_pipe_id [in]: ID of the hairpin pipe to forward the missed packets
+ * @protocol_type [in]: protocol type to match - TCP / UDP
+ * @pipe_id [out]: created pipe ID
+ * @return: 0 on success and negative value otherwise
+ */
+static int
+build_drop_pipe(uint16_t port_id, uint64_t next_pipe_id, uint8_t protocol_type, uint64_t *pipe_id)
 {
 	struct doca_flow_match match;
 	struct doca_flow_fwd fwd;
 	struct doca_flow_grpc_fwd client_fwd;
 	struct doca_flow_fwd miss_fwd;
 	struct doca_flow_grpc_fwd client_miss_fwd;
-	struct doca_flow_actions actions;
+	struct doca_flow_actions actions, *actions_arr[NB_ACTIONS_ARR];
 	struct doca_flow_pipe_cfg pipe_cfg = {0};
 	struct doca_flow_grpc_pipe_cfg client_cfg;
 	struct doca_flow_grpc_response response;
@@ -344,8 +513,10 @@ build_drop_pipe(uint16_t port_id, uint64_t next_pipe_id, uint8_t protocol_type)
 
 	pipe_cfg.attr.name = "DROP_PIPE";
 	pipe_cfg.match = &match;
-	pipe_cfg.actions = &actions;
-	pipe_cfg.attr.is_root = true;
+	actions_arr[0] = &actions;
+	pipe_cfg.actions = actions_arr;
+	pipe_cfg.attr.nb_actions = NB_ACTIONS_ARR;
+	pipe_cfg.attr.is_root = false;
 	client_cfg.cfg = &pipe_cfg;
 	client_cfg.port_id = port_id;
 
@@ -364,15 +535,26 @@ build_drop_pipe(uint16_t port_id, uint64_t next_pipe_id, uint8_t protocol_type)
 	client_miss_fwd.next_pipe_id = next_pipe_id;
 
 	response = doca_flow_grpc_pipe_create(&client_cfg, &client_fwd, &client_miss_fwd);
-	if (!response.success)
-		APP_EXIT("failed to create pipe: %s", response.error.message);
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to create pipe: %s", response.error.message);
+		return -1;
+	}
 
-	return response.pipe_id;
+	*pipe_id = response.pipe_id;
+	return 0;
 }
 
-static void
-add_drop_entries(uint32_t port_id, uint64_t tcp_pipe_id, uint64_t udp_pipe_id,
-		 struct rule_match *drop_rules, int n_rules)
+/*
+ * Add the entries to the drop pipes according to the json file rules.
+ *
+ * @tcp_pipe_id [in]: TCP pipe ID to add the rules with TCP protocol
+ * @udp_pipe_id [in]: UDP pipe ID to add the rules with UDP protocol
+ * @drop_rules [in]: rules array to add to the pipes
+ * @n_rules [in]: number of rules in the array
+ * @return: 0 on success and negative value otherwise
+ */
+static int
+add_drop_entries(uint64_t tcp_pipe_id, uint64_t udp_pipe_id, struct rule_match *drop_rules, int n_rules)
 {
 	struct doca_flow_match match;
 	struct doca_flow_grpc_fwd client_fwd;
@@ -407,12 +589,287 @@ add_drop_entries(uint32_t port_id, uint64_t tcp_pipe_id, uint64_t udp_pipe_id,
 		/* add entry to drop pipe*/
 		response = doca_flow_grpc_pipe_add_entry(0, pipe_id, &match,
 							   &actions, NULL, &client_fwd, DOCA_FLOW_NO_WAIT);
-		if (!response.success)
-			APP_EXIT("failed to add entry: %s", response.error.message);
+		if (!response.success) {
+			DOCA_LOG_ERR("failed to add entry: %s", response.error.message);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+/*
+ * Create control pipe as root pipe
+ *
+ * @port_id [in]: port ID of the pipe
+ * @pipe_id [out]: created control pipe ID
+ * @return: 0 on success and negative value otherwise
+ */
+static int
+create_control_pipe(uint16_t port_id, uint64_t *pipe_id)
+{
+	struct doca_flow_pipe_cfg pipe_cfg;
+	struct doca_flow_grpc_pipe_cfg client_cfg;
+	struct doca_flow_grpc_response response;
+
+	memset(&pipe_cfg, 0, sizeof(pipe_cfg));
+	memset(&client_cfg, 0, sizeof(client_cfg));
+
+	pipe_cfg.attr.name = "CONTROL_PIPE";
+	pipe_cfg.attr.type = DOCA_FLOW_PIPE_CONTROL;
+	pipe_cfg.attr.is_root = true;
+	client_cfg.cfg = &pipe_cfg;
+	client_cfg.port_id = port_id;
+
+	response = doca_flow_grpc_pipe_create(&client_cfg, NULL, NULL);
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to create pipe: %s", response.error.message);
+		return -1;
+	}
+
+	*pipe_id = response.pipe_id;
+	return 0;
+}
+
+/*
+ * Add the entries to the control pipe. One entry that matches TCP traffic, and one that matches UDP traffic
+ *
+ * @pipe_id [in]: control pipe ID
+ * @udp_pipe_id [in]: UDP pipe to forward UDP traffic to
+ * @tcp_pipe_id [in]: TCP pipe to forward TCP traffic to
+ * @return: 0 on success and negative value otherwise
+ */
+static int
+add_control_pipe_entries(uint64_t pipe_id, uint64_t udp_pipe_id, uint64_t tcp_pipe_id)
+{
+	struct doca_flow_match match;
+	struct doca_flow_fwd fwd;
+	struct doca_flow_grpc_fwd client_fwd;
+	struct doca_flow_grpc_response response;
+
+	memset(&match, 0, sizeof(match));
+	memset(&fwd, 0, sizeof(fwd));
+
+	match.out_dst_ip.type = DOCA_FLOW_IP4_ADDR;
+	match.out_l4_type = DOCA_PROTO_UDP;
+
+	fwd.type = DOCA_FLOW_FWD_PIPE;
+	client_fwd.fwd = &fwd;
+	client_fwd.next_pipe_id = udp_pipe_id;
+	response = doca_flow_grpc_pipe_control_add_entry(0, 0, pipe_id, &match, NULL, &client_fwd);
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to add entry: %s", response.error.message);
+		return -1;
+	}
+
+	match.out_dst_ip.type = DOCA_FLOW_IP4_ADDR;
+	match.out_l4_type = DOCA_PROTO_TCP;
+
+	fwd.type = DOCA_FLOW_FWD_PIPE;
+	client_fwd.fwd = &fwd;
+	client_fwd.next_pipe_id = tcp_pipe_id;
+	response = doca_flow_grpc_pipe_control_add_entry(0, 0, pipe_id, &match, NULL, &client_fwd);
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to add entry: %s", response.error.message);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ * Invoke doca_flow_grpc_pipe_create function
+ *
+ * @cfg [in]: pipe configuration
+ * @port_id [in]: port ID of the pipe
+ * @fwd [in]: Fwd configuration for the pipe
+ * @fw_pipe_id [in]: next pipe ID if fwd type is DOCA_FLOW_FWD_PIPE
+ * @fwd_miss [in]: fwd_miss configuration for the pipe. NULL for no fwd_miss
+ * @fw_miss_pipe_id [in]: next pipe ID if fwd_miss type is DOCA_FLOW_FWD_PIPE
+ */
+static void
+pipe_create(struct doca_flow_pipe_cfg *cfg, uint16_t port_id, struct doca_flow_fwd *fwd, uint64_t fw_pipe_id,
+		   struct doca_flow_fwd *fwd_miss, uint64_t fw_miss_pipe_id)
+{
+	struct doca_flow_grpc_response response;
+	struct doca_flow_grpc_fwd grpc_fwd;
+	struct doca_flow_grpc_fwd grpc_fwd_miss;
+	struct doca_flow_grpc_fwd *grpc_fwd_ptr = NULL;
+	struct doca_flow_grpc_fwd *grpc_fwd_miss_ptr = NULL;
+	struct doca_flow_grpc_pipe_cfg grpc_cfg = {.cfg = cfg, .port_id = port_id};
+
+	if (fwd != NULL) {
+		grpc_fwd.fwd = fwd;
+		grpc_fwd.next_pipe_id = fw_pipe_id;
+		grpc_fwd_ptr = &grpc_fwd;
+	}
+
+	if (fwd_miss != NULL) {
+		grpc_fwd_miss.fwd = fwd_miss;
+		grpc_fwd_miss.next_pipe_id = fw_miss_pipe_id;
+		grpc_fwd_miss_ptr = &grpc_fwd_miss;
+	}
+
+	response = doca_flow_grpc_pipe_create(&grpc_cfg, grpc_fwd_ptr, grpc_fwd_miss_ptr);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to create pipe: %s", response.error.message);
+	else {
+		DOCA_LOG_INFO("Pipe created successfully, pipe id: %" PRIu64, response.pipe_id);
+		/* Add an additional new line for output readability */
+		DOCA_LOG_INFO("");
 	}
 }
 
-void
+/*
+ * Invoke doca_flow_grpc_pipe_add_entry function
+ *
+ * @pipe_queue [in]: queue identifier
+ * @pipe_id [in]: pipe ID of the entry
+ * @match [in]: pointer to match, indicates a specific packet match information
+ * @actions [in]: pointer to modify actions, indicates a specific modify information
+ * @monitor [in]: pointer to monitor actions
+ * @fwd [in]: pointer to fwd actions
+ * @fw_pipe_id [in]: next pipe ID if fwd type is DOCA_FLOW_FWD_PIPE
+ * @flags [in]: flow entry will be pushed to hw immediately or not, based on enum doca_flow_flags_type
+ */
+static void
+pipe_add_entry(uint16_t pipe_queue, uint64_t pipe_id, struct doca_flow_match *match,
+		 struct doca_flow_actions *actions, struct doca_flow_monitor *monitor, struct doca_flow_fwd *fwd,
+		 uint64_t fw_pipe_id, uint32_t flags)
+{
+	struct doca_flow_grpc_response response;
+	struct doca_flow_grpc_fwd grpc_fwd;
+	struct doca_flow_grpc_fwd *grpc_fwd_ptr = NULL;
+
+	if (fwd != NULL) {
+		grpc_fwd.fwd = fwd;
+		grpc_fwd.next_pipe_id = fw_pipe_id;
+		grpc_fwd_ptr = &grpc_fwd;
+	}
+
+	response = doca_flow_grpc_pipe_add_entry(pipe_queue, pipe_id, match, actions, monitor, grpc_fwd_ptr, flags);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to add entry: %s", response.error.message);
+	else {
+		DOCA_LOG_INFO("Entry created successfully, entry id: %" PRIu64, response.entry_id);
+		/* Add an additional new line for output readability */
+		DOCA_LOG_INFO("");
+	}
+}
+
+/*
+ * Invoke doca_flow_grpc_pipe_control_add_entry function
+ *
+ * @pipe_queue [in]: queue identifier
+ * @priority [in]: priority value
+ * @pipe_id [in]: pipe ID of the entry
+ * @match [in]: pointer to match, indicates a specific packet match information
+ * @match_mask [in]: pointer to match_mask information
+ * @fwd [in]: pointer to fwd actions
+ * @fw_pipe_id [in]: next pipe ID if fwd type is DOCA_FLOW_FWD_PIPE
+ */
+static void
+pipe_control_add_entry(uint16_t pipe_queue, uint8_t priority, uint64_t pipe_id, struct doca_flow_match *match,
+			      struct doca_flow_match *match_mask, struct doca_flow_fwd *fwd, uint64_t fw_pipe_id)
+{
+	struct doca_flow_grpc_response response;
+	struct doca_flow_grpc_fwd grpc_fwd;
+	struct doca_flow_grpc_fwd *grpc_fwd_ptr = NULL;
+
+	if (fwd != NULL) {
+		grpc_fwd.fwd = fwd;
+		grpc_fwd.next_pipe_id = fw_pipe_id;
+		grpc_fwd_ptr = &grpc_fwd;
+	}
+
+	response =
+		doca_flow_grpc_pipe_control_add_entry(pipe_queue, priority, pipe_id, match, match_mask, grpc_fwd_ptr);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to add entry to control pipe: %s", response.error.message);
+	else {
+		DOCA_LOG_INFO("Entry created successfully, entry id: %" PRId64, response.entry_id);
+		/* Add an additional new line for output readability */
+		DOCA_LOG_INFO("");
+	}
+}
+
+/*
+ * Invoke doca_flow_grpc_pipe_destroy function
+ *
+ * @pipe_id [in]: pipe ID of the pipe to destroy
+ */
+static void
+pipe_destroy(uint64_t pipe_id)
+{
+	struct doca_flow_grpc_response response;
+
+	response = doca_flow_grpc_pipe_destroy(pipe_id);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to destroy pipe: %s", response.error.message);
+}
+
+/*
+ * Invoke doca_flow_grpc_pipe_rm_entry function
+ *
+ * @pipe_queue [in]: pipe queue of the entry to remove
+ * @entry_id [in]: entry ID of the entry to remove
+ */
+static void
+pipe_rm_entry(uint16_t pipe_queue, uint64_t entry_id)
+{
+	struct doca_flow_grpc_response response;
+
+	response = doca_flow_grpc_pipe_rm_entry(pipe_queue, entry_id);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to remove entry: %s", response.error.message);
+}
+
+/*
+ * Invoke doca_flow_grpc_port_pipes_flush function
+ *
+ * @port_id [in]: port ID
+ */
+static void
+port_pipes_flush(uint16_t port_id)
+{
+	struct doca_flow_grpc_response response;
+
+	response = doca_flow_grpc_port_pipes_flush(port_id);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to flush pipes: %s", response.error.message);
+}
+
+/*
+ * Invoke doca_flow_grpc_query function
+ *
+ * @entry_id [in]: entry ID
+ * @stats [out]: data retrieved by the query
+ */
+static void
+flow_query(uint64_t entry_id, struct doca_flow_query *stats)
+{
+	struct doca_flow_grpc_response response;
+
+	response = doca_flow_grpc_query(entry_id, stats);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to query entry: %s", response.error.message);
+}
+
+/*
+ * Invoke doca_flow_grpc_port_pipes_dump function
+ *
+ * @port_id [in]: port ID
+ * @fd [out]: the output file of the pipe information
+ */
+static void
+port_pipes_dump(uint16_t port_id, FILE *fd)
+{
+	struct doca_flow_grpc_response response;
+
+	response = doca_flow_grpc_port_pipes_dump(port_id, fd);
+	if (!response.success)
+		DOCA_LOG_ERR("Failed to dump pipes: %s", response.error.message);
+}
+
+int
 firewall_pipes_init(struct rule_match *drop_rules, int n_rules)
 {
 	int nb_ports = 2;
@@ -420,73 +877,84 @@ firewall_pipes_init(struct rule_match *drop_rules, int n_rules)
 	uint64_t hairpin_pipe_id;
 	uint64_t tcp_drop_pipe_id;
 	uint64_t udp_drop_pipe_id;
+	uint64_t control_pipe_id;
+	int result;
 
 	for (port_id = 0; port_id < nb_ports; port_id++) {
 		/* create doca flow hairpin pipe */
-		hairpin_pipe_id = build_hairpin_pipe(port_id);
-		// printf("hairpin_pipe_id: %d\n", hairpin_pipe_id);
+		result = build_hairpin_pipe(port_id, &hairpin_pipe_id);
+		if (result < 0) {
+			free(drop_rules);
+			return -1;
+		}
 		/* create doca flow drop pipe with 5-tuple match*/
-		tcp_drop_pipe_id = build_drop_pipe(port_id, hairpin_pipe_id, IPPROTO_TCP);
-		udp_drop_pipe_id = build_drop_pipe(port_id, hairpin_pipe_id, IPPROTO_UDP);
-		add_drop_entries(port_id, tcp_drop_pipe_id, udp_drop_pipe_id,
-				drop_rules, n_rules);
+		result = build_drop_pipe(port_id, hairpin_pipe_id, DOCA_PROTO_TCP, &tcp_drop_pipe_id);
+		if (result < 0) {
+			free(drop_rules);
+			return -1;
+		}
+
+		result = build_drop_pipe(port_id, hairpin_pipe_id, DOCA_PROTO_UDP, &udp_drop_pipe_id);
+		if (result < 0) {
+			free(drop_rules);
+			return -1;
+		}
+
+		/* Add entries based on the json file data */
+		result = add_drop_entries(tcp_drop_pipe_id, udp_drop_pipe_id, drop_rules, n_rules);
+		if (result < 0) {
+			free(drop_rules);
+			return -1;
+		}
+
+		result = create_control_pipe(port_id, &control_pipe_id);
+		if (result < 0) {
+			free(drop_rules);
+			return -1;
+		}
+
+		result = add_control_pipe_entries(control_pipe_id, udp_drop_pipe_id, tcp_drop_pipe_id);
+		if (result < 0) {
+			free(drop_rules);
+			return -1;
+		}
+
 	}
 	free(drop_rules);
-}
-
-uint8_t
-parse_protocol_string(const char *protocol_str)
-{
-	if (strcmp(protocol_str, "tcp") == 0)
-		return IPPROTO_TCP;
-	else if (strcmp(protocol_str, "udp") == 0)
-		return IPPROTO_UDP;
-	DOCA_LOG_ERR("protocol type %s is not supported", protocol_str);
 	return 0;
 }
 
-doca_be32_t
-parse_ipv4_str(const char *str_ip)
+void
+firewall_ports_destroy(int nb_ports)
 {
-	char *ptr;
-	int i;
-	int ips[4];
+	int portid;
 
-	if (strcmp(str_ip, "0xffffffff") == 0)
-		return 0xffffffff;
-	for (i = 0; i < 3; i++) {
-		ips[i] = atoi(str_ip);
-		ptr = strchr(str_ip, '.');
-		if (ptr == NULL)
-			APP_EXIT("Wrong format of ip string");
-		str_ip = ++ptr;
-	}
-	ips[3] = atoi(ptr);
-	return BE_IPV4_ADDR(ips[0], ips[1], ips[2], ips[3]);
+	for (portid = 0; portid < nb_ports; portid++)
+		doca_flow_grpc_port_destroy(portid);
 }
 
-void
-firewall_ports_init(char *grpc_address, struct application_dpdk_config *dpdk_config)
+int
+firewall_ports_init(const char *grpc_address)
 {
 	int nb_ports = 2;
-	int nb_queues = 8;
+	int nb_queues = 1;
+	int nb_counters = 8192;
+	int nb_meters = 8192;
 	uint16_t port_id;
 	struct doca_flow_cfg cfg = {0};
 	struct doca_flow_grpc_response response;
 
 	cfg.queues = nb_queues;
 	cfg.mode_args = "vnf";
-	cfg.aging = false;
+	cfg.resource.nb_counters = nb_counters;
+	cfg.resource.nb_meters = nb_meters;
 	doca_flow_grpc_client_create(grpc_address);
 
-	response = doca_flow_grpc_env_init(dpdk_config);
-	if (!response.success)
-		APP_EXIT("dpdk init failed: %s", response.error.message);
-
 	response = doca_flow_grpc_init(&cfg);
-	if (!response.success)
-		APP_EXIT("failed to init doca: %s", response.error.message);
-
+	if (!response.success) {
+		DOCA_LOG_ERR("failed to init doca: %s", response.error.message);
+		return -1;
+	}
 	for (port_id = 0; port_id < nb_ports; port_id++) {
 		/* create doca flow port */
 		struct doca_flow_port_cfg port_cfg;
@@ -498,16 +966,36 @@ firewall_ports_init(char *grpc_address, struct application_dpdk_config *dpdk_con
 		port_cfg.devargs = port_id_str;
 		port_cfg.priv_data_size = 0;
 		response = doca_flow_grpc_port_start(&port_cfg);
-		if (!response.success)
-			APP_EXIT("failed to build doca port: %s", response.error.message);
-
+		if (!response.success) {
+			DOCA_LOG_ERR("failed to build doca port: %s", response.error.message);
+			firewall_ports_destroy(port_id);
+			doca_flow_grpc_destroy();
+			return -1;
+		}
 		/* Pair ports should be done in the following order: port0 with port1, port2 with port3 etc. */
 		if (!port_id || !(port_id % 2))
 			continue;
 		/* pair odd port with previous port */
 		response = doca_flow_grpc_port_pair(port_id, port_id ^ 1);
-		if (!response.success)
-			APP_EXIT("failed to pair doca ports: %s", response.error.message);
-
+		if (!response.success) {
+			DOCA_LOG_ERR("failed to pair doca ports: %s", response.error.message);
+			firewall_ports_destroy(port_id + 1);
+			doca_flow_grpc_destroy();
+			return -1;
+		}
 	}
+	return 0;
+}
+
+void
+register_actions_on_flow_parser()
+{
+	set_pipe_create(pipe_create);
+	set_pipe_add_entry(pipe_add_entry);
+	set_pipe_control_add_entry(pipe_control_add_entry);
+	set_pipe_destroy(pipe_destroy);
+	set_pipe_rm_entry(pipe_rm_entry);
+	set_port_pipes_flush(port_pipes_flush);
+	set_query(flow_query);
+	set_port_pipes_dump(port_pipes_dump);
 }

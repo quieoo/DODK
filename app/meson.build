@@ -1,7 +1,7 @@
 tests=[
     'nat',
     'switch',
-    'firewall_new'
+    'firewall'
 ]
 foreach t:tests
     sources=[]
