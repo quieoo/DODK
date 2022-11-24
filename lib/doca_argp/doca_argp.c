@@ -11,7 +11,7 @@ int registered = 0;
 void *config;
 // struct doca_argp_program_general_config *g_config;
 // struct doca_argp_program_type_config *t_config;
-
+char doca_argp_grpc_address [100];
 
 typedef struct doca_argp_param {
 	char *short_flag;				/**< Flag long name */
@@ -30,7 +30,6 @@ doca_error_t doca_argp_init(const char *program_name, void *program_config)
 {
 	config = program_config;
 	// t_config=type_config;
-
 	return DOCA_SUCCESS;
 }
 void doca_argp_set_dpdk_program(dpdk_callback callback){
@@ -65,11 +64,17 @@ void doca_argp_param_set_type(struct doca_argp_param *param, enum doca_argp_type
 	param->arg_type=type;
 }
 
+void doca_argp_param_set_mandatory(struct doca_argp_param *param){
+	param->is_mandatory=true;
+}
+
 doca_error_t doca_argp_register_param(struct doca_argp_param *input_param)
 {
 	registered_param[registered++]=input_param;
 	return DOCA_SUCCESS;
 }
+
+
 
 void usage(void *param, void *config)
 {
@@ -91,14 +96,14 @@ set_log_level_callback(void *param, void *config)
 	doca_log_global_level_set(level);
 }
 
-/*
-static void set_grpc_address(void *config, char *param){
+static void set_grpc_address( char *param, void *config){
+	/*
 	int l=0;
 	for(char* i=param;*i!=NULL; i++){
-		g_config->grpc_address[l++]=*i;
-	}
+		doca_argp_grpc_address[l++]=*i;
+	}*/
+	strcpy(doca_argp_grpc_address, param);
 }
-*/
 
 /*
 	DOCA_ARGP_TYPE_INT
@@ -123,6 +128,29 @@ void call_function(struct doca_argp_param *opt, char *param)
 
 		opt->callback(param,config);
 	}
+}
+
+void doca_argp_set_grpc_program(void){
+	struct doca_argp_param *grpc;
+	doca_argp_param_create(&grpc);
+	doca_argp_param_set_short_name(grpc, "g");
+	doca_argp_param_set_long_name(grpc, "grpc-address");
+	doca_argp_param_set_arguments(grpc, "<ip:port>");
+	doca_argp_param_set_description(grpc, "ip address of grpc server, note that default port of orchestrator is 50051 while port of grpc_flow is 50050");
+	doca_argp_param_set_callback(grpc, set_grpc_address);
+	doca_argp_param_set_type(grpc, DOCA_ARGP_TYPE_STRING);
+	doca_argp_register_param(grpc);
+}
+
+doca_error_t doca_argp_get_grpc_addr(const char **address){
+	/*
+	int l=0;
+	for(char* i=doca_argp_grpc_address;*i!=NULL; i++){
+		(*address)[l++]=*i;
+	}
+	*/
+	*address=doca_argp_grpc_address;
+	return DOCA_SUCCESS;
 }
 
 doca_error_t doca_argp_start(int argc, char **argv)
@@ -157,19 +185,7 @@ doca_error_t doca_argp_start(int argc, char **argv)
 	doca_argp_param_set_callback(help, usage);
 	doca_argp_param_set_type(help, DOCA_ARGP_TYPE_BOOLEAN);
 	doca_argp_register_param(help);
- /*
-	if(t_config->is_grpc){
-		struct doca_argp_param grpc = {
-		.short_flag = "g",
-		.long_flag = "grpc-address",
-		.arguments = "<none>",
-		.description = "grpc server address",
-		.callback = set_grpc_address,
-		.arg_type = DOCA_ARGP_TYPE_STRING,
-		.is_mandatory = false,
-		.is_cli_only = false};
-		doca_argp_register_param(&grpc);
-	}*/ 
+
 
 
 	// parse doca registered args
@@ -205,7 +221,7 @@ doca_error_t doca_argp_start(int argc, char **argv)
 				call_function(p, argv[i+1]);
 				num_rm=2;
 			}
-			
+
 			//remove doca regisered args
 			argc -= num_rm;
 			for (int j = i; j < argc; j++)
@@ -213,15 +229,19 @@ doca_error_t doca_argp_start(int argc, char **argv)
 		}else{
 			i++;
 		}
+
 	}
 	/*
 	if(t_config->is_grpc){
 		return;
 	}*/
-	int ret = eal_init(argc, argv);
-	if(ret < 0)
+	int ret;
+	if(eal_init){
+		ret=eal_init(argc, argv);
+		if(ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
 	
+	}
 	return DOCA_SUCCESS;
 
 }

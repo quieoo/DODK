@@ -75,6 +75,8 @@ int str_to_fwd(struct doca_flow_fwd *fwd, string str){
 }
 
 int str_to_match(struct doca_flow_match *match, string str){
+    if(str=="null")
+        return 4;
     vector<string> vec=stringSplit(str, ' ');
     for(int i=0;i<6;i++)
         match->out_dst_mac[i]=stoll(vec[i]);
@@ -88,6 +90,8 @@ int str_to_match(struct doca_flow_match *match, string str){
 }
 
 int str_to_action(struct doca_flow_actions *action, string str){
+    if(str=="null")
+        return 4;
     vector<string> vec=stringSplit(str, ' ');
     for(int i=0;i<6;i++)
         action->mod_dst_mac[i]=stoll(vec[i]);
@@ -149,18 +153,20 @@ class FlowGRPCImpl final:public FlowGRPC::Service{
     Status EnvDestroy(ServerContext *context, const EnvDestroyRequest *destory, Response *rep);
     Status CreatePipe(ServerContext *context, const CreatePipeRequest *pipe_config, Response *rep);
     Status AddEntry(ServerContext *context, const AddEntryRequest *entry_config, Response *rep);
+    Status DestroyPort(ServerContext *context, const DestroyPortRequest *port, Response *rep);
     private:
     struct application_dpdk_config app_dpdk_config;
     int argc;
     char **argv;
     struct rte_mempool *mbuf_pool;
     int pid=-1;
-    struct doca_flow_port *ports[2];
+    struct doca_flow_port *ports[128];
 };
 
 Status FlowGRPCImpl::EnvInitialize(ServerContext *context, const DPDKConfig *dpdk_config, Response *rep)
 {
     printf("Initialize environment...\n");
+    /*
     char str[100];
     
     int ret=rte_eal_init(argc, argv);
@@ -206,12 +212,39 @@ Status FlowGRPCImpl::EnvInitialize(ServerContext *context, const DPDKConfig *dpd
     }
 
 
-    
+    */
     return Status::OK;
 }
 
 Status FlowGRPCImpl::GRPCInitialize(ServerContext *context, const GRPCConfig *grpc_config, Response *rep){
     printf("Initialize grpc...\n");
+
+    char str[100];
+    
+    int ret=rte_eal_init(argc, argv);
+    if(ret<0){
+        sprintf(str, "Failed initialize eal environment, invalid arguments\n");
+        printf(str);
+        return Status(StatusCode::ABORTED, string(str));
+    }
+    ret=rte_lcore_count();
+    int demand_cores=grpc_config->nb_queues()+1;
+    if(demand_cores > 0 && demand_cores > ret){
+        sprintf(str, "At least %d cores are needed for the application to run, available_cores=%d\n", demand_cores, ret);
+        printf(str);
+        return Status(StatusCode::ABORTED, string(str));
+    }
+
+    app_dpdk_config.port_config.nb_queues=grpc_config->nb_queues();
+
+    mbuf_pool=rte_pktmbuf_pool_create("MBUF_POOL", NUM_MBUFS * demand_cores,
+		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
+    if(mbuf_pool == NULL){
+        sprintf(str, "Failed to create mbuf pool\n");
+        printf(str);
+        return Status(StatusCode::ABORTED, string(str));
+    }
+
     return Status::OK;
 }
 
@@ -311,13 +344,16 @@ Status FlowGRPCImpl::PortStart(ServerContext *context, const FlowPortConfig *por
 
 Status FlowGRPCImpl::PortPair(ServerContext *context, const PortPairRequest *pair_config, Response *rep){
     if(is_soft_flow_enabled()){
-        for(int port=0; port<app_dpdk_config.port_config.nb_ports; port++){        
-            printf("soft flow enabled, start cpu loop on port...\n");
-            struct lcore_config config;
-            config.port=port;
-            config.num_queue=app_dpdk_config.port_config.nb_queues;
+        for(int port=0; port<128;port++){
+            if(ports[port]){
+                printf("soft flow enabled, start cpu loop on port...\n");
+                struct lcore_config config;
+                config.port=port;
+                config.num_queue=app_dpdk_config.port_config.nb_queues;
 
-            rte_eal_remote_launch(lcore_main, &config, port+1);   // launch processing of port i on core i+1, while grpc server runs on core 0}
+                rte_eal_remote_launch(lcore_main, &config, port+1);   // launch processing of port i on core i+1, while grpc server runs on core 0}
+            
+            }
         }
     }
 }
@@ -327,9 +363,14 @@ Status FlowGRPCImpl::EnvDestroy(ServerContext *context, const EnvDestroyRequest 
     if(is_soft_flow_enabled()){
         force_quit=true;
     }
-    for(int port=0; port<app_dpdk_config.port_config.nb_ports; port++)
-        doca_flow_port_destroy(ports[port]);
-    
+    /*
+    for(int port=0; port<128; port++){
+        if(ports[port]){
+            printf("free port-%d \n", port);
+            doca_flow_port_destroy(ports[port]);
+        }
+    }
+    */
     // doca_flow_destroy();
 
     // rte_eal_cleanup();
@@ -343,6 +384,8 @@ Status FlowGRPCImpl::CreatePipe(ServerContext *context, const CreatePipeRequest 
     struct doca_flow_fwd fwd_miss;
     struct doca_flow_pipe fwd_next_pipe;
     struct doca_flow_pipe fwd_miss_next_pipe;
+    memset(&fwd, 0, sizeof(doca_flow_fwd));
+    memset(&fwd_miss, 0, sizeof(doca_flow_fwd));
     fwd.next_pipe=&fwd_next_pipe;
     fwd_miss.next_pipe=&fwd_miss_next_pipe;
 
@@ -351,6 +394,8 @@ Status FlowGRPCImpl::CreatePipe(ServerContext *context, const CreatePipeRequest 
     struct doca_flow_error err;
     struct doca_flow_match match;
     struct doca_flow_actions action;
+    memset(&match, 0, sizeof(doca_flow_match));
+    memset(&action, 0, sizeof(doca_flow_actions));
     struct doca_flow_pipe *pipe;
 
     int j=0;
@@ -400,7 +445,17 @@ Status FlowGRPCImpl::AddEntry(ServerContext *context, const AddEntryRequest *ent
     return Status::OK;
 }
 
+Status FlowGRPCImpl::DestroyPort(ServerContext *context, const DestroyPortRequest *port, Response *rep){
+    int port_id=port->port_id();
+    if(port_id > 2){
+        printf("error port_id: %d, max port id: %d\n", port_id, 2);
+        return Status(StatusCode::ABORTED, "error port_id");
+    }
+    struct doca_flow_port *to_destroy_port=ports[port_id];
+    doca_flow_port_destroy(to_destroy_port);
 
+    return Status::OK;
+}
 
 int main(int argc, char **argv){
     doca_log_global_level_set(4);

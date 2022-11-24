@@ -455,6 +455,28 @@ struct doca_flow_grpc_response doca_flow_grpc_port_switch_get(void);
 __DOCA_EXPERIMENTAL
 void doca_flow_grpc_destroy(void);
 
+/**
+ * @brief RPC call for doca_flow_pipe_control_add_entry().
+ *
+ * @param pipe_queue
+ * Queue identifier.
+ * @param priority
+ * Priority value..
+ * @param pipe_id
+ * Pipe ID.
+ * @param match
+ * Pointer to match, indicate specific packet match information.
+ * @param match_mask
+ * Pointer to match mask information.
+ * @param client_fwd
+ * Pointer to fwd actions.
+ * @return
+ * doca_flow_grpc_response.
+ */
+struct doca_flow_grpc_response doca_flow_grpc_pipe_control_add_entry(uint16_t pipe_queue, uint8_t priority,
+		uint64_t pipe_id, const struct doca_flow_match *match,
+		const struct doca_flow_match *match_mask, const struct doca_flow_grpc_fwd *client_fwd);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

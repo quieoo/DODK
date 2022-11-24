@@ -70,7 +70,8 @@ struct APPPortConfigDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT APPPortConfigDefaultTypeInternal _APPPortConfig_default_instance_;
 constexpr GRPCConfig::GRPCConfig(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : nb_queues_(0){}
 struct GRPCConfigDefaultTypeInternal {
   constexpr GRPCConfigDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -267,8 +268,20 @@ struct EnvDestroyRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT EnvDestroyRequestDefaultTypeInternal _EnvDestroyRequest_default_instance_;
+constexpr DestroyPortRequest::DestroyPortRequest(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : port_id_(0u){}
+struct DestroyPortRequestDefaultTypeInternal {
+  constexpr DestroyPortRequestDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~DestroyPortRequestDefaultTypeInternal() {}
+  union {
+    DestroyPortRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DestroyPortRequestDefaultTypeInternal _DestroyPortRequest_default_instance_;
 }  // namespace flow_grpc
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_flow_5fgrpc_2eproto[19];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_flow_5fgrpc_2eproto[20];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_flow_5fgrpc_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_flow_5fgrpc_2eproto = nullptr;
 
@@ -311,6 +324,7 @@ const uint32_t TableStruct_flow_5fgrpc_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::flow_grpc::GRPCConfig, nb_queues_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::flow_grpc::FlowPortConfig, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -428,6 +442,13 @@ const uint32_t TableStruct_flow_5fgrpc_2eproto::offsets[] PROTOBUF_SECTION_VARIA
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::flow_grpc::DestroyPortRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::flow_grpc::DestroyPortRequest, port_id_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::flow_grpc::Response)},
@@ -435,20 +456,21 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 15, -1, -1, sizeof(::flow_grpc::DPDKConfig)},
   { 23, -1, -1, sizeof(::flow_grpc::APPPortConfig)},
   { 32, -1, -1, sizeof(::flow_grpc::GRPCConfig)},
-  { 38, -1, -1, sizeof(::flow_grpc::FlowPortConfig)},
-  { 46, -1, -1, sizeof(::flow_grpc::PortPairRequest)},
-  { 54, -1, -1, sizeof(::flow_grpc::PipeConfig)},
-  { 67, -1, -1, sizeof(::flow_grpc::Match)},
-  { 74, -1, -1, sizeof(::flow_grpc::Action)},
-  { 81, -1, -1, sizeof(::flow_grpc::FWD)},
-  { 88, -1, -1, sizeof(::flow_grpc::CreatePipeRequest)},
-  { 97, -1, -1, sizeof(::flow_grpc::AddEntryRequest)},
-  { 109, -1, -1, sizeof(::flow_grpc::PortDumpRequest)},
-  { 117, -1, -1, sizeof(::flow_grpc::QueryRequest)},
-  { 126, -1, -1, sizeof(::flow_grpc::PortFlushRequest)},
-  { 133, -1, -1, sizeof(::flow_grpc::RmEntryRequest)},
-  { 141, -1, -1, sizeof(::flow_grpc::DestroyPipeRequest)},
-  { 149, -1, -1, sizeof(::flow_grpc::EnvDestroyRequest)},
+  { 39, -1, -1, sizeof(::flow_grpc::FlowPortConfig)},
+  { 47, -1, -1, sizeof(::flow_grpc::PortPairRequest)},
+  { 55, -1, -1, sizeof(::flow_grpc::PipeConfig)},
+  { 68, -1, -1, sizeof(::flow_grpc::Match)},
+  { 75, -1, -1, sizeof(::flow_grpc::Action)},
+  { 82, -1, -1, sizeof(::flow_grpc::FWD)},
+  { 89, -1, -1, sizeof(::flow_grpc::CreatePipeRequest)},
+  { 98, -1, -1, sizeof(::flow_grpc::AddEntryRequest)},
+  { 110, -1, -1, sizeof(::flow_grpc::PortDumpRequest)},
+  { 118, -1, -1, sizeof(::flow_grpc::QueryRequest)},
+  { 127, -1, -1, sizeof(::flow_grpc::PortFlushRequest)},
+  { 134, -1, -1, sizeof(::flow_grpc::RmEntryRequest)},
+  { 142, -1, -1, sizeof(::flow_grpc::DestroyPipeRequest)},
+  { 150, -1, -1, sizeof(::flow_grpc::EnvDestroyRequest)},
+  { 156, -1, -1, sizeof(::flow_grpc::DestroyPortRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -471,6 +493,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::flow_grpc::_RmEntryRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::flow_grpc::_DestroyPipeRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::flow_grpc::_EnvDestroyRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::flow_grpc::_DestroyPortRequest_default_instance_),
 };
 
 const char descriptor_table_protodef_flow_5fgrpc_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -480,56 +503,59 @@ const char descriptor_table_protodef_flow_5fgrpc_2eproto[] PROTOBUF_SECTION_VARI
   "1\n\017app_port_config\030\001 \001(\0132\030.flow_grpc.APP"
   "PortConfig\022\033\n\023reserve_main_thread\030\002 \001(\010\""
   "J\n\rAPPPortConfig\022\020\n\010nb_ports\030\001 \001(\005\022\021\n\tnb"
-  "_queues\030\002 \001(\005\022\024\n\014nb_hairpin_q\030\003 \001(\005\"\014\n\nG"
-  "RPCConfig\"4\n\016FlowPortConfig\022\017\n\007port_id\030\001"
-  " \001(\r\022\021\n\tport_type\030\002 \001(\005\"5\n\017PortPairReque"
-  "st\022\020\n\010port_id1\030\001 \001(\r\022\020\n\010port_id2\030\002 \001(\r\"\240"
-  "\001\n\nPipeConfig\022\014\n\004name\030\001 \001(\t\022\014\n\004type\030\002 \001("
-  "\005\022\017\n\007port_id\030\003 \001(\r\022\017\n\007is_root\030\004 \001(\010\022\037\n\005m"
-  "atch\030\005 \001(\0132\020.flow_grpc.Match\022!\n\006action\030\006"
-  " \001(\0132\021.flow_grpc.Action\022\020\n\010nb_flows\030\007 \001("
-  "\r\"\033\n\005Match\022\022\n\nmatch_rule\030\001 \001(\t\"\035\n\006Action"
-  "\022\023\n\013action_rule\030\001 \001(\t\"\027\n\003FWD\022\020\n\010fwd_rule"
-  "\030\001 \001(\t\"~\n\021CreatePipeRequest\022*\n\013pipe_conf"
-  "ig\030\001 \001(\0132\025.flow_grpc.PipeConfig\022\033\n\003fwd\030\002"
-  " \001(\0132\016.flow_grpc.FWD\022 \n\010fwd_miss\030\003 \001(\0132\016"
-  ".flow_grpc.FWD\"\246\001\n\017AddEntryRequest\022\022\n\npi"
-  "pe_queue\030\001 \001(\r\022\017\n\007pipe_id\030\002 \001(\004\022\037\n\005match"
-  "\030\003 \001(\0132\020.flow_grpc.Match\022!\n\006action\030\004 \001(\013"
-  "2\021.flow_grpc.Action\022\033\n\003fwd\030\005 \001(\0132\016.flow_"
-  "grpc.FWD\022\r\n\005flags\030\006 \001(\r\"2\n\017PortDumpReque"
-  "st\022\017\n\007port_id\030\001 \001(\r\022\016\n\006result\030\002 \001(\t\"I\n\014Q"
-  "ueryRequest\022\020\n\010entry_id\030\001 \001(\004\022\023\n\013total_b"
-  "ytes\030\002 \001(\004\022\022\n\ntotal_pkts\030\003 \001(\004\"#\n\020PortFl"
-  "ushRequest\022\017\n\007port_id\030\001 \001(\r\"6\n\016RmEntryRe"
-  "quest\022\022\n\npipe_queue\030\001 \001(\r\022\020\n\010entry_id\030\002 "
-  "\001(\004\"6\n\022DestroyPipeRequest\022\017\n\007port_id\030\001 \001"
-  "(\r\022\017\n\007pipe_id\030\002 \001(\004\"\023\n\021EnvDestroyRequest"
-  "2\364\005\n\010FlowGRPC\022;\n\rEnvInitialize\022\025.flow_gr"
-  "pc.DPDKConfig\032\023.flow_grpc.Response\022<\n\016GR"
-  "PCInitialize\022\025.flow_grpc.GRPCConfig\032\023.fl"
-  "ow_grpc.Response\022;\n\tPortStart\022\031.flow_grp"
-  "c.FlowPortConfig\032\023.flow_grpc.Response\022;\n"
-  "\010PortPair\022\032.flow_grpc.PortPairRequest\032\023."
-  "flow_grpc.Response\022\?\n\nCreatePipe\022\034.flow_"
-  "grpc.CreatePipeRequest\032\023.flow_grpc.Respo"
-  "nse\022;\n\010AddEntry\022\032.flow_grpc.AddEntryRequ"
-  "est\032\023.flow_grpc.Response\022@\n\rPortPipesDum"
-  "p\022\032.flow_grpc.PortDumpRequest\032\023.flow_grp"
-  "c.Response\0225\n\005Query\022\027.flow_grpc.QueryReq"
-  "uest\032\023.flow_grpc.Response\022=\n\tFlushPort\022\033"
-  ".flow_grpc.PortFlushRequest\032\023.flow_grpc."
-  "Response\0229\n\007RmEntry\022\031.flow_grpc.RmEntryR"
-  "equest\032\023.flow_grpc.Response\022A\n\013DestroyPi"
-  "pe\022\035.flow_grpc.DestroyPipeRequest\032\023.flow"
-  "_grpc.Response\022\?\n\nEnvDestroy\022\034.flow_grpc"
-  ".EnvDestroyRequest\032\023.flow_grpc.Responseb"
-  "\006proto3"
+  "_queues\030\002 \001(\005\022\024\n\014nb_hairpin_q\030\003 \001(\005\"\037\n\nG"
+  "RPCConfig\022\021\n\tnb_queues\030\001 \001(\005\"4\n\016FlowPort"
+  "Config\022\017\n\007port_id\030\001 \001(\r\022\021\n\tport_type\030\002 \001"
+  "(\005\"5\n\017PortPairRequest\022\020\n\010port_id1\030\001 \001(\r\022"
+  "\020\n\010port_id2\030\002 \001(\r\"\240\001\n\nPipeConfig\022\014\n\004name"
+  "\030\001 \001(\t\022\014\n\004type\030\002 \001(\005\022\017\n\007port_id\030\003 \001(\r\022\017\n"
+  "\007is_root\030\004 \001(\010\022\037\n\005match\030\005 \001(\0132\020.flow_grp"
+  "c.Match\022!\n\006action\030\006 \001(\0132\021.flow_grpc.Acti"
+  "on\022\020\n\010nb_flows\030\007 \001(\r\"\033\n\005Match\022\022\n\nmatch_r"
+  "ule\030\001 \001(\t\"\035\n\006Action\022\023\n\013action_rule\030\001 \001(\t"
+  "\"\027\n\003FWD\022\020\n\010fwd_rule\030\001 \001(\t\"~\n\021CreatePipeR"
+  "equest\022*\n\013pipe_config\030\001 \001(\0132\025.flow_grpc."
+  "PipeConfig\022\033\n\003fwd\030\002 \001(\0132\016.flow_grpc.FWD\022"
+  " \n\010fwd_miss\030\003 \001(\0132\016.flow_grpc.FWD\"\246\001\n\017Ad"
+  "dEntryRequest\022\022\n\npipe_queue\030\001 \001(\r\022\017\n\007pip"
+  "e_id\030\002 \001(\004\022\037\n\005match\030\003 \001(\0132\020.flow_grpc.Ma"
+  "tch\022!\n\006action\030\004 \001(\0132\021.flow_grpc.Action\022\033"
+  "\n\003fwd\030\005 \001(\0132\016.flow_grpc.FWD\022\r\n\005flags\030\006 \001"
+  "(\r\"2\n\017PortDumpRequest\022\017\n\007port_id\030\001 \001(\r\022\016"
+  "\n\006result\030\002 \001(\t\"I\n\014QueryRequest\022\020\n\010entry_"
+  "id\030\001 \001(\004\022\023\n\013total_bytes\030\002 \001(\004\022\022\n\ntotal_p"
+  "kts\030\003 \001(\004\"#\n\020PortFlushRequest\022\017\n\007port_id"
+  "\030\001 \001(\r\"6\n\016RmEntryRequest\022\022\n\npipe_queue\030\001"
+  " \001(\r\022\020\n\010entry_id\030\002 \001(\004\"6\n\022DestroyPipeReq"
+  "uest\022\017\n\007port_id\030\001 \001(\r\022\017\n\007pipe_id\030\002 \001(\004\"\023"
+  "\n\021EnvDestroyRequest\"%\n\022DestroyPortReques"
+  "t\022\017\n\007port_id\030\001 \001(\r2\267\006\n\010FlowGRPC\022;\n\rEnvIn"
+  "itialize\022\025.flow_grpc.DPDKConfig\032\023.flow_g"
+  "rpc.Response\022<\n\016GRPCInitialize\022\025.flow_gr"
+  "pc.GRPCConfig\032\023.flow_grpc.Response\022;\n\tPo"
+  "rtStart\022\031.flow_grpc.FlowPortConfig\032\023.flo"
+  "w_grpc.Response\022;\n\010PortPair\022\032.flow_grpc."
+  "PortPairRequest\032\023.flow_grpc.Response\022\?\n\n"
+  "CreatePipe\022\034.flow_grpc.CreatePipeRequest"
+  "\032\023.flow_grpc.Response\022;\n\010AddEntry\022\032.flow"
+  "_grpc.AddEntryRequest\032\023.flow_grpc.Respon"
+  "se\022@\n\rPortPipesDump\022\032.flow_grpc.PortDump"
+  "Request\032\023.flow_grpc.Response\0225\n\005Query\022\027."
+  "flow_grpc.QueryRequest\032\023.flow_grpc.Respo"
+  "nse\022=\n\tFlushPort\022\033.flow_grpc.PortFlushRe"
+  "quest\032\023.flow_grpc.Response\0229\n\007RmEntry\022\031."
+  "flow_grpc.RmEntryRequest\032\023.flow_grpc.Res"
+  "ponse\022A\n\013DestroyPipe\022\035.flow_grpc.Destroy"
+  "PipeRequest\032\023.flow_grpc.Response\022\?\n\nEnvD"
+  "estroy\022\034.flow_grpc.EnvDestroyRequest\032\023.f"
+  "low_grpc.Response\022A\n\013DestroyPort\022\035.flow_"
+  "grpc.DestroyPortRequest\032\023.flow_grpc.Resp"
+  "onseb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_flow_5fgrpc_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_flow_5fgrpc_2eproto = {
-  false, false, 2007, descriptor_table_protodef_flow_5fgrpc_2eproto, "flow_grpc.proto", 
-  &descriptor_table_flow_5fgrpc_2eproto_once, nullptr, 0, 19,
+  false, false, 2132, descriptor_table_protodef_flow_5fgrpc_2eproto, "flow_grpc.proto", 
+  &descriptor_table_flow_5fgrpc_2eproto_once, nullptr, 0, 20,
   schemas, file_default_instances, TableStruct_flow_5fgrpc_2eproto::offsets,
   file_level_metadata_flow_5fgrpc_2eproto, file_level_enum_descriptors_flow_5fgrpc_2eproto, file_level_service_descriptors_flow_5fgrpc_2eproto,
 };
@@ -1417,30 +1443,169 @@ class GRPCConfig::_Internal {
 
 GRPCConfig::GRPCConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
   // @@protoc_insertion_point(arena_constructor:flow_grpc.GRPCConfig)
 }
 GRPCConfig::GRPCConfig(const GRPCConfig& from)
-  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  nb_queues_ = from.nb_queues_;
   // @@protoc_insertion_point(copy_constructor:flow_grpc.GRPCConfig)
 }
 
+inline void GRPCConfig::SharedCtor() {
+nb_queues_ = 0;
+}
 
+GRPCConfig::~GRPCConfig() {
+  // @@protoc_insertion_point(destructor:flow_grpc.GRPCConfig)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
 
+inline void GRPCConfig::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
 
+void GRPCConfig::ArenaDtor(void* object) {
+  GRPCConfig* _this = reinterpret_cast< GRPCConfig* >(object);
+  (void)_this;
+}
+void GRPCConfig::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void GRPCConfig::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void GRPCConfig::Clear() {
+// @@protoc_insertion_point(message_clear_start:flow_grpc.GRPCConfig)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  nb_queues_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* GRPCConfig::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // int32 nb_queues = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          nb_queues_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* GRPCConfig::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:flow_grpc.GRPCConfig)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 nb_queues = 1;
+  if (this->_internal_nb_queues() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_nb_queues(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:flow_grpc.GRPCConfig)
+  return target;
+}
+
+size_t GRPCConfig::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:flow_grpc.GRPCConfig)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int32 nb_queues = 1;
+  if (this->_internal_nb_queues() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_nb_queues());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData GRPCConfig::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    GRPCConfig::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GRPCConfig::GetClassData() const { return &_class_data_; }
 
+void GRPCConfig::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<GRPCConfig *>(to)->MergeFrom(
+      static_cast<const GRPCConfig &>(from));
+}
 
 
+void GRPCConfig::MergeFrom(const GRPCConfig& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:flow_grpc.GRPCConfig)
+  GOOGLE_DCHECK_NE(&from, this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
 
+  if (from._internal_nb_queues() != 0) {
+    _internal_set_nb_queues(from._internal_nb_queues());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
 
+void GRPCConfig::CopyFrom(const GRPCConfig& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:flow_grpc.GRPCConfig)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
 
+bool GRPCConfig::IsInitialized() const {
+  return true;
+}
+
+void GRPCConfig::InternalSwap(GRPCConfig* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(nb_queues_, other->nb_queues_);
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata GRPCConfig::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
@@ -4616,6 +4781,184 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*EnvDestroyRequest::GetClassDat
       file_level_metadata_flow_5fgrpc_2eproto[18]);
 }
 
+// ===================================================================
+
+class DestroyPortRequest::_Internal {
+ public:
+};
+
+DestroyPortRequest::DestroyPortRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:flow_grpc.DestroyPortRequest)
+}
+DestroyPortRequest::DestroyPortRequest(const DestroyPortRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  port_id_ = from.port_id_;
+  // @@protoc_insertion_point(copy_constructor:flow_grpc.DestroyPortRequest)
+}
+
+inline void DestroyPortRequest::SharedCtor() {
+port_id_ = 0u;
+}
+
+DestroyPortRequest::~DestroyPortRequest() {
+  // @@protoc_insertion_point(destructor:flow_grpc.DestroyPortRequest)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void DestroyPortRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void DestroyPortRequest::ArenaDtor(void* object) {
+  DestroyPortRequest* _this = reinterpret_cast< DestroyPortRequest* >(object);
+  (void)_this;
+}
+void DestroyPortRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void DestroyPortRequest::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void DestroyPortRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:flow_grpc.DestroyPortRequest)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  port_id_ = 0u;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* DestroyPortRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint32 port_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          port_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* DestroyPortRequest::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:flow_grpc.DestroyPortRequest)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 port_id = 1;
+  if (this->_internal_port_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_port_id(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:flow_grpc.DestroyPortRequest)
+  return target;
+}
+
+size_t DestroyPortRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:flow_grpc.DestroyPortRequest)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // uint32 port_id = 1;
+  if (this->_internal_port_id() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_port_id());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData DestroyPortRequest::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    DestroyPortRequest::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DestroyPortRequest::GetClassData() const { return &_class_data_; }
+
+void DestroyPortRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<DestroyPortRequest *>(to)->MergeFrom(
+      static_cast<const DestroyPortRequest &>(from));
+}
+
+
+void DestroyPortRequest::MergeFrom(const DestroyPortRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:flow_grpc.DestroyPortRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_port_id() != 0) {
+    _internal_set_port_id(from._internal_port_id());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DestroyPortRequest::CopyFrom(const DestroyPortRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:flow_grpc.DestroyPortRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool DestroyPortRequest::IsInitialized() const {
+  return true;
+}
+
+void DestroyPortRequest::InternalSwap(DestroyPortRequest* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(port_id_, other->port_id_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata DestroyPortRequest::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_flow_5fgrpc_2eproto_getter, &descriptor_table_flow_5fgrpc_2eproto_once,
+      file_level_metadata_flow_5fgrpc_2eproto[19]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace flow_grpc
 PROTOBUF_NAMESPACE_OPEN
@@ -4675,6 +5018,9 @@ template<> PROTOBUF_NOINLINE ::flow_grpc::DestroyPipeRequest* Arena::CreateMaybe
 }
 template<> PROTOBUF_NOINLINE ::flow_grpc::EnvDestroyRequest* Arena::CreateMaybeMessage< ::flow_grpc::EnvDestroyRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::flow_grpc::EnvDestroyRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::flow_grpc::DestroyPortRequest* Arena::CreateMaybeMessage< ::flow_grpc::DestroyPortRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::flow_grpc::DestroyPortRequest >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

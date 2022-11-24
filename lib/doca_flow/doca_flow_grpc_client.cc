@@ -22,6 +22,11 @@ DOCA_LOG_REGISTER(GRPCFLOWCLIENT);
 
 string match_to_str(struct doca_flow_match *match){
     ostringstream os;
+    if(!match){
+        os<<"null";
+        return os.str();    
+    }
+    
     for(int i=0; i<6;i++)
         os<<int(match->out_dst_mac[i])<<" ";
     for(int i=0; i<6;i++)
@@ -36,6 +41,10 @@ string match_to_str(struct doca_flow_match *match){
 
 string action_to_str(struct doca_flow_actions *action){
     ostringstream os;
+    if(!action){
+        os<<"null";
+        return os.str();
+    }
     for(int i=0; i<6;i++)
         os<<int(action->mod_dst_mac[i])<<" ";
     for(int i=0; i<6;i++)
@@ -136,15 +145,18 @@ class FlowGrpcClient{
 
         void GrpcInit(struct doca_flow_cfg *cfg, struct doca_flow_grpc_response *rep){
             GRPCConfig config;
-
             Response response;
             ClientContext context;
+
+            config.set_nb_queues(cfg->queues);
 
             Status result=stub_->GRPCInitialize(&context, config, &response);
             if(result.ok()){
                 rep->success=true;
             }else{
+                printf("%s\n", result.error_message().c_str());
                 rep->success=false;
+                rep->error.message=result.error_message().c_str();
             }
         }
 
@@ -232,6 +244,22 @@ class FlowGrpcClient{
             
             //printf("Add Entry: pipe_id-%d\n", pipe_id);
             Status result=stub_->AddEntry(&context, ae, &response);
+            if(result.ok()){
+                rep->success=true;
+            }else{
+                // printf("    %s\n", result.error_message().c_str());
+                rep->success=false;
+                rep->error.message=result.error_message().c_str();
+            }
+        }
+
+        void DestroyPort(uint16_t port_id, struct doca_flow_grpc_response *rep){
+            DestroyPortRequest port;
+            ClientContext context;
+            Response response;
+
+            port.set_port_id(port_id);
+            Status result=stub_->DestroyPort(&context, port, &response);
             if(result.ok()){
                 rep->success=true;
             }else{
@@ -389,14 +417,19 @@ void doca_flow_grpc_destroy(void){
     
     flow_grpc_client.EnvDestroy(&rep);
 
+    orche.Destroy();
+    flow_grpc_client.~FlowGrpcClient();
+    orche.~OrchestratorClient();
+    
 }
 
 struct doca_flow_grpc_response doca_flow_grpc_env_destroy(void){
-    
+    /*
     orche.Destroy();
 
     flow_grpc_client.~FlowGrpcClient();
     orche.~OrchestratorClient();
+    */
 }
 
 
@@ -420,3 +453,31 @@ void print_match(struct doca_flow_match *match){
     printf("    out-dst-port:%d\n", match->out_dst_port);
     printf("    out-src-port:%d\n", match->out_src_port);
 }*/
+
+struct doca_flow_grpc_response doca_flow_grpc_pipe_control_add_entry(uint16_t pipe_queue, uint8_t priority,
+		uint64_t pipe_id, const struct doca_flow_match *match,
+		const struct doca_flow_match *match_mask, const struct doca_flow_grpc_fwd *client_fwd){
+
+            struct doca_flow_grpc_response rep;
+
+            rep.success=true;
+
+            return rep; 
+        }
+
+
+/**
+ * @brief RPC call for doca_flow_destroy_port().
+ *
+ * @param port_id
+ * Port ID.
+ * @return
+ * doca_flow_grpc_response.
+ */
+struct doca_flow_grpc_response doca_flow_grpc_port_destroy(uint16_t port_id){
+    struct doca_flow_grpc_response rep;
+
+    flow_grpc_client.DestroyPort(port_id, &rep);
+
+    return rep;
+}

@@ -46,7 +46,7 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
-	doca_log_global_level_set(4);
+	// doca_log_global_level_set(4);
 
 	struct application_dpdk_config dpdk_config = {
 		.port_config.nb_ports = 2,

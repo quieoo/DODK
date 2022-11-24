@@ -119,6 +119,13 @@ class FlowGRPC final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>> PrepareAsyncEnvDestroy(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>>(PrepareAsyncEnvDestroyRaw(context, request, cq));
     }
+    virtual ::grpc::Status DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::flow_grpc::Response* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>> AsyncDestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>>(AsyncDestroyPortRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>> PrepareAsyncDestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>>(PrepareAsyncDestroyPortRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -146,6 +153,8 @@ class FlowGRPC final {
       virtual void DestroyPipe(::grpc::ClientContext* context, const ::flow_grpc::DestroyPipeRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void EnvDestroy(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest* request, ::flow_grpc::Response* response, std::function<void(::grpc::Status)>) = 0;
       virtual void EnvDestroy(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -175,6 +184,8 @@ class FlowGRPC final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>* PrepareAsyncDestroyPipeRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPipeRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>* AsyncEnvDestroyRaw(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>* PrepareAsyncEnvDestroyRaw(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>* AsyncDestroyPortRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::flow_grpc::Response>* PrepareAsyncDestroyPortRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -263,6 +274,13 @@ class FlowGRPC final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>> PrepareAsyncEnvDestroy(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>>(PrepareAsyncEnvDestroyRaw(context, request, cq));
     }
+    ::grpc::Status DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::flow_grpc::Response* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>> AsyncDestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>>(AsyncDestroyPortRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>> PrepareAsyncDestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>>(PrepareAsyncDestroyPortRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -290,6 +308,8 @@ class FlowGRPC final {
       void DestroyPipe(::grpc::ClientContext* context, const ::flow_grpc::DestroyPipeRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) override;
       void EnvDestroy(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest* request, ::flow_grpc::Response* response, std::function<void(::grpc::Status)>) override;
       void EnvDestroy(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response, std::function<void(::grpc::Status)>) override;
+      void DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -325,6 +345,8 @@ class FlowGRPC final {
     ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* PrepareAsyncDestroyPipeRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPipeRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* AsyncEnvDestroyRaw(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* PrepareAsyncEnvDestroyRaw(::grpc::ClientContext* context, const ::flow_grpc::EnvDestroyRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* AsyncDestroyPortRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* PrepareAsyncDestroyPortRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_EnvInitialize_;
     const ::grpc::internal::RpcMethod rpcmethod_GRPCInitialize_;
     const ::grpc::internal::RpcMethod rpcmethod_PortStart_;
@@ -337,6 +359,7 @@ class FlowGRPC final {
     const ::grpc::internal::RpcMethod rpcmethod_RmEntry_;
     const ::grpc::internal::RpcMethod rpcmethod_DestroyPipe_;
     const ::grpc::internal::RpcMethod rpcmethod_EnvDestroy_;
+    const ::grpc::internal::RpcMethod rpcmethod_DestroyPort_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -356,6 +379,7 @@ class FlowGRPC final {
     virtual ::grpc::Status RmEntry(::grpc::ServerContext* context, const ::flow_grpc::RmEntryRequest* request, ::flow_grpc::Response* response);
     virtual ::grpc::Status DestroyPipe(::grpc::ServerContext* context, const ::flow_grpc::DestroyPipeRequest* request, ::flow_grpc::Response* response);
     virtual ::grpc::Status EnvDestroy(::grpc::ServerContext* context, const ::flow_grpc::EnvDestroyRequest* request, ::flow_grpc::Response* response);
+    virtual ::grpc::Status DestroyPort(::grpc::ServerContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_EnvInitialize : public BaseClass {
@@ -597,7 +621,27 @@ class FlowGRPC final {
       ::grpc::Service::RequestAsyncUnary(11, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_EnvInitialize<WithAsyncMethod_GRPCInitialize<WithAsyncMethod_PortStart<WithAsyncMethod_PortPair<WithAsyncMethod_CreatePipe<WithAsyncMethod_AddEntry<WithAsyncMethod_PortPipesDump<WithAsyncMethod_Query<WithAsyncMethod_FlushPort<WithAsyncMethod_RmEntry<WithAsyncMethod_DestroyPipe<WithAsyncMethod_EnvDestroy<Service > > > > > > > > > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_DestroyPort : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_DestroyPort() {
+      ::grpc::Service::MarkMethodAsync(12);
+    }
+    ~WithAsyncMethod_DestroyPort() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DestroyPort(::grpc::ServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestDestroyPort(::grpc::ServerContext* context, ::flow_grpc::DestroyPortRequest* request, ::grpc::ServerAsyncResponseWriter< ::flow_grpc::Response>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(12, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_EnvInitialize<WithAsyncMethod_GRPCInitialize<WithAsyncMethod_PortStart<WithAsyncMethod_PortPair<WithAsyncMethod_CreatePipe<WithAsyncMethod_AddEntry<WithAsyncMethod_PortPipesDump<WithAsyncMethod_Query<WithAsyncMethod_FlushPort<WithAsyncMethod_RmEntry<WithAsyncMethod_DestroyPipe<WithAsyncMethod_EnvDestroy<WithAsyncMethod_DestroyPort<Service > > > > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_EnvInitialize : public BaseClass {
    private:
@@ -922,7 +966,34 @@ class FlowGRPC final {
     virtual ::grpc::ServerUnaryReactor* EnvDestroy(
       ::grpc::CallbackServerContext* /*context*/, const ::flow_grpc::EnvDestroyRequest* /*request*/, ::flow_grpc::Response* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_EnvInitialize<WithCallbackMethod_GRPCInitialize<WithCallbackMethod_PortStart<WithCallbackMethod_PortPair<WithCallbackMethod_CreatePipe<WithCallbackMethod_AddEntry<WithCallbackMethod_PortPipesDump<WithCallbackMethod_Query<WithCallbackMethod_FlushPort<WithCallbackMethod_RmEntry<WithCallbackMethod_DestroyPipe<WithCallbackMethod_EnvDestroy<Service > > > > > > > > > > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_DestroyPort : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_DestroyPort() {
+      ::grpc::Service::MarkMethodCallback(12,
+          new ::grpc::internal::CallbackUnaryHandler< ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response) { return this->DestroyPort(context, request, response); }));}
+    void SetMessageAllocatorFor_DestroyPort(
+        ::grpc::MessageAllocator< ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(12);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_DestroyPort() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DestroyPort(::grpc::ServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* DestroyPort(
+      ::grpc::CallbackServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_EnvInitialize<WithCallbackMethod_GRPCInitialize<WithCallbackMethod_PortStart<WithCallbackMethod_PortPair<WithCallbackMethod_CreatePipe<WithCallbackMethod_AddEntry<WithCallbackMethod_PortPipesDump<WithCallbackMethod_Query<WithCallbackMethod_FlushPort<WithCallbackMethod_RmEntry<WithCallbackMethod_DestroyPipe<WithCallbackMethod_EnvDestroy<WithCallbackMethod_DestroyPort<Service > > > > > > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_EnvInitialize : public BaseClass {
@@ -1124,6 +1195,23 @@ class FlowGRPC final {
     }
     // disable synchronous version of this method
     ::grpc::Status EnvDestroy(::grpc::ServerContext* /*context*/, const ::flow_grpc::EnvDestroyRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_DestroyPort : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_DestroyPort() {
+      ::grpc::Service::MarkMethodGeneric(12);
+    }
+    ~WithGenericMethod_DestroyPort() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DestroyPort(::grpc::ServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -1366,6 +1454,26 @@ class FlowGRPC final {
     }
     void RequestEnvDestroy(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(11, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_DestroyPort : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_DestroyPort() {
+      ::grpc::Service::MarkMethodRaw(12);
+    }
+    ~WithRawMethod_DestroyPort() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DestroyPort(::grpc::ServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestDestroyPort(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(12, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -1630,6 +1738,28 @@ class FlowGRPC final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* EnvDestroy(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithRawCallbackMethod_DestroyPort : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_DestroyPort() {
+      ::grpc::Service::MarkMethodRawCallback(12,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->DestroyPort(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_DestroyPort() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status DestroyPort(::grpc::ServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* DestroyPort(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
@@ -1956,9 +2086,36 @@ class FlowGRPC final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedEnvDestroy(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::flow_grpc::EnvDestroyRequest,::flow_grpc::Response>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_EnvInitialize<WithStreamedUnaryMethod_GRPCInitialize<WithStreamedUnaryMethod_PortStart<WithStreamedUnaryMethod_PortPair<WithStreamedUnaryMethod_CreatePipe<WithStreamedUnaryMethod_AddEntry<WithStreamedUnaryMethod_PortPipesDump<WithStreamedUnaryMethod_Query<WithStreamedUnaryMethod_FlushPort<WithStreamedUnaryMethod_RmEntry<WithStreamedUnaryMethod_DestroyPipe<WithStreamedUnaryMethod_EnvDestroy<Service > > > > > > > > > > > > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_DestroyPort : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_DestroyPort() {
+      ::grpc::Service::MarkMethodStreamed(12,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response>* streamer) {
+                       return this->StreamedDestroyPort(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_DestroyPort() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status DestroyPort(::grpc::ServerContext* /*context*/, const ::flow_grpc::DestroyPortRequest* /*request*/, ::flow_grpc::Response* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedDestroyPort(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::flow_grpc::DestroyPortRequest,::flow_grpc::Response>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_EnvInitialize<WithStreamedUnaryMethod_GRPCInitialize<WithStreamedUnaryMethod_PortStart<WithStreamedUnaryMethod_PortPair<WithStreamedUnaryMethod_CreatePipe<WithStreamedUnaryMethod_AddEntry<WithStreamedUnaryMethod_PortPipesDump<WithStreamedUnaryMethod_Query<WithStreamedUnaryMethod_FlushPort<WithStreamedUnaryMethod_RmEntry<WithStreamedUnaryMethod_DestroyPipe<WithStreamedUnaryMethod_EnvDestroy<WithStreamedUnaryMethod_DestroyPort<Service > > > > > > > > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_EnvInitialize<WithStreamedUnaryMethod_GRPCInitialize<WithStreamedUnaryMethod_PortStart<WithStreamedUnaryMethod_PortPair<WithStreamedUnaryMethod_CreatePipe<WithStreamedUnaryMethod_AddEntry<WithStreamedUnaryMethod_PortPipesDump<WithStreamedUnaryMethod_Query<WithStreamedUnaryMethod_FlushPort<WithStreamedUnaryMethod_RmEntry<WithStreamedUnaryMethod_DestroyPipe<WithStreamedUnaryMethod_EnvDestroy<Service > > > > > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_EnvInitialize<WithStreamedUnaryMethod_GRPCInitialize<WithStreamedUnaryMethod_PortStart<WithStreamedUnaryMethod_PortPair<WithStreamedUnaryMethod_CreatePipe<WithStreamedUnaryMethod_AddEntry<WithStreamedUnaryMethod_PortPipesDump<WithStreamedUnaryMethod_Query<WithStreamedUnaryMethod_FlushPort<WithStreamedUnaryMethod_RmEntry<WithStreamedUnaryMethod_DestroyPipe<WithStreamedUnaryMethod_EnvDestroy<WithStreamedUnaryMethod_DestroyPort<Service > > > > > > > > > > > > > StreamedService;
 };
 
 }  // namespace flow_grpc

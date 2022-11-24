@@ -47,7 +47,7 @@ struct TableStruct_flow_5fgrpc_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[19]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[20]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -73,6 +73,9 @@ extern DPDKConfigDefaultTypeInternal _DPDKConfig_default_instance_;
 class DestroyPipeRequest;
 struct DestroyPipeRequestDefaultTypeInternal;
 extern DestroyPipeRequestDefaultTypeInternal _DestroyPipeRequest_default_instance_;
+class DestroyPortRequest;
+struct DestroyPortRequestDefaultTypeInternal;
+extern DestroyPortRequestDefaultTypeInternal _DestroyPortRequest_default_instance_;
 class EnvDestroyRequest;
 struct EnvDestroyRequestDefaultTypeInternal;
 extern EnvDestroyRequestDefaultTypeInternal _EnvDestroyRequest_default_instance_;
@@ -120,6 +123,7 @@ template<> ::flow_grpc::AddEntryRequest* Arena::CreateMaybeMessage<::flow_grpc::
 template<> ::flow_grpc::CreatePipeRequest* Arena::CreateMaybeMessage<::flow_grpc::CreatePipeRequest>(Arena*);
 template<> ::flow_grpc::DPDKConfig* Arena::CreateMaybeMessage<::flow_grpc::DPDKConfig>(Arena*);
 template<> ::flow_grpc::DestroyPipeRequest* Arena::CreateMaybeMessage<::flow_grpc::DestroyPipeRequest>(Arena*);
+template<> ::flow_grpc::DestroyPortRequest* Arena::CreateMaybeMessage<::flow_grpc::DestroyPortRequest>(Arena*);
 template<> ::flow_grpc::EnvDestroyRequest* Arena::CreateMaybeMessage<::flow_grpc::EnvDestroyRequest>(Arena*);
 template<> ::flow_grpc::Error* Arena::CreateMaybeMessage<::flow_grpc::Error>(Arena*);
 template<> ::flow_grpc::FWD* Arena::CreateMaybeMessage<::flow_grpc::FWD>(Arena*);
@@ -781,9 +785,10 @@ class APPPortConfig final :
 // -------------------------------------------------------------------
 
 class GRPCConfig final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:flow_grpc.GRPCConfig) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:flow_grpc.GRPCConfig) */ {
  public:
   inline GRPCConfig() : GRPCConfig(nullptr) {}
+  ~GRPCConfig() override;
   explicit constexpr GRPCConfig(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   GRPCConfig(const GRPCConfig& from);
@@ -856,15 +861,27 @@ class GRPCConfig final :
   GRPCConfig* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<GRPCConfig>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const GRPCConfig& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const GRPCConfig& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
-  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GRPCConfig& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const GRPCConfig& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
   public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GRPCConfig* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
@@ -875,6 +892,8 @@ class GRPCConfig final :
   explicit GRPCConfig(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
   static const ClassData _class_data_;
@@ -886,6 +905,18 @@ class GRPCConfig final :
 
   // accessors -------------------------------------------------------
 
+  enum : int {
+    kNbQueuesFieldNumber = 1,
+  };
+  // int32 nb_queues = 1;
+  void clear_nb_queues();
+  int32_t nb_queues() const;
+  void set_nb_queues(int32_t value);
+  private:
+  int32_t _internal_nb_queues() const;
+  void _internal_set_nb_queues(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:flow_grpc.GRPCConfig)
  private:
   class _Internal;
@@ -893,6 +924,7 @@ class GRPCConfig final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  int32_t nb_queues_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_flow_5fgrpc_2eproto;
 };
@@ -3229,6 +3261,152 @@ class EnvDestroyRequest final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_flow_5fgrpc_2eproto;
 };
+// -------------------------------------------------------------------
+
+class DestroyPortRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:flow_grpc.DestroyPortRequest) */ {
+ public:
+  inline DestroyPortRequest() : DestroyPortRequest(nullptr) {}
+  ~DestroyPortRequest() override;
+  explicit constexpr DestroyPortRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  DestroyPortRequest(const DestroyPortRequest& from);
+  DestroyPortRequest(DestroyPortRequest&& from) noexcept
+    : DestroyPortRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline DestroyPortRequest& operator=(const DestroyPortRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DestroyPortRequest& operator=(DestroyPortRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DestroyPortRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const DestroyPortRequest* internal_default_instance() {
+    return reinterpret_cast<const DestroyPortRequest*>(
+               &_DestroyPortRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    19;
+
+  friend void swap(DestroyPortRequest& a, DestroyPortRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(DestroyPortRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DestroyPortRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DestroyPortRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<DestroyPortRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const DestroyPortRequest& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const DestroyPortRequest& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(DestroyPortRequest* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "flow_grpc.DestroyPortRequest";
+  }
+  protected:
+  explicit DestroyPortRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPortIdFieldNumber = 1,
+  };
+  // uint32 port_id = 1;
+  void clear_port_id();
+  uint32_t port_id() const;
+  void set_port_id(uint32_t value);
+  private:
+  uint32_t _internal_port_id() const;
+  void _internal_set_port_id(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:flow_grpc.DestroyPortRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  uint32_t port_id_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_flow_5fgrpc_2eproto;
+};
 // ===================================================================
 
 
@@ -3516,6 +3694,26 @@ inline void APPPortConfig::set_nb_hairpin_q(int32_t value) {
 // -------------------------------------------------------------------
 
 // GRPCConfig
+
+// int32 nb_queues = 1;
+inline void GRPCConfig::clear_nb_queues() {
+  nb_queues_ = 0;
+}
+inline int32_t GRPCConfig::_internal_nb_queues() const {
+  return nb_queues_;
+}
+inline int32_t GRPCConfig::nb_queues() const {
+  // @@protoc_insertion_point(field_get:flow_grpc.GRPCConfig.nb_queues)
+  return _internal_nb_queues();
+}
+inline void GRPCConfig::_internal_set_nb_queues(int32_t value) {
+  
+  nb_queues_ = value;
+}
+inline void GRPCConfig::set_nb_queues(int32_t value) {
+  _internal_set_nb_queues(value);
+  // @@protoc_insertion_point(field_set:flow_grpc.GRPCConfig.nb_queues)
+}
 
 // -------------------------------------------------------------------
 
@@ -4948,9 +5146,35 @@ inline void DestroyPipeRequest::set_pipe_id(uint64_t value) {
 
 // EnvDestroyRequest
 
+// -------------------------------------------------------------------
+
+// DestroyPortRequest
+
+// uint32 port_id = 1;
+inline void DestroyPortRequest::clear_port_id() {
+  port_id_ = 0u;
+}
+inline uint32_t DestroyPortRequest::_internal_port_id() const {
+  return port_id_;
+}
+inline uint32_t DestroyPortRequest::port_id() const {
+  // @@protoc_insertion_point(field_get:flow_grpc.DestroyPortRequest.port_id)
+  return _internal_port_id();
+}
+inline void DestroyPortRequest::_internal_set_port_id(uint32_t value) {
+  
+  port_id_ = value;
+}
+inline void DestroyPortRequest::set_port_id(uint32_t value) {
+  _internal_set_port_id(value);
+  // @@protoc_insertion_point(field_set:flow_grpc.DestroyPortRequest.port_id)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

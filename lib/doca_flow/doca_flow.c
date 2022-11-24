@@ -48,12 +48,12 @@ struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 					 struct doca_flow_error *error)
 {
-	int id = atoi(cfg->devargs);
+	// int id = atoi(cfg->devargs);
 
 	struct doca_flow_port *port = malloc(sizeof(struct doca_flow_port));
-	port->port_id = id;
+	port->port_id = cfg->port_id;
 
-	doca_flow_ports[id] = port;
+	doca_flow_ports[cfg->port_id] = port;
 	return port;
 }
 void doca_flow_destroy(void)

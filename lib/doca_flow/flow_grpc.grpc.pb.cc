@@ -34,6 +34,7 @@ static const char* FlowGRPC_method_names[] = {
   "/flow_grpc.FlowGRPC/RmEntry",
   "/flow_grpc.FlowGRPC/DestroyPipe",
   "/flow_grpc.FlowGRPC/EnvDestroy",
+  "/flow_grpc.FlowGRPC/DestroyPort",
 };
 
 std::unique_ptr< FlowGRPC::Stub> FlowGRPC::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -55,6 +56,7 @@ FlowGRPC::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, 
   , rpcmethod_RmEntry_(FlowGRPC_method_names[9], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_DestroyPipe_(FlowGRPC_method_names[10], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_EnvDestroy_(FlowGRPC_method_names[11], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_DestroyPort_(FlowGRPC_method_names[12], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status FlowGRPC::Stub::EnvInitialize(::grpc::ClientContext* context, const ::flow_grpc::DPDKConfig& request, ::flow_grpc::Response* response) {
@@ -333,6 +335,29 @@ void FlowGRPC::Stub::async::EnvDestroy(::grpc::ClientContext* context, const ::f
   return result;
 }
 
+::grpc::Status FlowGRPC::Stub::DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::flow_grpc::Response* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_DestroyPort_, context, request, response);
+}
+
+void FlowGRPC::Stub::async::DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_DestroyPort_, context, request, response, std::move(f));
+}
+
+void FlowGRPC::Stub::async::DestroyPort(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_DestroyPort_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* FlowGRPC::Stub::PrepareAsyncDestroyPortRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::flow_grpc::Response, ::flow_grpc::DestroyPortRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_DestroyPort_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::flow_grpc::Response>* FlowGRPC::Stub::AsyncDestroyPortRaw(::grpc::ClientContext* context, const ::flow_grpc::DestroyPortRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncDestroyPortRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 FlowGRPC::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       FlowGRPC_method_names[0],
@@ -454,6 +479,16 @@ FlowGRPC::Service::Service() {
              ::flow_grpc::Response* resp) {
                return service->EnvDestroy(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      FlowGRPC_method_names[12],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< FlowGRPC::Service, ::flow_grpc::DestroyPortRequest, ::flow_grpc::Response, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](FlowGRPC::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::flow_grpc::DestroyPortRequest* req,
+             ::flow_grpc::Response* resp) {
+               return service->DestroyPort(ctx, req, resp);
+             }, this)));
 }
 
 FlowGRPC::Service::~Service() {
@@ -537,6 +572,13 @@ FlowGRPC::Service::~Service() {
 }
 
 ::grpc::Status FlowGRPC::Service::EnvDestroy(::grpc::ServerContext* context, const ::flow_grpc::EnvDestroyRequest* request, ::flow_grpc::Response* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status FlowGRPC::Service::DestroyPort(::grpc::ServerContext* context, const ::flow_grpc::DestroyPortRequest* request, ::flow_grpc::Response* response) {
   (void) context;
   (void) request;
   (void) response;
