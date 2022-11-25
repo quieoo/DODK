@@ -27,22 +27,33 @@
 
 DOCA_LOG_REGISTER(SIMPLE_FWD_PORT);
 
-#define CHECK_INTERVAL 1000 /* 100ms */
-#define MAX_REPEAT_TIMES 90 /* 9s (90 * 100ms) in total */
-#define NS_PER_SEC 1E9
-#define MEMPOOL_CACHE_SIZE 256
-#ifdef CLOCK_MONOTONIC_RAW /* Defined in glibc bits/time.h */
+#define CHECK_INTERVAL 1000	/* 100ms */
+#define MAX_REPEAT_TIMES 90	/* 9s (90 * 100ms) in total */
+#define NS_PER_SEC 1E9		/* Nano-seconds per second */
+#define MEMPOOL_CACHE_SIZE 256	/* DPDK Memory pool chache size*/
+#ifdef CLOCK_MONOTONIC_RAW	/* Defined in glibc bits/time.h */
+
+/* Defining the CLOCK ID type used for displaying stats of a port */
 #define CLOCK_TYPE_ID CLOCK_MONOTONIC_RAW
 #else
 #define CLOCK_TYPE_ID CLOCK_MONOTONIC
 #endif
 
+/* Pointer to the memory pool from which the mbufs are allocated */
 struct rte_mempool *mbuf_pool;
 
-static void
+/*
+ * Dump port stats
+ *
+ * @port [in]: Port identifier of the port to dump the stats for
+ * @f [in]: file to dump or buffering the stats into
+ * @return: 0 on success and non-zero value on failure
+ */
+static int
 simple_fwd_port_stats_display(uint16_t port, FILE *f)
 {
 	uint32_t i;
+	int result;
 	static uint64_t prev_pkts_rx[RTE_MAX_ETHPORTS];
 	static uint64_t prev_pkts_tx[RTE_MAX_ETHPORTS];
 	static uint64_t prev_bytes_rx[RTE_MAX_ETHPORTS];
@@ -56,8 +67,12 @@ simple_fwd_port_stats_display(uint16_t port, FILE *f)
 	struct rte_eth_dev_info dev_info;
 	static const char *nic_stats_border = "########################";
 
-	rte_eth_stats_get(port, &ethernet_stats);
-	rte_eth_dev_info_get(port, &dev_info);
+	result = rte_eth_stats_get(port, &ethernet_stats);
+	if (result != 0)
+		return result;
+	result = rte_eth_dev_info_get(port, &dev_info);
+	if (result != 0)
+		return result;
 	fprintf(f, "\n  %s NIC statistics for port %-2d %s\n", nic_stats_border,
 	       port, nic_stats_border);
 
@@ -128,16 +143,21 @@ simple_fwd_port_stats_display(uint16_t port, FILE *f)
 
 	fprintf(f, "  %s############################%s\n", nic_stats_border,
 	       nic_stats_border);
+	return 0;
 }
 
-void
-simple_fwd_dump_port_stats(uint16_t port_id)
+
+int
+simple_fwd_dump_port_stats(uint16_t port_id, struct doca_flow_port *port)
 {
+	int result = 0;
 	const char clr[] = {27, '[', '2', 'J', '\0'};
 	const char topLeft[] = {27, '[', '1', ';', '1', 'H', '\0'};
 
 	fprintf(stdout, "%s%s", clr, topLeft);
-	doca_flow_port_pipes_dump(port_id, stdout);
-	simple_fwd_port_stats_display(port_id, stdout);
+	doca_flow_port_pipes_dump(port, stdout);
+
+	result = simple_fwd_port_stats_display(port_id, stdout);
 	fflush(stdout);
+	return result;
 }

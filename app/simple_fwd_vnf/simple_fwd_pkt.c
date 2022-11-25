@@ -27,15 +27,13 @@
 
 DOCA_LOG_REGISTER(SIMPLE_FWD_PKT);
 
-#define GTP_ESPN_FLAGS_ON(p) (p & 0x7)
-#define GTP_EXT_FLAGS_ON(p) (p & 0x4)
+#define GTP_ESPN_FLAGS_ON(p) (p & 0x7)	/* A macro for setting GTP ESPN flags on */
+#define GTP_EXT_FLAGS_ON(p) (p & 0x4)	/* A macro for setting GTP EXT flags on */
 
 uint8_t*
 simple_fwd_pinfo_outer_mac_dst(struct simple_fwd_pkt_info *pinfo)
 {
-	struct rte_ether_hdr *eth=pinfo->outer.l2;
-	return eth->dst_addr.addr_bytes;
-	((struct rte_ether_hdr *)pinfo->outer.l2)->dst_addr.addr_bytes;
+	return ((struct rte_ether_hdr *)pinfo->outer.l2)->dst_addr.addr_bytes;
 }
 
 uint8_t*
@@ -68,6 +66,14 @@ simple_fwd_pinfo_inner_ipv4_src(struct simple_fwd_pkt_info *pinfo)
 	return ((struct rte_ipv4_hdr *)pinfo->inner.l3)->src_addr;
 }
 
+/*
+ * Extracts the source port address from the packet's info based on layer 4 type
+ *
+ * @fmt [in]: the packet format as represented in the application
+ * @return: source port
+ *
+ * @NOTE: the returned value is converted to big endian
+ */
 static doca_be16_t
 simple_fwd_pinfo_src_port(struct simple_fwd_pkt_format *fmt)
 {
@@ -81,6 +87,14 @@ simple_fwd_pinfo_src_port(struct simple_fwd_pkt_format *fmt)
 	}
 }
 
+/*
+ * Extracts the destination port address from the packet's info based on layer 4 type
+ *
+ * @fmt [in]: the packet format as represented in the application
+ * @return: destination port
+ *
+ * @NOTE: the returned value is converted to big endian
+ */
 static doca_be16_t
 simple_fwd_pinfo_dst_port(struct simple_fwd_pkt_format *fmt)
 {
@@ -118,6 +132,15 @@ simple_fwd_pinfo_outer_dst_port(struct simple_fwd_pkt_info *pinfo)
 	return simple_fwd_pinfo_dst_port(&pinfo->outer);
 }
 
+/*
+ * Parse the packet and set the packet format as represented in the application
+ *
+ * @data [in]: packet raw data
+ * @len [in]: length of the packet raw data in bytes
+ * @l2 [in]: whther or not to set the data pointer in layer 2 field in the packet representation in the application\
+ * @fmt [out]: the parsed packet as should be represented in the application fo further processing
+ * @return: 0 on success, negative value otherwise
+ */
 static int
 simple_fwd_parse_pkt_format(uint8_t *data, int len, bool l2,
 			    struct simple_fwd_pkt_format *fmt)
@@ -143,11 +166,11 @@ simple_fwd_parse_pkt_format(uint8_t *data, int len, bool l2,
 		case RTE_ETHER_TYPE_ARP:
 			return -1;
 		default:
-			//DOCA_LOG_WARN("unsupported l2 type %x",	eth->ether_type);
+			DOCA_LOG_WARN("unsupported l2 type %x",
+				eth->ether_type);
 			return -1;
 		}
 	}
-	
 
 	iphdr = (struct rte_ipv4_hdr *)(data + l3_off);
 	if ((iphdr->version_ihl >> 4) != 4)
@@ -190,12 +213,18 @@ simple_fwd_parse_pkt_format(uint8_t *data, int len, bool l2,
 		fmt->l4_type = IPPROTO_ICMP;
 		break;
 	default:
-		// DOCA_LOG_INFO("unsupported l4 %d\n", iphdr->next_proto_id);
+		DOCA_LOG_INFO("unsupported l4 %d\n", iphdr->next_proto_id);
 		return -1;
 	}
 	return 0;
 }
 
+/*
+ * Parse the packet tunneling info
+ *
+ * @pinfo [in/out]: the packet representation in the application
+ * @return: 0 on success, negative value otherwise
+ */
 static int
 simple_fwd_parse_is_tun(struct simple_fwd_pkt_info *pinfo)
 {
@@ -266,16 +295,7 @@ simple_fwd_parse_is_tun(struct simple_fwd_pkt_info *pinfo)
 	return 0;
 }
 
-/**
- * @brief - parse packet and extract outer/inner + tunnels and
- *  put in packet info
- *
- * @param data    - packet raw data (including eth)
- * @param len     - len of the packet
- * @param pinfo   - extracted info is set here
- *
- * @return 0 on success and error otherwise.
- */
+
 int
 simple_fwd_parse_packet(uint8_t *data, int len,
 			struct simple_fwd_pkt_info *pinfo)
@@ -325,7 +345,7 @@ simple_fwd_pinfo_decap(struct simple_fwd_pkt_info *pinfo)
 {
 	switch (pinfo->tun_type) {
 	case DOCA_FLOW_TUN_GRE:
-		DOCA_LOG_ERR("decap for GRE not supported");
+		DOCA_LOG_ERR("Decap for GRE is not supported");
 		break;
 	case DOCA_FLOW_TUN_VXLAN:
 		pinfo->outer.l2 = pinfo->inner.l2;

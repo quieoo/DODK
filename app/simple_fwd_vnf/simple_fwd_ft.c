@@ -22,47 +22,59 @@
 
 DOCA_LOG_REGISTER(SIMPLE_FWD_FT);
 
-#define FT_TIMEOUT_SEC 60
-
+/* Bucket is a struct encomassing the list and the synchronization mechanism used for accessing the flows list */
 struct simple_fwd_ft_bucket {
-	struct simple_fwd_ft_entry_head head;
-	rte_spinlock_t lock;
+	struct simple_fwd_ft_entry_head head;	/* The head of the list of the flows */
+	rte_spinlock_t lock;			/* Lock, a synchronization mechanism */
 };
 
+/* Stats for the flow table */
 struct simple_fwd_ft_stats {
-	uint64_t add;
-	uint64_t rm;
-
-	uint64_t memuse;
+	uint64_t add;		/* Number of insertions to the flow table */
+	uint64_t rm;		/* Number of removals from the flow table */
+	uint64_t memuse;	/* Memory ysage of the flow table */
 };
 
+/* Flow table configuration */
 struct simple_fwd_ft_cfg {
-	uint32_t size;
-	uint32_t mask;
-	uint32_t user_data_size;
-	uint32_t entry_size;
+	uint32_t size;			/* Nuumber of maximum flows in a given time while the application is running */
+	uint32_t mask;			/* Masking; */
+	uint32_t user_data_size;	/* User data size needed for allocation */
+	uint32_t entry_size;		/* Size needed for storing a single entry flow */
 };
 
+/* Flow table as represented in the application */
 struct simple_fwd_ft {
-	struct simple_fwd_ft_cfg cfg;
-	struct simple_fwd_ft_stats stats;
-
-	volatile int stop_aging_thread;
-	uint32_t fid_ctr;
-	void (*simple_fwd_aging_cb)(struct simple_fwd_ft_user_ctx *ctx);
-	void (*simple_fwd_aging_hw_cb)(void);
-	struct simple_fwd_ft_bucket buckets[0];
+	struct simple_fwd_ft_cfg cfg;						/* Flow table configurations */
+	struct simple_fwd_ft_stats stats;					/* Stats for the flow table */
+	bool has_age_thread;							/* Whether or not a dedicated thread is used */
+	pthread_t age_thread;							/* Thread entity for aging, in case "aging thread" is used */
+	volatile int stop_aging_thread;						/* Flag for stopping the agiing thread */
+	uint32_t fid_ctr;							/* Flow table ID , used for controlling the flow table */
+	void (*simple_fwd_aging_cb)(struct simple_fwd_ft_user_ctx *ctx);	/* Callback holder; callback for handling aged flows */
+	void (*simple_fwd_aging_hw_cb)(void);					/* HW callback holder; callback for handling aged flows*/
+	struct simple_fwd_ft_bucket buckets[0];					/* Pointer for the Bucket in the flow table; list of entries */
 };
 
-static void
-simple_fwd_ft_update_expiration(struct simple_fwd_ft_entry *e)
+void
+simple_fwd_ft_update_age_sec(struct simple_fwd_ft_entry *e, uint32_t age_sec)
 {
-	uint64_t t = rte_rdtsc();
-	uint64_t sec = rte_get_timer_hz();
-
-	e->expiration = t + sec * FT_TIMEOUT_SEC;
+	e->age_sec = age_sec;
 }
 
+void
+simple_fwd_ft_update_expiration(struct simple_fwd_ft_entry *e)
+{
+	if (e->age_sec)
+		e->expiration = rte_rdtsc() + rte_get_timer_hz() * e->age_sec;
+}
+
+/*
+ * Update a counter of a given entry
+ *
+ * @e [in]: flow entry representation in the application
+ * @return: true on success, false otherwise
+ */
 static bool
 simple_fwd_ft_update_counter(struct simple_fwd_ft_entry *e)
 {
@@ -78,19 +90,17 @@ simple_fwd_ft_update_counter(struct simple_fwd_ft_entry *e)
 	return update;
 }
 
+/*
+ * Destroy flow entry in the flow table
+ *
+ * @ft [in]: the flow table to remove the entry from
+ * @ft_entry [in]: entry flow to remove, as represented in the application
+ */
 static void
 _ft_destroy_entry(struct simple_fwd_ft *ft,
 		  struct simple_fwd_ft_entry *ft_entry)
 {
-	//LIST_REMOVE(ft_entry, next);
-	do{
-		if((ft_entry)->next.le_next != NULL)
-		{
-			(ft_entry)->next.le_next->next.le_prev = (ft_entry)->next.le_prev;
-		}
-		*(ft_entry)->next.le_prev = (ft_entry)->next.le_next; 
-	}while (0);
-
+	LIST_REMOVE(ft_entry, next);
 	ft->simple_fwd_aging_cb(&ft_entry->user_ctx);
 	free(ft_entry);
 	ft->stats.rm--;
@@ -101,13 +111,19 @@ simple_fwd_ft_destroy_entry(struct simple_fwd_ft *ft,
 			    struct simple_fwd_ft_entry *ft_entry)
 {
 	int idx = ft_entry->buckets_index;
-	
+
 	rte_spinlock_lock(&ft->buckets[idx].lock);
 	_ft_destroy_entry(ft, ft_entry);
 	rte_spinlock_unlock(&ft->buckets[idx].lock);
-	
 }
 
+/*
+ * Start aging handling for a given flow table
+ *
+ * @ft [in]: the flow table to start the aging handling for
+ * @i [in]: the index of the bucket
+ * @return: true on success, false when aging handler still not finished all flows in the table
+ */
 static bool
 simple_fwd_ft_aging_ft_entry(struct simple_fwd_ft *ft,
 			     unsigned int i)
@@ -120,7 +136,7 @@ simple_fwd_ft_aging_ft_entry(struct simple_fwd_ft *ft,
 		node = LIST_FIRST(&ft->buckets[i].head);
 		while (node) {
 			ptr = LIST_NEXT(node, next);
-			if (node->expiration < t &&
+			if (node->age_sec && node->expiration < t &&
 					!simple_fwd_ft_update_counter(node)) {
 				DOCA_LOG_DBG("aging removing flow");
 				_ft_destroy_entry(ft, node);
@@ -134,6 +150,12 @@ simple_fwd_ft_aging_ft_entry(struct simple_fwd_ft *ft,
 	return still_aging;
 }
 
+/*
+ * Main function for aging handler
+ *
+ * @void_ptr [in]: the flow table to start the aging for
+ * @return: Next flow table to handle the aging for, NULL value otherwise
+ */
 static void*
 simple_fwd_ft_aging_main(void *void_ptr)
 {
@@ -142,7 +164,7 @@ simple_fwd_ft_aging_main(void *void_ptr)
 	unsigned int i;
 
 	if (!ft) {
-		DOCA_LOG_CRIT("no ft, abort aging\n");
+		DOCA_LOG_CRIT("no ft, abort aging");
 		return NULL;
 	}
 	while (!ft->stop_aging_thread) {
@@ -161,22 +183,35 @@ simple_fwd_ft_aging_main(void *void_ptr)
 	return NULL;
 }
 
-/**
- * @brief - start per flow table aging thread
+/*
+ * Start per flow table aging thread
  *
- * @param ft
+ * @ft [in]: the flow table to start the aging thread for
+ * @thread_id [in]: the dedicated thread identifier for aging handling of the provided flow table
+ * @return: 0 on success and negative value otherwise
  */
-static void
-simple_fwd_ft_aging_thread_start(struct simple_fwd_ft *ft)
+static int
+simple_fwd_ft_aging_thread_start(struct simple_fwd_ft *ft, pthread_t *thread_id)
 {
-	pthread_t inc_x_thread;
+	int ret;
 
 	/* create a second thread which executes inc_x(&x) */
-	if (pthread_create(&inc_x_thread, NULL, simple_fwd_ft_aging_main, ft))
-		fprintf(stderr, "Error creating thread\n");
+	ret = pthread_create(thread_id, NULL, simple_fwd_ft_aging_main, ft);
+	if (ret) {
+		fprintf(stderr, "Error creating thread ret:%d\n", ret);
+		return -1;
+	}
+	return 0;
 }
 
-int
+/*
+ * Build table key according to parsed packet.
+ *
+ * @pinfo [in]: the packet's info
+ * @key [out]: the generated key
+ * @return: 0 on success and negative value otherwise
+ */
+static int
 simple_fwd_ft_key_fill(struct simple_fwd_pkt_info *pinfo,
 		       struct simple_fwd_ft_key *key)
 {
@@ -196,6 +231,7 @@ simple_fwd_ft_key_fill(struct simple_fwd_pkt_info *pinfo,
 	key->ipv4_2 = simple_fwd_ft_key_get_ipv4_dst(inner, pinfo);
 	key->port_1 = simple_fwd_ft_key_get_src_port(inner, pinfo);
 	key->port_2 = simple_fwd_ft_key_get_dst_port(inner, pinfo);
+	key->port_id = pinfo->orig_port_id;
 
 	/* in case of tunnel , use tun type and vni */
 	if (pinfo->tun_type != DOCA_FLOW_TUN_NONE) {
@@ -205,7 +241,14 @@ simple_fwd_ft_key_fill(struct simple_fwd_pkt_info *pinfo,
 	return 0;
 }
 
-bool
+/*
+ * Compare keys
+ *
+ * @key1 [in]: first key for comparison
+ * @key2 [in]: first key for comparison
+ * @return: true if keys are equal, false otherwise
+ */
+static bool
 simple_fwd_ft_key_equal(struct simple_fwd_ft_key *key1,
 			struct simple_fwd_ft_key *key2)
 {
@@ -239,7 +282,7 @@ simple_fwd_ft_create(int nb_flows, uint32_t user_data_size,
 	nb_flows_aligned <<= 1;
 	alloc_size = sizeof(struct simple_fwd_ft)
 		+ sizeof(struct simple_fwd_ft_bucket) * nb_flows_aligned;
-	DOCA_LOG_DBG("malloc size =%d", alloc_size);
+	DOCA_DLOG_DBG("malloc size =%d", alloc_size);
 
 	ft = calloc(1, alloc_size);
 	if (ft == NULL) {
@@ -254,15 +297,25 @@ simple_fwd_ft_create(int nb_flows, uint32_t user_data_size,
 	ft->simple_fwd_aging_cb = simple_fwd_aging_cb;
 	ft->simple_fwd_aging_hw_cb = simple_fwd_aging_hw_cb;
 
-	DOCA_LOG_DBG("FT created: flows=%d, user_data_size=%d", nb_flows_aligned,
+	DOCA_DLOG_DBG("FT created: flows=%d, user_data_size=%d", nb_flows_aligned,
 		     user_data_size);
 	for (i = 0; i < ft->cfg.size; i++)
 		rte_spinlock_init(&ft->buckets[i].lock);
-	if (age_thread)
-		simple_fwd_ft_aging_thread_start(ft);
+	if (age_thread && simple_fwd_ft_aging_thread_start(ft, &ft->age_thread) < 0) {
+		free(ft);
+		return NULL;
+	}
+	ft->has_age_thread = age_thread;
 	return ft;
 }
 
+/*
+ * find if there is an existing entry matching the given packet generated key
+ *
+ * @ft [in]: flow table to search in
+ * @key [in]: the packet generated key used for search in the flow table
+ * @return: pointer to the flow entry if found, NULL otherwise
+ */
 static struct simple_fwd_ft_entry*
 _simple_fwd_ft_find(struct simple_fwd_ft *ft,
 		    struct simple_fwd_ft_key *key)
@@ -272,7 +325,7 @@ _simple_fwd_ft_find(struct simple_fwd_ft *ft,
 	struct simple_fwd_ft_entry *node;
 
 	idx = key->rss_hash & ft->cfg.mask;
-	//DOCA_LOG_DBG("looking for index%d", idx);
+	DOCA_DLOG_DBG("looking for index %d", idx);
 	first = &ft->buckets[idx].head;
 	LIST_FOREACH(node, first, next) {
 		if (simple_fwd_ft_key_equal(&node->key, key)) {
@@ -283,30 +336,38 @@ _simple_fwd_ft_find(struct simple_fwd_ft *ft,
 	return NULL;
 }
 
-bool
+doca_error_t
 simple_fwd_ft_find(struct simple_fwd_ft *ft,
 		   struct simple_fwd_pkt_info *pinfo,
 		   struct simple_fwd_ft_user_ctx **ctx)
 {
+	doca_error_t result = DOCA_SUCCESS;
 	struct simple_fwd_ft_entry *fe;
 	struct simple_fwd_ft_key key = {0};
 
-	if (simple_fwd_ft_key_fill(pinfo, &key))
-		return false;
+	if (simple_fwd_ft_key_fill(pinfo, &key)) {
+		result = DOCA_ERROR_UNEXPECTED;
+		DOCA_LOG_DBG("Failed to build key for entry in the flow table %s", doca_get_error_string(result));
+		return result;
+	}
 
 	fe = _simple_fwd_ft_find(ft, &key);
-	if (fe == NULL)
-		return false;
+	if (fe == NULL) {
+		result = DOCA_ERROR_NOT_FOUND;
+		DOCA_LOG_DBG("Entry not found in flow table %s", doca_get_error_string(result));
+		return result;
+	}
 
 	*ctx = &fe->user_ctx;
-	return true;
+	return DOCA_SUCCESS;
 }
 
-bool
+doca_error_t
 simple_fwd_ft_add_new(struct simple_fwd_ft *ft,
 		      struct simple_fwd_pkt_info *pinfo,
 		      struct simple_fwd_ft_user_ctx **ctx)
 {
+	doca_error_t result = DOCA_SUCCESS;
 	int idx;
 	struct simple_fwd_ft_key key = {0};
 	struct simple_fwd_ft_entry *new_e;
@@ -316,21 +377,23 @@ simple_fwd_ft_add_new(struct simple_fwd_ft *ft,
 		return false;
 
 	if (simple_fwd_ft_key_fill(pinfo, &key)) {
-		DOCA_LOG_DBG("failed on key");
-		return false;
+		result = DOCA_ERROR_UNEXPECTED;
+		DOCA_LOG_DBG("Failed to build key: %s", doca_get_error_string(result));
+		return result;
 	}
 
 	new_e = calloc(1, ft->cfg.entry_size);
 	if (new_e == NULL) {
-		DOCA_LOG_WARN("oom");
-		return false;
+		result = DOCA_ERROR_NO_MEMORY;
+		DOCA_LOG_WARN("OOM: %s", doca_get_error_string(result));
+		return result;
 	}
 
 	simple_fwd_ft_update_expiration(new_e);
 	new_e->user_ctx.fid = ft->fid_ctr++;
 	*ctx = &new_e->user_ctx;
 
-	DOCA_LOG_DBG("defined new flow %llu",
+	DOCA_DLOG_DBG("defined new flow %llu",
 		     (unsigned int long long)new_e->user_ctx.fid);
 	memcpy(&new_e->key, &key, sizeof(struct simple_fwd_ft_key));
 	idx = pinfo->rss_hash & ft->cfg.mask;
@@ -341,16 +404,21 @@ simple_fwd_ft_add_new(struct simple_fwd_ft *ft,
 	LIST_INSERT_HEAD(first, new_e, next);
 	rte_spinlock_unlock(&ft->buckets[idx].lock);
 	ft->stats.add++;
-	return true;
+	return result;
 }
 
-void
+doca_error_t
 simple_fwd_ft_destroy(struct simple_fwd_ft *ft)
 {
 	uint32_t i;
 	struct simple_fwd_ft_entry *node, *ptr;
 
-	ft->stop_aging_thread = true;
+	if (ft == NULL)
+		return DOCA_ERROR_INVALID_VALUE;
+	if (ft->has_age_thread) {
+		ft->stop_aging_thread = true;
+		pthread_join(ft->age_thread, NULL);
+	}
 	for (i = 0; i < ft->cfg.size; i++) {
 		node = LIST_FIRST(&ft->buckets[i].head);
 		while (node != NULL) {
@@ -360,4 +428,5 @@ simple_fwd_ft_destroy(struct simple_fwd_ft *ft)
 		}
 	}
 	free(ft);
+	return DOCA_SUCCESS;
 }

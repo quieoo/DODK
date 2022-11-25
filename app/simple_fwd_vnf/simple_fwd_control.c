@@ -13,7 +13,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -25,29 +24,29 @@
 
 #include "app_vnf.h"
 #include "simple_fwd.h"
-
+#include "simple_fwd_control.h"
 
 DOCA_LOG_REGISTER(SIMPLE_FWD);
 
-uint16_t c_queues[1];
-struct doca_flow_fwd c_fwd;
-struct doca_flow_pipe *c_pipe[SIMPLE_FWD_PORTS];
+struct doca_flow_fwd c_fwd;				/* FWD component for adding entries to the control pipe */
 
+/*
+ * Build forwarding for the control pipe
+ *
+ * @next_pipe [in]: the pipe to forward to the matched packets
+ * @return: a pointer to the built FWD component, NULL otherwise
+ */
 static struct doca_flow_fwd *
-simple_fwd_build_control_fwd()
+simple_fwd_build_control_fwd(struct doca_flow_pipe *next_pipe)
 {
 	memset(&c_fwd, 0, sizeof(struct doca_flow_fwd));
-	c_queues[0] = 0;
-	c_fwd.type = DOCA_FLOW_FWD_RSS;
-	c_fwd.rss_queues = c_queues;
-	c_fwd.rss_flags = DOCA_FLOW_RSS_IP | DOCA_FLOW_RSS_UDP;
-	c_fwd.num_of_queues = 1;
-	c_fwd.rss_mark = 0;
+	c_fwd.type = DOCA_FLOW_FWD_PIPE;
+	c_fwd.next_pipe = next_pipe;
 	return &c_fwd;
 }
 
-static int
-simple_fwd_build_vxlan_control(struct doca_flow_pipe *c_pipe)
+int
+simple_fwd_build_vxlan_control(struct doca_flow_pipe *next_pipe, struct doca_flow_pipe *control_pipe)
 {
 	struct doca_flow_match match = {0};
 	struct doca_flow_error error = {0};
@@ -63,17 +62,42 @@ simple_fwd_build_vxlan_control(struct doca_flow_pipe *c_pipe)
 	match.in_l4_type = IPPROTO_TCP;
 
 	/* build fwd part */
-	fwd = simple_fwd_build_control_fwd();
+	fwd = simple_fwd_build_control_fwd(next_pipe);
 	pri = 1;
-	if (!doca_flow_control_pipe_add_entry(0, pri, c_pipe, &match, NULL,
-			fwd, &error))
+	if (!doca_flow_pipe_control_add_entry(0, pri, control_pipe, &match, NULL,
+			NULL, NULL, NULL, fwd, &error))
 		return -1;
 
 	return 0;
 }
 
-static int
-simple_fwd_build_gre_control(struct doca_flow_pipe *c_pipe)
+int
+simple_fwd_build_gtp_control(struct doca_flow_pipe *next_pipe, struct doca_flow_pipe *control_pipe)
+{
+	struct doca_flow_match match = {0};
+	struct doca_flow_error error = {0};
+	struct doca_flow_fwd *fwd = NULL;
+	uint8_t pri;
+
+	/* build match part */
+	match.out_dst_ip.type = DOCA_FLOW_IP4_ADDR;
+	match.out_l4_type = DOCA_PROTO_UDP;
+	match.out_dst_port = DOCA_GTPU_PORT;
+	match.tun.type = DOCA_FLOW_TUN_GTPU;
+	match.in_src_ip.type = DOCA_FLOW_IP4_ADDR;
+	match.in_l4_type = IPPROTO_TCP;
+
+	/* build fwd part */
+	fwd = simple_fwd_build_control_fwd(next_pipe);
+	pri = 1;
+	if (!doca_flow_pipe_control_add_entry(0, pri, control_pipe, &match, NULL,
+			NULL, NULL, NULL, fwd, &error))
+		return -1;
+	return 0;
+}
+
+int
+simple_fwd_build_gre_control(struct doca_flow_pipe *next_pipe, struct doca_flow_pipe *control_pipe)
 {
 	struct doca_flow_match match = {0};
 	struct doca_flow_error error = {0};
@@ -88,25 +112,11 @@ simple_fwd_build_gre_control(struct doca_flow_pipe *c_pipe)
 	match.in_l4_type = IPPROTO_TCP;
 
 	/* build fwd part */
-	fwd = simple_fwd_build_control_fwd();
+	fwd = simple_fwd_build_control_fwd(next_pipe);
 	pri = 1;
-	if (!doca_flow_control_pipe_add_entry(0, pri, c_pipe, &match, NULL,
-			fwd, &error))
+	if (!doca_flow_pipe_control_add_entry(0, pri, control_pipe, &match, NULL,
+			NULL, NULL, NULL, fwd, &error))
 		return -1;
-	return 0;
-}
-
-int
-simple_fwd_build_control_pipe_entry(struct doca_flow_pipe *c_pipe)
-{
-	if (!c_pipe)
-		return -1;
-
-	if (simple_fwd_build_gre_control(c_pipe))
-		return -1;
-	if (simple_fwd_build_vxlan_control(c_pipe))
-		return -1;
-	
 	return 0;
 }
 
@@ -120,7 +130,9 @@ simple_fwd_build_control_pipe(struct doca_flow_port *port)
 	pipe_cfg.attr.name = "CONTROL_PIPE";
 	pipe_cfg.attr.type = DOCA_FLOW_PIPE_CONTROL;
 	pipe_cfg.port = port;
-	return doca_flow_create_pipe(&pipe_cfg, NULL, NULL,  &error);
+	pipe_cfg.attr.is_root = true;
+
+	return doca_flow_pipe_create(&pipe_cfg, NULL, NULL,  &error);
 }
 
 

@@ -30,9 +30,13 @@
 
 DOCA_LOG_REGISTER(SIMPLE_FWD_VNF);
 
-#define DEFAULT_NB_METERS (1 << 13)
-#define RTE_LOGTYPE_L2FWD RTE_LOGTYPE_USER1
- 
+#define DEFAULT_NB_METERS (1 << 13) /* Maximmum number of meters used */
+
+/*
+ * Signal handler
+ *
+ * @signum: The signal received to handle
+ */
 static void
 signal_handler(int signum)
 {
@@ -42,14 +46,23 @@ signal_handler(int signum)
 	}
 }
 
+/*
+ * Simple forward VNF application main function
+ *
+ * @argc [in]: command line arguments size
+ * @argv [in]: array of command line arguments
+ * @return: EXIT_SUCCESS on success and EXIT_FAILURE otherwise
+ */
 int
 main(int argc, char **argv)
 {
-	uint16_t port_id;
+	doca_error_t result;
+	int exit_status = EXIT_SUCCESS;
+	struct doca_logger_backend *logger;
 	struct simple_fwd_port_cfg port_cfg = {0};
 	struct application_dpdk_config dpdk_config = {
 		.port_config.nb_ports = 2,
-		.port_config.nb_queues = 1,
+		.port_config.nb_queues = 4,
 		.port_config.nb_hairpin_q = 0,
 		.sft_config = {0},
 		.reserve_main_thread = true,
@@ -63,57 +76,71 @@ main(int argc, char **argv)
 	};
 	struct app_vnf *vnf;
 	struct simple_fwd_process_pkts_params process_pkts_params = {.cfg = &app_cfg};
-
-	/* init and start parsing */
-	struct doca_argp_program_general_config *doca_general_config;
-	struct doca_argp_program_type_config type_config = {
-		.is_dpdk = true,
-		.is_grpc = false,
-	};
-
 	/* Parse cmdline/json arguments */
-	doca_argp_init("simple_forward_vnf", &type_config, &app_cfg);
-	register_simple_fwd_params();
-	doca_argp_start(argc, argv, &doca_general_config);
+	result = doca_argp_init("simple_forward_vnf", &app_cfg);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to init ARGP resources: %s", doca_get_error_string(result));
+		return EXIT_FAILURE;
+	}
+	doca_argp_set_dpdk_program(dpdk_init);
+	result = register_simple_fwd_params();
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to register application params: %s", doca_get_error_string(result));
+		doca_argp_destroy();
+		return EXIT_FAILURE;
+	}
+	result = doca_argp_start(argc, argv);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to parse application input: %s", doca_get_error_string(result));
+		doca_argp_destroy();
+		return EXIT_FAILURE;
+	}
+	result = doca_log_create_syslog_backend("doca_core", &logger);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to allocate the logger");
+		doca_argp_destroy();
+		return EXIT_FAILURE;
+	}
 
-	doca_log_create_syslog_backend("doca_core");
-	
 	/* update queues and ports */
-	dpdk_init(&dpdk_config);
-
-	printf("finish dpdk initialize\n");
+	result = dpdk_queues_and_ports_init(&dpdk_config);
+	if (result != DOCA_SUCCESS) {
+		DOCA_LOG_ERR("Failed to update application ports and queues: %s", doca_get_error_string(result));
+		exit_status = EXIT_FAILURE;
+		goto dpdk_destroy;
+	}
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 
 	/* convert to number of cycles */
 	app_cfg.stats_timer *= rte_get_timer_hz();
-
 	vnf = simple_fwd_get_vnf();
 	port_cfg.nb_queues = dpdk_config.port_config.nb_queues;
 	port_cfg.is_hairpin = !!dpdk_config.port_config.nb_hairpin_q;
 	port_cfg.nb_meters = DEFAULT_NB_METERS;
 	port_cfg.nb_counters = (1 << 13);
+	port_cfg.age_thread = app_cfg.age_thread;
 	if (vnf->vnf_init(&port_cfg) != 0) {
 		DOCA_LOG_ERR("vnf application init error");
+		exit_status = EXIT_FAILURE;
 		goto exit_app;
 	}
-
 	simple_fwd_map_queue(dpdk_config.port_config.nb_queues);
 	process_pkts_params.vnf = vnf;
 	rte_eal_mp_remote_launch(simple_fwd_process_pkts, &process_pkts_params, CALL_MAIN);
+	DOCA_LOG_INFO("launch remote");
 	rte_eal_mp_wait_lcore();
-	RTE_ETH_FOREACH_DEV(port_id)
-		doca_flow_destroy_port(port_id);
-
 exit_app:
 	/* cleanup app resources */
 	simple_fwd_destroy(vnf);
 
-	/* cleanup resources */
-	dpdk_fini(&dpdk_config);
+	/* DPDK cleanup resources */
+	dpdk_queues_and_ports_fini(&dpdk_config);
+dpdk_destroy:
+	dpdk_fini();
 
 	/* ARGP cleanup */
 	doca_argp_destroy();
 
-	return 0;
+	return exit_status;
 }
