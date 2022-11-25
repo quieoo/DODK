@@ -48,12 +48,21 @@ struct doca_flow_port *
 doca_flow_port_start(const struct doca_flow_port_cfg *cfg,
 					 struct doca_flow_error *error)
 {
+	int id;
+	if(cfg->devargs){
+		id=atoi(cfg->devargs);
+	}else if(cfg->port_id){
+		id=cfg->port_id;
+	}else{
+		error->message="failed to get port id";
+		return NULL;
+	}
 	// int id = atoi(cfg->devargs);
 
 	struct doca_flow_port *port = malloc(sizeof(struct doca_flow_port));
-	port->port_id = cfg->port_id;
+	port->port_id = id;
 
-	doca_flow_ports[cfg->port_id] = port;
+	doca_flow_ports[id] = port;
 	return port;
 }
 void doca_flow_destroy(void)
@@ -1041,4 +1050,11 @@ doca_flow_pipe_destroy(struct doca_flow_pipe *pipe){
 	if(pipe->cfg)
 		free(pipe->cfg);
 	free(pipe);
+}
+
+int
+doca_flow_aging_handle(struct doca_flow_port *port, uint16_t queue,
+			uint64_t quota, struct doca_flow_aged_query *entries, int len)
+{
+	return -1;
 }

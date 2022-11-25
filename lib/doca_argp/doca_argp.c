@@ -172,7 +172,7 @@ doca_error_t doca_argp_start(int argc, char **argv)
 	doca_argp_param_set_short_name(log, "ll");
 	doca_argp_param_set_long_name(log, "log-level");
 	doca_argp_param_set_arguments(log, "<level>");
-	doca_argp_param_set_description(log, "Set the log level, 0-CRIT, 1-ERROR, 2-WARNING, 3-INFO, 4-DEBUG");
+	doca_argp_param_set_description(log, "Set the log level, 20-CRIT, 30-ERROR, 40-WARNING, 50-INFO, 60-DEBUG");
 	doca_argp_param_set_callback(log, set_log_level_callback);
 	doca_argp_param_set_type(log, DOCA_ARGP_TYPE_INT);
 	doca_argp_register_param(log);

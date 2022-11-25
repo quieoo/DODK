@@ -1217,8 +1217,9 @@ doca_flow_query(struct doca_flow_pipe_entry *entry,
  * 0 no aged entries in current call.
  * -1 full cycle done.
  */
+__DOCA_EXPERIMENTAL
 int
-doca_flow_handle_aging(struct doca_flow_port *port, uint16_t queue,
+doca_flow_aging_handle(struct doca_flow_port *port, uint16_t queue,
 			uint64_t quota, struct doca_flow_aged_query *entries, int len);
 
 /**

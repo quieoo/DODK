@@ -47,7 +47,6 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
-	doca_log_global_level_set(4);
 	doca_error_t result;
 	int ret;
 	int exit_status = EXIT_SUCCESS;

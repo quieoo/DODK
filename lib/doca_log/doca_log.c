@@ -1,38 +1,52 @@
 #include "doca_log.h"
 #include <stdarg.h>
 
-static int global_log_level=2;
-int doca_log_stream_redirect(FILE *stream){
-
+static int global_log_level=30;
+doca_error_t doca_log_stream_redirect(FILE *stream){
+    return DOCA_SUCCESS;
 }
-uint16_t doca_log_get_bucket_time(void){
+uint16_t doca_log_get_bucket_time(void){}
 
-}
-
-void doca_log_set_bucket_time(const uint16_t bucket_time){
-
-}
+void doca_log_set_bucket_time(const uint16_t bucket_time){}
 uint16_t doca_log_get_quantity(void){}
 void doca_log_set_quantity(const uint16_t quantity){}
-void doca_log_backend_level_set(struct doca_logger_backend *logger, uint32_t level){}
-void doca_log_global_level_set(uint32_t level)
+doca_error_t doca_log_backend_level_set(struct doca_logger_backend *logger, uint32_t level){
+    return DOCA_SUCCESS;
+}
+doca_error_t doca_log_global_level_set(uint32_t level)
 {
     //rte_log_set_global_level(level);
     global_log_level=level;
+
+    return DOCA_SUCCESS;
 }
 uint32_t doca_log_global_level_get(void){}
-int doca_log_source_register(const char *source_name)
+doca_error_t doca_log_source_register(const char *source_name, int *source)
 {
-    return rte_log_register(source_name);
+    *source=rte_log_register(source_name);
+    return DOCA_SUCCESS;
 }
-int doca_log_rate_bucket_register(uint32_t source){}
-struct doca_logger_backend *doca_log_create_file_backend(FILE *fptr){}
-struct doca_logger_backend *doca_log_create_fd_backend(int fd){}
-struct doca_logger_backend *doca_log_create_buffer_backend(char *buffer, size_t capacity, log_flush_callback handler){}
-struct doca_logger_backend *doca_log_create_syslog_backend(const char *name){}
+doca_error_t doca_log_rate_bucket_register(int source, int *bucket){
+    return DOCA_SUCCESS;
 
-void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...)
+}
+doca_error_t doca_log_create_file_backend(FILE *fptr, struct doca_logger_backend **backend){
+    return DOCA_SUCCESS;
+}
+doca_error_t doca_log_create_fd_backend(int fd, struct doca_logger_backend **backend){
+    return DOCA_SUCCESS;
+}
+doca_error_t doca_log_create_buffer_backend(char *buffer, size_t capacity, log_flush_callback handler,
+					    struct doca_logger_backend **backend){
+                            return DOCA_SUCCESS;
+                        }
+doca_error_t doca_log_create_syslog_backend(const char *name, struct doca_logger_backend **backend){
+    return DOCA_SUCCESS;
+}
+
+doca_error_t doca_log(uint32_t level, int source, int line, const char *format, ...)
 {
+
     /*
     va_list ap;
 	int ret;
@@ -69,6 +83,14 @@ void doca_log(uint32_t level, uint32_t source, int line, const char *format, ...
 
         printf("\n");
     }
+    return DOCA_SUCCESS;
 }
-void doca_log_developer(uint32_t level, uint32_t source, int line, const char *format, ...){}
-void doca_log_rate_limit(uint32_t level, uint32_t source, int line, uint32_t bucket_id, const char *format, ...){}
+doca_error_t doca_log_developer(uint32_t level, int source, int line, const char *format, ...){
+    return DOCA_SUCCESS;
+}
+doca_error_t doca_log_rate_limit(uint32_t level, int source, int line, int bucket, const char *format, ...){
+    return DOCA_SUCCESS;
+}
+doca_error_t doca_log_source_destroy(int source){
+    return DOCA_SUCCESS;
+}
