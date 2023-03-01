@@ -47,11 +47,36 @@ sudo python3 -m pip install grpcio
 sudo python3 -m pip install grpcio-tools
 ```
 
+## Build gRPC-C++
+```
+sudo apt install -y cmake
+cmake --version
+sudo apt install -y build-essential autoconf libtool pkg-config
+git clone -b v1.46.3 https://github.com/grpc/grpc
+cd grpc
+git submodule update --init
+mkdir -p cmake/build
+pushd cmake/build
+cmake ../..
+make -j4
+make install
+```
+You need version 3.13 or later of cmake.
+
+More deps for grpc++
+```
+sudo apt-get install openssl
+sudo apt-get install libssl-dev
+sudo apt-get install libre2-dev
+sudo apt-get install libjson-c-dev
+sudo apt-get install -y libbsd-dev
+```
+
+
 
 # Build DODK and install
 ```
 sudo apt install pkg-config
-git clone https://github.com/quieoo/DODK.git
 cd DODK
 meson build
 cd build
