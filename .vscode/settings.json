@@ -113,7 +113,10 @@
         "doca_error.h": "c",
         "nat_core.h": "c",
         "flow_parser.h": "c",
-        "doca_flow_net.h": "c"
+        "doca_flow_net.h": "c",
+        "rte_jhash.h": "c",
+        "string.h": "c",
+        "hash_table.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
