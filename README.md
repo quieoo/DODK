@@ -144,3 +144,6 @@ python3 grpc_client.py -a 101.76.213.102 -c app_simple_fwd_vnf -s '-l 0-3 -n 4 -
     set 0 count 10
     start 0
     ```
+
+
+https://docs.google.com/spreadsheets/d/1dI7oSHMJ7SXu2PUNw-JUQWIxfmGC_o4pDmN15_t6sEk/edit#gid=0
