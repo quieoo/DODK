@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 12345
-#define SERVER_IP "127.0.0.1"
+#define PORT 80
+#define SERVER_IP "10.70.113.32"
 #define BUFFER_SIZE 1024
 
 int main() {
@@ -33,23 +33,18 @@ int main() {
 
     printf("Connected to server on port %d\n", PORT);
 
-    // 发送和接收数据
-    while (1) {
-        printf("Enter message for server: ");
-        fgets(buffer, sizeof(buffer), stdin);
+    // 发送HTTP请求
+    char request[] = "GET / HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n";
+    send(client_socket, request, strlen(request), 0);
 
-        // 发送数据
-        send(client_socket, buffer, strlen(buffer), 0);
-
-        // 接收回复
-        memset(buffer, 0, sizeof(buffer));
-        if (recv(client_socket, buffer, sizeof(buffer), 0) == -1) {
-            perror("Receive failed");
-            break;
-        }
-
-        printf("Received message from server: %s\n", buffer);
+    // 接收HTTP响应
+    memset(buffer, 0, sizeof(buffer));
+    if (recv(client_socket, buffer, sizeof(buffer), 0) == -1) {
+        perror("Receive failed");
+        exit(EXIT_FAILURE);
     }
+
+    printf("Received HTTP response from server:\n%s\n", buffer);
 
     // 关闭套接字
     close(client_socket);

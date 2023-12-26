@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 12345
+#define PORT 80
 #define BUFFER_SIZE 1024
 
 int main() {
@@ -25,7 +25,7 @@ int main() {
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(PORT);
 
-    // 绑定套接字
+    // 绑定套接字到端口
     if (bind(server_socket, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
         perror("Socket bind failed");
         exit(EXIT_FAILURE);
@@ -58,7 +58,7 @@ int main() {
         printf("Received message from client: %s\n", buffer);
 
         // 发送回复
-        char reply[] = "Hello from server";
+        char reply[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello from server";
         send(client_socket, reply, strlen(reply), 0);
     }
 
