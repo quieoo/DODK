@@ -4,67 +4,65 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 80
+#define PORT 8080
 #define BUFFER_SIZE 1024
 
 int main() {
-    int server_socket, client_socket;
-    struct sockaddr_in server_address, client_address;
-    socklen_t client_address_len = sizeof(client_address);
-    char buffer[BUFFER_SIZE];
+    int server_socket, new_socket;
+    struct sockaddr_in server_addr, client_addr;
+    char buffer[BUFFER_SIZE] = {0};
 
-    // 创建套接字
+    // 创建 socket
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("Socket creation failed");
         exit(EXIT_FAILURE);
     }
 
     // 设置服务器地址结构
-    memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(PORT);
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(PORT);
 
-    // 绑定套接字到端口
-    if (bind(server_socket, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
-        perror("Socket bind failed");
+    // 绑定服务器地址
+    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+        perror("Binding failed");
         exit(EXIT_FAILURE);
     }
 
-    // 监听连接
+    // 监听
     if (listen(server_socket, 5) == -1) {
-        perror("Socket listen failed");
+        perror("Listening failed");
         exit(EXIT_FAILURE);
     }
 
     printf("Server listening on port %d...\n", PORT);
 
-    // 接受连接
-    if ((client_socket = accept(server_socket, (struct sockaddr*)&client_address, &client_address_len)) == -1) {
-        perror("Socket accept failed");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("Connection accepted from %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
-
-    // 接收和发送数据
     while (1) {
-        memset(buffer, 0, sizeof(buffer));
-        if (recv(client_socket, buffer, sizeof(buffer), 0) == -1) {
-            perror("Receive failed");
-            break;
+        socklen_t client_addr_len = sizeof(client_addr);
+
+        // 接受客户端连接
+        if ((new_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_addr_len)) == -1) {
+            perror("Acceptance failed");
+            exit(EXIT_FAILURE);
         }
 
-        printf("Received message from client: %s\n", buffer);
+        // 从客户端接收数据
+        ssize_t bytes_received = recv(new_socket, buffer, BUFFER_SIZE, 0);
+        if (bytes_received == -1) {
+            perror("Receiving data failed");
+            exit(EXIT_FAILURE);
+        }
 
-        // 发送回复
-        char reply[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello from server";
-        send(client_socket, reply, strlen(reply), 0);
+        // 打印接收到的数据
+        printf("Received from client: %s", buffer);
+
+        // 在这里不关闭连接，等待下一个请求到来
+
+        // 清空缓冲区
+        memset(buffer, 0, sizeof(buffer));
     }
 
-    // 关闭套接字
-    close(server_socket);
-    close(client_socket);
+    // 注意：这里不关闭服务器 socket，因为服务器一直在运行
 
     return 0;
 }
